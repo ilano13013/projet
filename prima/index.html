@@ -784,6 +784,7 @@ nav.visible{display:flex}
         <div style="display:flex;gap:8px;align-items:center">
           <code id="cloud-sync-id" style="flex:1;padding:10px 12px;background:var(--s2);border:1px solid var(--line2);border-radius:8px;font-family:'DM Mono',monospace;font-size:11px;color:var(--cream);word-break:break-all">—</code>
           <button onclick="copyCloudSyncId()" style="padding:10px 14px;background:var(--s1);border:1px solid var(--line2);border-radius:8px;font-family:'DM Mono',monospace;font-size:10px;color:var(--cdim);cursor:pointer">Copier</button>
+          <button onclick="retryCloudSync()" style="padding:10px 14px;background:var(--s1);border:1px solid var(--line2);border-radius:8px;font-family:'DM Mono',monospace;font-size:10px;color:var(--cdim);cursor:pointer">Réessayer</button>
         </div>
       </div>
       <div class="admin-section">
@@ -1067,6 +1068,7 @@ function seedAdmin(){
 const KVDB_BUCKET = '';
 const KVDB_USERS_KEY = 'prima_users';
 var cloudBucketId = null;
+var cloudSyncError = '';
 
 function fetchWithTimeout(url, opts, ms){
   var controller = new AbortController();
@@ -1081,15 +1083,29 @@ async function getCloudBucket(){
   var bucket = KVDB_BUCKET || db.get('prima_kvdb_bucket') || '';
   if(!bucket){
     try{
-      var res = await fetchWithTimeout('https://kvdb.io/', {method:'POST'}, 4000);
+      var res = await fetchWithTimeout('https://kvdb.io/', {method:'POST'}, 6000);
       if(res.ok){
         bucket = (await res.text()).trim();
         db.set('prima_kvdb_bucket', bucket);
+        cloudSyncError = '';
+      } else {
+        cloudSyncError = 'Réponse HTTP '+res.status;
       }
-    }catch(e){}
+    }catch(e){
+      cloudSyncError = (e && e.name==='AbortError') ? 'délai dépassé' : ((e && e.message) || 'erreur réseau');
+    }
   }
   cloudBucketId = bucket || null;
   return cloudBucketId;
+}
+
+// Relance une tentative de connexion au cloud et rafraîchit le panneau admin
+async function retryCloudSync(){
+  cloudBucketId = null;
+  cloudSyncError = '';
+  await getCloudBucket();
+  if(cloudBucketId) await syncUsersFromCloud();
+  loadAdminPanel();
 }
 
 async function cloudFetchUsers(){
@@ -1480,7 +1496,7 @@ function loadAdminPanel(){
       : '● Synchronisation active (temporaire) — communiquez cet identifiant pour le rendre permanent et partagé par tous les testeurs.';
   } else {
     syncIdEl.textContent = '—';
-    syncStatusEl.textContent = '● Synchronisation indisponible (hors-ligne ou bloquée) — les comptes restent stockés sur cet appareil.';
+    syncStatusEl.textContent = '● Synchronisation indisponible' + (cloudSyncError ? ' (' + escH(cloudSyncError) + ')' : ' (hors-ligne ou bloquée)') + ' — les comptes restent stockés sur cet appareil.';
   }
   const allUsers = db.getObj('prima_users',[]);
   const users    = allUsers.filter(u=>!u.isAdmin);
