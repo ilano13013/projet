@@ -437,6 +437,14 @@ nav.visible{display:flex}
           <input class="auth-input" type="text" id="reg-nom" placeholder="Votre nom">
         </div>
         <div class="auth-field">
+          <label class="auth-label">Genre *</label>
+          <select class="auth-input" id="reg-genre" style="-webkit-appearance:auto">
+            <option value="F">Femme (avocate)</option>
+            <option value="H">Homme (avocat)</option>
+            <option value="A">Préfère ne pas préciser</option>
+          </select>
+        </div>
+        <div class="auth-field">
           <label class="auth-label">Nom du cabinet</label>
           <input class="auth-input" type="text" id="reg-cabinet" placeholder="Cabinet ou exercice individuel">
         </div>
@@ -513,7 +521,7 @@ nav.visible{display:flex}
       <div class="home-tile" onclick="goTo('lettres')"><div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--terra)" stroke-width="1.5" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div><div class="tile-name">Mes lettres</div><div class="tile-desc">Modèles de courriers</div></div>
       <div class="home-tile" onclick="goTo('urgences')"><div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.5" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div class="tile-name">Urgences</div><div class="tile-desc">Numéros d'aide</div></div>
       <div class="home-tile" onclick="goTo('droits')"><div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--terra)" stroke-width="1.5" stroke-linecap="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></div><div class="tile-name">Mes droits</div><div class="tile-desc">Ce que dit la loi</div></div>
-      <div class="home-tile" onclick="goTo('annuaire')"><div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--terra)" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><path d="M11 8a3 3 0 100 6"/></svg></div><div class="tile-name">Prendre rendez-vous</div><div class="tile-desc">Avocates près de chez vous</div></div>
+      <div class="home-tile" onclick="goTo('annuaire')"><div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--terra)" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><path d="M11 8a3 3 0 100 6"/></svg></div><div class="tile-name">Prendre rendez-vous</div><div class="tile-desc">Avocat·e·s près de chez vous</div></div>
       <div class="home-tile" onclick="goTo('planning')" style="border-left:3px solid var(--green)"><div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="tile-name">Mes rendez-vous</div><div class="tile-desc" id="home-rdv-count">Voir mon planning</div></div>
       <div class="home-tile featured" onclick="goTo('commander')"><div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--terra)" stroke-width="1.5" stroke-linecap="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div><div class="tile-name">Commander</div><div class="tile-desc">Kit physique complet</div><div class="tile-badge">50% reversés</div></div>
     </div>
@@ -771,12 +779,20 @@ nav.visible{display:flex}
         <div class="admin-stat"><div class="admin-stat-val" id="stat-pros">0</div><div class="admin-stat-label">Professionnels inscrits</div></div>
       </div>
       <div class="admin-section">
+        <div class="admin-section-title">Synchronisation cloud (comptes partagés)</div>
+        <div class="admin-privacy-note" id="cloud-sync-status">Vérification...</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <code id="cloud-sync-id" style="flex:1;padding:10px 12px;background:var(--s2);border:1px solid var(--line2);border-radius:8px;font-family:'DM Mono',monospace;font-size:11px;color:var(--cream);word-break:break-all">—</code>
+          <button onclick="copyCloudSyncId()" style="padding:10px 14px;background:var(--s1);border:1px solid var(--line2);border-radius:8px;font-family:'DM Mono',monospace;font-size:10px;color:var(--cdim);cursor:pointer">Copier</button>
+        </div>
+      </div>
+      <div class="admin-section">
         <div class="admin-section-title">Vérification des professionnels</div>
         <div id="admin-verif-list"></div>
       </div>
       <div class="admin-section">
         <div class="admin-section-title">Utilisateurs</div>
-        <div class="admin-privacy-note">● Les particuliers restent anonymes — vous ne voyez que l'identifiant et le département. Les professionnels (avocates) sont visibles avec leur nom, cabinet et formule d'abonnement.</div>
+        <div class="admin-privacy-note">● Les particuliers restent anonymes — vous ne voyez que l'identifiant et le département. Les professionnels (avocat·e·s) sont visibles avec leur nom, cabinet et formule d'abonnement.</div>
         <div class="user-list" id="admin-user-list"><div class="admin-empty">Chargement...</div></div>
       </div>
       <div class="admin-section">
@@ -798,7 +814,7 @@ nav.visible{display:flex}
   <div class="screen" id="s-abonnement">
     <div class="page-header"><div><div class="page-title">Mon <em>abonnement</em></div><div class="page-tag" id="abo-current">Formule actuelle</div></div></div>
     <div style="padding:0 18px 18px;display:flex;flex-direction:column;gap:12px">
-      <div style="background:rgba(46,107,72,.06);border:1px solid rgba(46,107,72,.18);border-radius:var(--r);padding:14px;font-size:11px;color:var(--cdim);line-height:1.65">Votre abonnement détermine votre visibilité dans l'annuaire PRIMA. Les utilisatrices cherchent des avocates par proximité — soyez visible pour être trouvée.</div>
+      <div style="background:rgba(46,107,72,.06);border:1px solid rgba(46,107,72,.18);border-radius:var(--r);padding:14px;font-size:11px;color:var(--cdim);line-height:1.65">Votre abonnement détermine votre visibilité dans l'annuaire PRIMA. Les utilisatrices cherchent des avocat·e·s par proximité — soyez visible pour être trouvé·e.</div>
 
       <div id="abo-card-gratuit" class="abo-card" onclick="selectAbo('gratuit')" style="background:var(--s1);border:2px solid var(--line);border-radius:var(--r);padding:18px;cursor:pointer;transition:.2s;box-shadow:var(--shadow)">
         <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--cream)">Standard</div><div style="font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--green)">Gratuit</div></div>
@@ -861,7 +877,7 @@ nav.visible{display:flex}
 
   <!-- PRO DETAIL VIEW (for clients) -->
   <div class="screen" id="s-pro-detail">
-    <div class="page-header"><div><div class="page-title">Profil <em>avocate</em></div><div class="page-tag">Détails du cabinet</div></div><button onclick="goTo('annuaire')" style="background:var(--s1);border:1px solid var(--line2);border-radius:8px;padding:8px 14px;font-family:'DM Mono',monospace;font-size:10px;color:var(--cdim);cursor:pointer;margin-bottom:6px">← Retour</button></div>
+    <div class="page-header"><div><div class="page-title">Profil <em id="pro-detail-title">avocat·e</em></div><div class="page-tag">Détails du cabinet</div></div><button onclick="goTo('annuaire')" style="background:var(--s1);border:1px solid var(--line2);border-radius:8px;padding:8px 14px;font-family:'DM Mono',monospace;font-size:10px;color:var(--cdim);cursor:pointer;margin-bottom:6px">← Retour</button></div>
     <div style="padding:0 18px 18px" id="pro-detail-content"></div>
   </div>
 
@@ -926,7 +942,7 @@ nav.visible{display:flex}
 
   <!-- ANNUAIRE -->
   <div class="screen" id="s-annuaire">
-    <div class="page-header"><div><div class="page-title">Annuaire <em>ressources</em></div><div class="page-tag" id="annuaire-tag">Avocates & associations</div></div></div>
+    <div class="page-header"><div><div class="page-title">Annuaire <em>ressources</em></div><div class="page-tag" id="annuaire-tag">Avocat·e·s & associations</div></div></div>
     <div style="padding:0 18px 10px;display:flex;flex-direction:column;gap:8px">
       <div style="display:flex;gap:8px">
         <input class="annuaire-search" type="search" id="annuaire-search" placeholder="Rechercher..." oninput="filterAnnuaire()" style="margin:0;flex:1">
@@ -1005,7 +1021,8 @@ nav.visible{display:flex}
 
 <script>
 const ADMIN_EMAIL = 'ilano13013@hotmail.fr';
-const ADMIN_PWD   = 'PrimaAdmin2025';
+// Hash SHA-256 du mot de passe admin (le mot de passe en clair n'est jamais stocké dans le code)
+const ADMIN_PWD_HASH = '4afa90c9f7660930551a8ca3571b0197ae82d2c277399ff65949388e2ecbfcf7';
 
 /* STORAGE */
 const db = {
@@ -1035,20 +1052,102 @@ let currentUser = null;
 function genId(){ return 'PRIMA-'+Math.floor(1000+Math.random()*9000); }
 
 function seedAdmin(){
-  var hash = sha256sync(ADMIN_PWD);
   var users = db.getObj('prima_users',[]);
+  var existing = users.find(function(u){ return u.email === ADMIN_EMAIL; });
+  if(existing && existing.passwordHash === ADMIN_PWD_HASH) return;
   users = users.filter(function(u){ return u.email !== ADMIN_EMAIL; });
-  users.unshift({id:'PRIMA-ADMIN',email:ADMIN_EMAIL,passwordHash:hash,isAdmin:true,role:'admin',profile:{prenom:'Admin',nom:'PRIMA'},proProfile:{},createdAt:Date.now()});
-  db.setObj('prima_users',users);
+  users.unshift({id:'PRIMA-ADMIN',email:ADMIN_EMAIL,passwordHash:ADMIN_PWD_HASH,isAdmin:true,role:'admin',profile:{prenom:'Admin',nom:'PRIMA'},proProfile:{},createdAt:Date.now()});
+  saveUsers(users);
+}
+
+/* ═══ CLOUD SYNC (kvdb.io) — partage des comptes entre appareils ═══ */
+// Bucket kvdb.io partagé par toute l'application. Si vide, un bucket est créé
+// automatiquement au premier lancement et son identifiant s'affiche dans le
+// panneau Admin : reportez-le ici pour le rendre permanent et partagé par tous.
+const KVDB_BUCKET = '';
+const KVDB_USERS_KEY = 'prima_users';
+var cloudBucketId = null;
+
+function fetchWithTimeout(url, opts, ms){
+  var controller = new AbortController();
+  var timer = setTimeout(function(){ controller.abort(); }, ms || 4000);
+  opts = opts || {};
+  opts.signal = controller.signal;
+  return fetch(url, opts).finally(function(){ clearTimeout(timer); });
+}
+
+async function getCloudBucket(){
+  if(cloudBucketId) return cloudBucketId;
+  var bucket = KVDB_BUCKET || db.get('prima_kvdb_bucket') || '';
+  if(!bucket){
+    try{
+      var res = await fetchWithTimeout('https://kvdb.io/', {method:'POST'}, 4000);
+      if(res.ok){
+        bucket = (await res.text()).trim();
+        db.set('prima_kvdb_bucket', bucket);
+      }
+    }catch(e){}
+  }
+  cloudBucketId = bucket || null;
+  return cloudBucketId;
+}
+
+async function cloudFetchUsers(){
+  try{
+    var bucket = await getCloudBucket();
+    if(!bucket) return null;
+    var res = await fetchWithTimeout('https://kvdb.io/'+bucket+'/'+KVDB_USERS_KEY, {cache:'no-store'}, 4000);
+    if(res.status===404) return [];
+    if(!res.ok) return null;
+    var text = await res.text();
+    return text ? JSON.parse(text) : [];
+  }catch(e){ return null; }
+}
+
+async function cloudSaveUsers(users){
+  try{
+    var bucket = await getCloudBucket();
+    if(!bucket) return false;
+    await fetchWithTimeout('https://kvdb.io/'+bucket+'/'+KVDB_USERS_KEY, {method:'PUT', body: JSON.stringify(users)}, 6000);
+    return true;
+  }catch(e){ return false; }
+}
+
+// Sauvegarde locale + synchronisation cloud (best-effort, fonctionne hors-ligne)
+function saveUsers(users){
+  db.setObj('prima_users', users);
+  cloudSaveUsers(users);
+}
+
+// Au démarrage : fusionne les comptes du cloud avec ceux déjà présents sur l'appareil
+async function syncUsersFromCloud(){
+  var cloud = await cloudFetchUsers();
+  if(cloud===null) return;
+  var local = db.getObj('prima_users',[]);
+  var cloudIds = {};
+  cloud.forEach(function(u){ cloudIds[u.id]=true; });
+  var localOnly = local.filter(function(u){ return !cloudIds[u.id]; });
+  var merged = cloud.concat(localOnly);
+  db.setObj('prima_users', merged);
+  if(localOnly.length) cloudSaveUsers(merged);
+}
+
+function copyCloudSyncId(){
+  if(!cloudBucketId){ showToast('Aucun identifiant disponible'); return; }
+  try{
+    navigator.clipboard.writeText(cloudBucketId);
+    showToast('Identifiant copié');
+  }catch(e){ showToast(cloudBucketId); }
 }
 
 /* SPLASH */
 setTimeout(function(){
   var s = document.getElementById('splash');
   s.classList.add('fade');
-  setTimeout(function(){
+  setTimeout(async function(){
     try{
       s.style.display='none';
+      await syncUsersFromCloud();
       seedAdmin();
       var sess = db.getObj('prima_session',null);
       if(sess){
@@ -1106,13 +1205,7 @@ async function doLogin(){
   var err   = document.getElementById('login-err');
   err.textContent='';
   if(!email||!pwd){ err.textContent='Veuillez remplir tous les champs.'; return; }
-  // Admin direct check
-  if(email===ADMIN_EMAIL && pwd===ADMIN_PWD){
-    var users = db.getObj('prima_users',[]);
-    var admin = users.find(function(u){ return u.email===ADMIN_EMAIL && u.isAdmin; });
-    if(admin){ loginSuccess(admin); return; }
-  }
-  // Try sync hash first (used by seedAdmin and fallback)
+  // Try sync hash first (used by legacy accounts and fallback)
   var hashSync = sha256sync(pwd);
   var users = db.getObj('prima_users',[]);
   var u = users.find(function(x){ return x.email===email && x.passwordHash===hashSync; });
@@ -1157,10 +1250,11 @@ async function doRegister(){
     if(!prenom||!nom){ err.textContent='Prénom et nom sont obligatoires pour les professionnels.'; return; }
     if(!dept){ err.textContent='Le département est obligatoire pour les professionnels.'; return; }
   }
-  const u     = {id:genId(),email:email,passwordHash:hash,isAdmin:false,role:role,profile:{},proProfile:{cabinet:'',specialites:'',departement:'',telephone:'',aideJuridictionnelle:false,tier:'gratuit',siret:'',barreau:'',verified:false},createdAt:Date.now()};
+  const u     = {id:genId(),email:email,passwordHash:hash,isAdmin:false,role:role,profile:{},proProfile:{cabinet:'',specialites:'',departement:'',telephone:'',aideJuridictionnelle:false,tier:'gratuit',siret:'',barreau:'',verified:false,genre:'',photo:''},createdAt:Date.now()};
   if(role==='professionnel'){
     u.profile.prenom = (document.getElementById('reg-prenom').value||'').trim();
     u.profile.nom = (document.getElementById('reg-nom').value||'').trim();
+    u.proProfile.genre = (document.getElementById('reg-genre').value||'A');
     u.proProfile.cabinet = (document.getElementById('reg-cabinet').value||'').trim();
     u.proProfile.departement = (document.getElementById('reg-dept').value||'').trim();
     u.proProfile.siret = (document.getElementById('reg-siret').value||'').trim();
@@ -1168,9 +1262,9 @@ async function doRegister(){
     u.proProfile.verified = false;
   }
   users.push(u);
-  db.setObj('prima_users',users);
-  sendConfirmationEmail(email, u.id, role);
-  showToast('Compte créé — email de confirmation envoyé');
+  saveUsers(users);
+  var emailSent = sendConfirmationEmail(email, u.id, role);
+  showToast(emailSent ? 'Compte créé — email de confirmation envoyé' : 'Compte créé avec succès');
   loginSuccess(u);
 }
 
@@ -1256,7 +1350,7 @@ async function doResetPassword(){
   if(idx < 0){ err.textContent = 'Compte introuvable. Veuillez recommencer.'; return; }
 
   users[idx].passwordHash = hash;
-  db.setObj('prima_users', users);
+  saveUsers(users);
 
   // Clean up
   resetEmailTarget = null;
@@ -1279,15 +1373,23 @@ function updateProfileUI(){
   var role = currentUser.role || 'particulier';
   var isPro = role === 'professionnel';
   var initials = (p.prenom?p.prenom[0].toUpperCase():'') + (p.nom?p.nom[0].toUpperCase():'') || (isPro?'A':'P');
-  var displayName = [p.prenom,p.nom].filter(Boolean).join(' ') || (isPro?'Avocat(e)':'Utilisateur anonyme');
-  document.getElementById('pb-av').textContent = initials;
+  var displayName = [p.prenom,p.nom].filter(Boolean).join(' ') || (isPro?proTitle(currentUser.proProfile&&currentUser.proProfile.genre):'Utilisateur anonyme');
+  var photo = isPro && currentUser.proProfile && currentUser.proProfile.photo;
+  var pbAv = document.getElementById('pb-av');
+  var profAvBig = document.getElementById('prof-av-big');
+  if(photo){
+    pbAv.innerHTML = '<img src="'+photo+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block">';
+    profAvBig.innerHTML = '<img src="'+photo+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block">';
+  } else {
+    pbAv.textContent = initials;
+    profAvBig.textContent = initials;
+  }
   document.getElementById('pb-name').textContent = displayName;
   document.getElementById('pb-id').textContent = currentUser.id + (isPro?' · Professionnel':'');
   var badgeHTML = '';
   if(currentUser.isAdmin) badgeHTML = '<span class="pb-admin-badge">ADMIN</span>';
   else if(isPro) badgeHTML = '<span class="pb-admin-badge" style="color:var(--blue,#2A7ABF);background:rgba(42,122,191,.1);border-color:rgba(42,122,191,.2)">PRO</span>';
   document.getElementById('pb-admin-badge').innerHTML = badgeHTML;
-  document.getElementById('prof-av-big').textContent = initials;
   document.getElementById('prof-id-display').textContent = currentUser.id;
   document.getElementById('prof-prenom').value = p.prenom||'';
   document.getElementById('prof-nom').value = p.nom||'';
@@ -1360,32 +1462,26 @@ function saveProfile(){
   };
   const users = db.getObj('prima_users',[]);
   const idx = users.findIndex(u=>u.id===currentUser.id);
-  if(idx>=0){ users[idx]=currentUser; db.setObj('prima_users',users); }
+  if(idx>=0){ users[idx]=currentUser; saveUsers(users); }
   updateProfileUI();
   showToast('Profil enregistré ✓');
-}
-
-function saveProProfile(){
-  if(!currentUser) return;
-  currentUser.proProfile = {
-    cabinet: document.getElementById('pro-cabinet').value.trim(),
-    specialites: document.getElementById('pro-spec').value.trim(),
-    departement: document.getElementById('pro-dept').value.trim(),
-    telephone: document.getElementById('pro-tel').value.trim(),
-    web: document.getElementById('pro-web').value.trim(),
-    aideJuridictionnelle: document.getElementById('pro-aide').checked,
-    tier: (currentUser.proProfile||{}).tier || 'gratuit'
-  };
-  var users = db.getObj('prima_users',[]);
-  var idx = users.findIndex(function(u){return u.id===currentUser.id});
-  if(idx>=0){ users[idx]=currentUser; db.setObj('prima_users',users); }
-  showToast('Profil professionnel enregistré ✓');
 }
 
 /* ADMIN PANEL — privacy: only shows ID, date, and department */
 function loadAdminPanel(){
   if(!currentUser||!currentUser.isAdmin) return;
   document.getElementById('admin-email-display').textContent = currentUser.email;
+  var syncIdEl = document.getElementById('cloud-sync-id');
+  var syncStatusEl = document.getElementById('cloud-sync-status');
+  if(cloudBucketId){
+    syncIdEl.textContent = cloudBucketId;
+    syncStatusEl.textContent = KVDB_BUCKET
+      ? '● Synchronisation active — comptes partagés entre tous les appareils.'
+      : '● Synchronisation active (temporaire) — communiquez cet identifiant pour le rendre permanent et partagé par tous les testeurs.';
+  } else {
+    syncIdEl.textContent = '—';
+    syncStatusEl.textContent = '● Synchronisation indisponible (hors-ligne ou bloquée) — les comptes restent stockés sur cet appareil.';
+  }
   const allUsers = db.getObj('prima_users',[]);
   const users    = allUsers.filter(u=>!u.isAdmin);
   const parts    = users.filter(u=>(u.role||'particulier')==='particulier');
@@ -1464,7 +1560,7 @@ function adminDeleteUser(userId){
   if(!confirm('Supprimer définitivement cet utilisateur ?')) return;
   var users = db.getObj('prima_users',[]);
   users = users.filter(function(u){ return u.id !== userId; });
-  db.setObj('prima_users', users);
+  saveUsers(users);
   // Also remove their appointments
   var rdvs = db.getObj('prima_rdv',[]);
   rdvs = rdvs.filter(function(r){ return r.proId !== userId && r.clientId !== userId; });
@@ -1479,7 +1575,7 @@ function adminChangeTier(userId, tier){
   if(idx < 0) return;
   if(!users[idx].proProfile) users[idx].proProfile = {};
   users[idx].proProfile.tier = tier;
-  db.setObj('prima_users', users);
+  saveUsers(users);
   showToast('Formule mise à jour : ' + tier);
 }
 
@@ -2226,7 +2322,7 @@ function renderPlanning(){
   if(!rdvs.length){
     var emptyMsg = isPro
       ? "Aucun rendez-vous pour le moment.<br>Les rendez-vous apparaîtront ici dès qu'une utilisatrice en prendra un via l'annuaire."
-      : "Aucun rendez-vous pour le moment.<br>Trouvez une avocate via \"Prendre rendez-vous\" pour réserver votre premier créneau.";
+      : "Aucun rendez-vous pour le moment.<br>Trouvez un·e avocat·e via \"Prendre rendez-vous\" pour réserver votre premier créneau.";
     list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--cdim);font-size:12px;line-height:1.7"><div style="font-size:24px;opacity:.3;margin-bottom:10px">—</div>'+emptyMsg+'</div>';
     return;
   }
@@ -2295,7 +2391,7 @@ function downloadICS(rdvId){
   var proLoc = "";
   if(pro){
     var pp = pro.proProfile||{};
-    proName = "RDV " + icsEsc(pp.cabinet || [pro.profile.prenom,pro.profile.nom].filter(Boolean).join(" ") || "Avocate PRIMA");
+    proName = "RDV " + icsEsc(pp.cabinet || [pro.profile.prenom,pro.profile.nom].filter(Boolean).join(" ") || (proTitle(pp.genre) + " PRIMA"));
     proLoc = pp.cabinet ? icsEsc(pp.cabinet + ", " + (pp.departement||"")) : "";
   }
   var d = r.date.replace(/-/g,"");
@@ -2392,7 +2488,7 @@ function selectAbo(tier){
   currentUser.proProfile.tier = tier;
   var users = db.getObj("prima_users",[]);
   var idx = users.findIndex(function(u){return u.id===currentUser.id});
-  if(idx>=0){ users[idx]=currentUser; db.setObj("prima_users",users); }
+  if(idx>=0){ users[idx]=currentUser; saveUsers(users); }
   loadAboScreen();
   updateProfileUI();
   showToast("Formule "+tier+" activée");
@@ -2413,7 +2509,7 @@ goTo = function(id){
     if(isPro){
       if(tag) tag.textContent = "Ma fiche dans l'annuaire";
     } else {
-      if(tag) tag.textContent = "Avocates et associations près de chez vous";
+      if(tag) tag.textContent = "Avocat·e·s et associations près de chez vous";
       if(title) title.innerHTML = "Prendre <em>rendez-vous</em>";
     }
     // Always refresh annuaire data
@@ -2428,7 +2524,9 @@ function viewProDetail(proId){
   if(!pro) return;
   var pp = pro.proProfile||{};
   var p = pro.profile||{};
-  var nom = escH([p.prenom,p.nom].filter(Boolean).join(" ")||"Avocate");
+  var nom = escH([p.prenom,p.nom].filter(Boolean).join(" ")||proTitle(pp.genre));
+  var titleEl = document.getElementById("pro-detail-title");
+  if(titleEl) titleEl.textContent = proTitle(pp.genre, true);
   var reviews = db.getObj("prima_reviews",[]).filter(function(r){return r.proId===proId});
   var avgRating = reviews.length ? (reviews.reduce(function(s,r){return s+r.rating},0)/reviews.length).toFixed(1) : null;
   var stars = function(n){ var s=""; for(var i=1;i<=5;i++) s+='<span style="color:'+(i<=Math.round(n)?'var(--gold-l)':'var(--line)')+'">★</span>'; return s; };
@@ -2437,7 +2535,11 @@ function viewProDetail(proId){
   var jourNoms = {lun:"Lundi",mar:"Mardi",mer:"Mercredi",jeu:"Jeudi",ven:"Vendredi",sam:"Samedi"};
   var wrap = document.getElementById("pro-detail-content");
   var html = '<div style="background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:22px;box-shadow:var(--shadow);text-align:center;margin-bottom:14px">';
-  html += '<div style="width:72px;height:72px;border-radius:50%;background:var(--terra);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-family:\'Cormorant Garamond\',serif;font-size:28px;color:white;border:3px solid rgba(168,66,26,.3)">'+escH((p.prenom?p.prenom[0].toUpperCase():"A")+(p.nom?p.nom[0].toUpperCase():""))+'</div>';
+  if(pp.photo){
+    html += '<div style="width:72px;height:72px;border-radius:50%;overflow:hidden;margin:0 auto 12px;border:3px solid rgba(168,66,26,.3)"><img src="'+pp.photo+'" alt="" style="width:100%;height:100%;object-fit:cover;display:block"></div>';
+  } else {
+    html += '<div style="width:72px;height:72px;border-radius:50%;background:var(--terra);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-family:\'Cormorant Garamond\',serif;font-size:28px;color:white;border:3px solid rgba(168,66,26,.3)">'+escH((p.prenom?p.prenom[0].toUpperCase():"A")+(p.nom?p.nom[0].toUpperCase():""))+'</div>';
+  }
   html += '<div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;color:var(--cream)">'+nom+'</div>';
   html += '<div style="font-size:11px;color:var(--cdim);margin-top:4px">'+escH(pp.cabinet||"")+'</div>';
   if(pp.verified) html += '<div style="font-size:9px;color:var(--green);margin-top:6px;letter-spacing:.12em">✓ VÉRIFIÉE PRIMA</div>';
@@ -2550,6 +2652,23 @@ function renderAvailabilityEditor(){
   html += '<button onclick="addConsultationType()" style="width:100%;padding:8px;background:var(--s2);border:1px solid var(--line2);border-radius:8px;font-family:\'DM Mono\',monospace;font-size:10px;color:var(--cdim);cursor:pointer">+ Ajouter un type</button>';
   // Extra profile fields
   html += '<div style="font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:var(--cdim);margin:16px 0 8px;display:flex;align-items:center;gap:12px">Profil détaillé<span style="flex:1;height:1px;background:var(--line)"></span></div>';
+  // Photo de profil
+  html += '<div class="prof-field"><label class="prof-label">Photo de profil</label><div style="display:flex;align-items:center;gap:14px;margin-top:4px">';
+  if(pp.photo){
+    html += '<div style="width:60px;height:60px;border-radius:50%;overflow:hidden;border:2px solid rgba(168,66,26,.3);flex:0 0 auto"><img src="'+pp.photo+'" alt="" style="width:100%;height:100%;object-fit:cover;display:block"></div>';
+  } else {
+    html += '<div style="width:60px;height:60px;border-radius:50%;background:var(--terra);display:flex;align-items:center;justify-content:center;font-family:\'Cormorant Garamond\',serif;font-size:22px;color:white;flex:0 0 auto">'+escH((currentUser.profile.prenom?currentUser.profile.prenom[0].toUpperCase():"")+(currentUser.profile.nom?currentUser.profile.nom[0].toUpperCase():"")||"P")+'</div>';
+  }
+  html += '<div style="display:flex;flex-direction:column;gap:6px">'
+    +'<input type="file" accept="image/*" id="pro-photo-input" onchange="handleProPhotoUpload(event)" style="font-size:10px;color:var(--cdim);max-width:200px">'
+    +(pp.photo?'<button onclick="removeProPhoto()" style="align-self:flex-start;padding:5px 10px;background:var(--s2);border:1px solid var(--line2);border-radius:6px;font-family:\'DM Mono\',monospace;font-size:9px;color:var(--cdim);cursor:pointer">Supprimer la photo</button>':'')
+    +'</div></div></div>';
+  // Genre (pour adapter "avocat"/"avocate" dans l'application)
+  html += '<div class="prof-field" style="margin-top:8px"><label class="prof-label">Genre</label><select id="pro-genre" style="width:100%;padding:10px 12px;background:var(--s2);border:1px solid var(--line2);border-radius:8px;font-family:\'DM Mono\',monospace;font-size:11px;color:var(--cream);-webkit-appearance:auto">'
+    +'<option value="F"'+(pp.genre==="F"?" selected":"")+'>Femme (avocate)</option>'
+    +'<option value="H"'+(pp.genre==="H"?" selected":"")+'>Homme (avocat)</option>'
+    +'<option value="A"'+(pp.genre!=="F"&&pp.genre!=="H"?" selected":"")+'>Préfère ne pas préciser</option>'
+    +'</select></div>';
   html += '<div class="prof-field"><label class="prof-label">Biographie / Présentation</label><textarea id="pro-bio" rows="3" placeholder="Présentez-vous en quelques lignes..." style="width:100%;padding:10px 12px;background:var(--s2);border:1px solid var(--line2);border-radius:8px;font-family:\'DM Mono\',monospace;font-size:11px;color:var(--cream);resize:vertical">'+escH(pp.bio||"")+'</textarea></div>';
   html += '<div class="prof-field" style="margin-top:8px"><label class="prof-label">Formation / Parcours</label><input id="pro-formation" value="'+escH(pp.formation||"")+'" placeholder="Université, spécialisation..." style="width:100%;padding:10px 12px;background:var(--s2);border:1px solid var(--line2);border-radius:8px;font-family:\'DM Mono\',monospace;font-size:11px;color:var(--cream)"></div>';
   html += '<div class="prof-field" style="margin-top:8px"><label class="prof-label">Langues parlées</label><input id="pro-langues" value="'+escH(pp.langues||"Français")+'" placeholder="Français, Anglais..." style="width:100%;padding:10px 12px;background:var(--s2);border:1px solid var(--line2);border-radius:8px;font-family:\'DM Mono\',monospace;font-size:11px;color:var(--cream)"></div>';
@@ -2577,6 +2696,7 @@ function saveFullProProfile(){
     types.push({name:document.getElementById("ct-n-"+t).value,duration:parseInt(document.getElementById("ct-d-"+t).value)||60,price:parseInt(document.getElementById("ct-p-"+t).value)||0,mode:document.getElementById("ct-m-"+t).value});
   }
   pp.consultationTypes = types;
+  pp.genre = document.getElementById("pro-genre").value;
   pp.bio = document.getElementById("pro-bio").value.trim();
   pp.formation = document.getElementById("pro-formation").value.trim();
   pp.langues = document.getElementById("pro-langues").value.trim();
@@ -2595,8 +2715,46 @@ function saveFullProProfile(){
   currentUser.proProfile = pp;
   var users = db.getObj("prima_users",[]);
   var idx = users.findIndex(function(u){return u.id===currentUser.id});
-  if(idx>=0){users[idx]=currentUser;db.setObj("prima_users",users);}
+  if(idx>=0){users[idx]=currentUser;saveUsers(users);}
   showToast("Profil complet enregistré");
+}
+
+function handleProPhotoUpload(event){
+  var file = event.target.files && event.target.files[0];
+  if(!file) return;
+  if(!/^image\//.test(file.type)){ showToast("Veuillez choisir une image"); return; }
+  var reader = new FileReader();
+  reader.onload = function(e){
+    var img = new Image();
+    img.onload = function(){
+      var size = 240;
+      var side = Math.min(img.width, img.height);
+      var sx = (img.width - side)/2, sy = (img.height - side)/2;
+      var canvas = document.createElement("canvas");
+      canvas.width = size; canvas.height = size;
+      var ctx = canvas.getContext("2d");
+      ctx.drawImage(img, sx, sy, side, side, 0, 0, size, size);
+      currentUser.proProfile.photo = canvas.toDataURL("image/jpeg", 0.82);
+      saveFullProProfile();
+      var ed = document.getElementById("pro-avail-editor");
+      if(ed) ed.innerHTML = renderAvailabilityEditor();
+      updateProfileUI();
+      showToast("Photo de profil mise à jour");
+    };
+    img.onerror = function(){ showToast("Image invalide"); };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeProPhoto(){
+  if(!currentUser||!currentUser.proProfile) return;
+  currentUser.proProfile.photo = "";
+  saveFullProProfile();
+  var ed = document.getElementById("pro-avail-editor");
+  if(ed) ed.innerHTML = renderAvailabilityEditor();
+  updateProfileUI();
+  showToast("Photo supprimée");
 }
 
 function addBlockedDate(){
@@ -2720,7 +2878,7 @@ var legalContent = {
     +'<p style="margin-bottom:10px"><strong>Directeur de la publication.</strong> [Nom du responsable légal — à compléter]</p>'
     +'<p style="margin-bottom:10px"><strong>Numéro SIRET.</strong> [À compléter lors de l\'immatriculation]</p>'
     +'<p style="margin-bottom:10px"><strong>Propriété intellectuelle.</strong> L\'ensemble du contenu de l\'application PRIMA (textes, visuels, logo, code) est protégé par le droit de la propriété intellectuelle. Toute reproduction sans autorisation est interdite.</p>'
-    +'<p style="margin-bottom:10px"><strong>Crédits.</strong> Design et développement : Équipe PRIMA. Contenu juridique : validé par [Avocate partenaire — à compléter]. Icônes : SVG personnalisées.</p>'
+    +'<p style="margin-bottom:10px"><strong>Crédits.</strong> Design et développement : Équipe PRIMA. Contenu juridique : validé par [Avocat·e partenaire — à compléter]. Icônes : SVG personnalisées.</p>'
     +'</div>'
 };
 
@@ -2759,26 +2917,19 @@ function initEmailJS(){
 }
 try{ initEmailJS(); }catch(e){}
 
+// Renvoie true si un email automatique a effectivement été envoyé (EmailJS configuré)
 function sendConfirmationEmail(email, userId, role){
+  if(!emailjsReady) return false;
   var subject = 'Bienvenue sur PRIMA — votre compte est créé';
   var body = 'Bonjour,\n\nVotre compte PRIMA a été créé avec succès.\n\nIdentifiant : ' + userId + '\nType de compte : ' + (role==='professionnel'?'Professionnel':'Particulier') + '\n\n';
   if(role==='professionnel'){
     body += 'Votre compte professionnel est en attente de vérification. Notre équipe vérifiera votre numéro SIRET et votre inscription au barreau sous 48 heures.\n\n';
   }
   body += 'Cordialement,\nL\'équipe PRIMA\nprima-defense.fr';
-  // Try EmailJS
-  if(emailjsReady){
-    try{
-      emailjs.send(EMAILJS_SERVICE, 'template_confirmation', {to_email:email, subject:subject, message:body});
-    }catch(e){}
-  }
-  // Fallback: open mailto
   try{
-    var a = document.createElement('a');
-    a.href = 'mailto:'+email+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
-    a.target = '_blank';
-    a.click();
-  }catch(e){}
+    emailjs.send(EMAILJS_SERVICE, 'template_confirmation', {to_email:email, subject:subject, message:body});
+    return true;
+  }catch(e){ return false; }
 }
 
 function sendBookingEmail(clientEmail, proName, date, time, motif){
@@ -2801,7 +2952,7 @@ function adminVerifyPro(userId){
   var idx = users.findIndex(function(u){ return u.id===userId; });
   if(idx<0) return;
   users[idx].proProfile.verified = true;
-  db.setObj('prima_users', users);
+  saveUsers(users);
   loadAdminPanel();
   showToast('Professionnel vérifié — visible dans l\'annuaire');
 }
@@ -2813,7 +2964,7 @@ function adminRejectPro(userId){
   if(idx<0) return;
   users[idx].proProfile.verified = false;
   users[idx].proProfile.rejectedAt = Date.now();
-  db.setObj('prima_users', users);
+  saveUsers(users);
   loadAdminPanel();
   showToast('Vérification rejetée');
 }
@@ -2919,6 +3070,12 @@ function escH(s){ return String(s||"").replace(/&/g,"&amp;").replace(/"/g,"&quot
 
 // Escape a value for use inside an .ics (iCalendar) field, preventing line/field injection
 function icsEsc(s){ return String(s||"").replace(/[\r\n]+/g," ").replace(/([,;\\])/g,"\\$1"); }
+
+// Libellé "Avocat"/"Avocate" adapté au genre choisi par le ou la professionnel·le
+function proTitle(genre, lower){
+  var t = genre==='H' ? 'Avocat' : (genre==='F' ? 'Avocate' : 'Avocat·e');
+  return lower ? t.toLowerCase() : t;
+}
 
 function saveItem(idx){
   var data = getEditableData(editorType);
