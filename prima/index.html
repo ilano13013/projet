@@ -1147,7 +1147,7 @@ async function doRegister(){
   if(pwd!==pwd2){ err.textContent='Les mots de passe ne correspondent pas.'; return; }
   var users = db.getObj('prima_users',[]);
   if(users.find(function(u){return u.email===email})){ err.textContent='Cet email est déjà utilisé.'; return; }
-  var hash  = sha256sync(pwd);
+  var hash  = await sha256(pwd);
   var role  = selectedRole;
   // Validate pro fields
   if(role==='professionnel'){
@@ -1249,7 +1249,7 @@ async function doResetPassword(){
 
   if(!resetEmailTarget){ err.textContent = 'Erreur : veuillez recommencer la procédure.'; return; }
 
-  var hash = sha256sync(pwd);
+  var hash = await sha256(pwd);
   var users = db.getObj('prima_users',[]);
   var idx = users.findIndex(function(u){ return u.email === resetEmailTarget; });
 
@@ -1402,11 +1402,11 @@ function loadAdminPanel(){
   } else {
     verifList.innerHTML = pending.map(function(u){
       var pp = u.proProfile||{};
-      var nom = [u.profile.prenom,u.profile.nom].filter(Boolean).join(' ');
+      var nom = escH([u.profile.prenom,u.profile.nom].filter(Boolean).join(' '));
       return '<div style="background:rgba(184,146,42,.06);border:1px solid rgba(184,146,42,.2);border-radius:10px;padding:14px;margin-bottom:8px">'
-        +'<div style="font-size:12px;color:var(--cream);font-weight:500">'+nom+' · '+(pp.cabinet||'Cabinet non renseigné')+'</div>'
-        +'<div style="font-size:10px;color:var(--cdim);margin-top:4px">SIRET : '+(pp.siret||'Non fourni')+' · Barreau : '+(pp.barreau||'Non fourni')+'</div>'
-        +'<div style="font-size:10px;color:var(--cdim)">Dépt : '+(pp.departement||'?')+' · Email : '+u.email+'</div>'
+        +'<div style="font-size:12px;color:var(--cream);font-weight:500">'+nom+' · '+escH(pp.cabinet||'Cabinet non renseigné')+'</div>'
+        +'<div style="font-size:10px;color:var(--cdim);margin-top:4px">SIRET : '+escH(pp.siret||'Non fourni')+' · Barreau : '+escH(pp.barreau||'Non fourni')+'</div>'
+        +'<div style="font-size:10px;color:var(--cdim)">Dépt : '+escH(pp.departement||'?')+' · Email : '+escH(u.email)+'</div>'
         +'<div style="display:flex;gap:6px;margin-top:10px">'
         +'<button onclick="adminVerifyPro(\''+u.id+'\')" style="flex:1;padding:9px;background:var(--green);color:white;border:none;border-radius:6px;font-family:\'DM Mono\',monospace;font-size:10px;cursor:pointer">Vérifier et approuver</button>'
         +'<button onclick="adminRejectPro(\''+u.id+'\')" style="padding:9px 12px;background:transparent;border:1px solid rgba(184,26,16,.2);border-radius:6px;font-size:10px;color:var(--red);cursor:pointer">Rejeter</button>'
@@ -1424,9 +1424,9 @@ function loadAdminPanel(){
     const delBtn = '<button onclick="adminDeleteUser(\''+u.id+'\')" style="padding:6px 10px;background:transparent;border:1px solid rgba(184,26,16,.2);border-radius:5px;font-size:9px;color:var(--red);cursor:pointer">Supprimer</button>';
     if(role === 'professionnel'){
       const pp = u.proProfile || {};
-      const nom = [u.profile.prenom, u.profile.nom].filter(Boolean).join(' ') || 'Professionnel(le)';
-      const cab = pp.cabinet ? ' · ' + pp.cabinet : '';
-      const proDept = pp.departement ? ' · Dépt. ' + pp.departement : '';
+      const nom = escH([u.profile.prenom, u.profile.nom].filter(Boolean).join(' ') || 'Professionnel(le)');
+      const cab = pp.cabinet ? ' · ' + escH(pp.cabinet) : '';
+      const proDept = pp.departement ? ' · Dépt. ' + escH(pp.departement) : '';
       const tier = pp.tier || 'gratuit';
       const userRdvs = rdvs.filter(r=>r.proId===u.id).length;
       const verifBadge = pp.verified
@@ -1438,7 +1438,7 @@ function loadAdminPanel(){
         +'<span class="user-card-date">'+new Date(u.createdAt).toLocaleDateString('fr')+'</span>'
         +'</div>'
         +'<div style="font-size:12px;color:var(--cream)">'+nom+cab+proDept+'</div>'
-        +'<div style="font-size:10px;color:var(--cdim)">'+u.email+' · '+userRdvs+' RDV</div>'
+        +'<div style="font-size:10px;color:var(--cdim)">'+escH(u.email)+' · '+userRdvs+' RDV</div>'
         +'<div style="display:flex;gap:6px;align-items:center;margin-top:6px">'
         +'<select onchange="adminChangeTier(\''+u.id+'\',this.value)" style="flex:1;padding:7px 10px;background:var(--s2);border:1px solid var(--line2);border-radius:5px;font-family:\'DM Mono\',monospace;font-size:10px;color:var(--cream);-webkit-appearance:auto">'
         +'<option value="gratuit"'+(tier==='gratuit'?' selected':'')+'>Gratuit</option>'
@@ -1448,7 +1448,7 @@ function loadAdminPanel(){
         +delBtn
         +'</div></div>';
     }
-    const dept = u.profile&&u.profile.dept ? ' · Dépt. '+u.profile.dept : '';
+    const dept = u.profile&&u.profile.dept ? ' · Dépt. '+escH(u.profile.dept) : '';
     return '<div class="user-card">'
       +'<div class="user-card-top">'
       +'<span class="user-card-id">'+u.id+'</span>'
@@ -1563,7 +1563,7 @@ function renderEntries(){
   const list=document.getElementById('entries-list');
   document.getElementById('entry-count').textContent=entries.length+' incident'+(entries.length!==1?'s':'');
   if(!entries.length){list.innerHTML='<div class="empty-state"><div class="empty-icon" style="font-size:24px;opacity:.3">—</div><div class="empty-text">Aucun incident enregistré.<br>Vos notes restent sur votre appareil.</div></div>';return;}
-  list.innerHTML=entries.map(e=>'<div class="entry-card"><div class="entry-meta"><div class="entry-date">'+e.date+(e.time?' · '+e.time:'')+'</div><button class="entry-del" onclick="deleteEntry('+e.id+')">✕</button></div><div class="entry-rule"></div><div class="entry-type">'+e.type+'</div>'+(e.lieu?'<div class="entry-lieu">📍 '+e.lieu+'</div>':'')+'<div class="entry-facts">'+e.facts+'</div>'+(e.temoins?'<div class="entry-lieu">👤 Témoins : '+e.temoins+'</div>':'')+'</div>').join('');
+  list.innerHTML=entries.map(e=>'<div class="entry-card"><div class="entry-meta"><div class="entry-date">'+escH(e.date)+(e.time?' · '+escH(e.time):'')+'</div><button class="entry-del" onclick="deleteEntry('+e.id+')">✕</button></div><div class="entry-rule"></div><div class="entry-type">'+escH(e.type)+'</div>'+(e.lieu?'<div class="entry-lieu">📍 '+escH(e.lieu)+'</div>':'')+'<div class="entry-facts">'+escH(e.facts)+'</div>'+(e.temoins?'<div class="entry-lieu">👤 Témoins : '+escH(e.temoins)+'</div>':'')+'</div>').join('');
 }
 function exportCarnet(){
   if(!entries.length){showToast('Aucun incident à exporter');return;}
@@ -1920,8 +1920,8 @@ function renderAnnuaire(data){
       if(hasPro) html += '<div style="height:6px"></div>';
       html += '<div style="font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:var(--green);margin:6px 0 10px;display:flex;align-items:center;gap:12px">Associations & ressources gratuites<span style="flex:1;height:1px;background:rgba(58,125,90,.15);display:block"></span></div>';
     }
-    var ph  = (r.phone && r.phone.trim()) ? '<a class="rc-btn call" href="tel:' + r.phone.replace(/\s/g,"") + '">Appeler</a>' : "";
-    var wb  = r.web   ? '<a class="rc-btn web"  href="https://' + r.web + '" target="_blank">Site web</a>' : "";
+    var ph  = (r.phone && r.phone.trim()) ? '<a class="rc-btn call" href="tel:' + escH(r.phone.replace(/\s/g,"")) + '">Appeler</a>' : "";
+    var wb  = r.web   ? '<a class="rc-btn web"  href="https://' + escH(r.web) + '" target="_blank">Site web</a>' : "";
     var aid = r.aid   ? '<div class="rc-aid">Aide juridictionnelle acceptee</div>' : "";
     var borderStyle = r.type==="pro" ? "border-color:rgba(184,146,42,.25)" : "";
     var tierBadge = "";
@@ -1929,7 +1929,7 @@ function renderAnnuaire(data){
       var tc = r.tier==="expert" ? "color:var(--gold);background:rgba(184,146,42,.1);border-color:rgba(184,146,42,.2)" : "color:var(--terra);background:rgba(168,66,26,.1);border-color:rgba(168,66,26,.2)";
       tierBadge = '<div style="font-size:8px;letter-spacing:.14em;text-transform:uppercase;padding:2px 7px;border-radius:3px;border:1px solid;margin-top:2px;display:inline-block;'+tc+'">'+(r.tier==="expert"?"Expert":"Premium")+'</div>';
     }
-    var typeBadge = r.type==="asso" ? '<div class="rc-dept" style="background:rgba(58,125,90,.1);border-color:rgba(58,125,90,.2);color:var(--green)">' + r.dept + '</div>' : '<div class="rc-dept">' + r.dept + '</div>';
+    var typeBadge = r.type==="asso" ? '<div class="rc-dept" style="background:rgba(58,125,90,.1);border-color:rgba(58,125,90,.2);color:var(--green)">' + escH(r.dept) + '</div>' : '<div class="rc-dept">' + escH(r.dept) + '</div>';
     // Distance badge
     var distBadge = "";
     if(userLat!==null && r.dist!==undefined && r.dist < 99000){
@@ -1953,24 +1953,14 @@ function renderAnnuaire(data){
       }
     }
     html += '<div class="resource-card" style="'+borderStyle+'">'
-          + '<div class="rc-top"><div class="rc-name">' + r.name + '</div>' + typeBadge + '</div>'
-          + '<div class="rc-spec">' + r.spec + '</div>'
+          + '<div class="rc-top"><div class="rc-name">' + escH(r.name) + '</div>' + typeBadge + '</div>'
+          + '<div class="rc-spec">' + escH(r.spec) + '</div>'
           + distBadge + aid + tierBadge + reviewBadge
           + '<div class="rc-actions">' + ph + wb + '</div>'
           + (profileBtn||bookBtn ? '<div style="display:flex;gap:6px;margin-top:6px">' + profileBtn + bookBtn + '</div>' : '')
           + '</div>';
   }
   list.innerHTML = html;
-}
-
-function filterAnnuaire(){
-  var q = (document.getElementById("annuaire-search").value || "").toLowerCase();
-  var full = getFullAnnuaire();
-  if(!q){ renderAnnuaire(full); return; }
-  var res = full.filter(function(r){
-    return (r.name+r.spec+r.dept).toLowerCase().indexOf(q) >= 0;
-  });
-  renderAnnuaire(res);
 }
 
 function geolocateAnnuaire(){
@@ -2111,8 +2101,8 @@ function openBooking(proId){
   if(pro){
     var pp = pro.proProfile||{};
     var nom = [pro.profile.prenom,pro.profile.nom].filter(Boolean).join(" ");
-    info.innerHTML = '<div style="font-family:\'Cormorant Garamond\',serif;font-size:16px;color:var(--cream)">'+(pp.cabinet||nom)+'</div>'
-      +'<div style="font-size:10px;color:var(--cdim);margin-top:3px">'+(pp.specialites||"Droit des femmes")+' · '+(pp.departement||"")+'</div>'
+    info.innerHTML = '<div style="font-family:\'Cormorant Garamond\',serif;font-size:16px;color:var(--cream)">'+escH(pp.cabinet||nom)+'</div>'
+      +'<div style="font-size:10px;color:var(--cdim);margin-top:3px">'+escH(pp.specialites||"Droit des femmes")+' · '+escH(pp.departement||"")+'</div>'
       +(pp.aideJuridictionnelle?'<div style="font-size:9px;color:var(--green);margin-top:4px">Aide juridictionnelle acceptée</div>':'');
   }
   document.getElementById("cal-selected-info").style.display = "none";
@@ -2259,7 +2249,7 @@ function renderPlanning(){
       if(pro){
         var pp = pro.proProfile||{};
         var nom = [pro.profile.prenom,pro.profile.nom].filter(Boolean).join(" ");
-        proInfo = '<div style="font-size:12px;color:var(--cream);margin-top:4px">'+(pp.cabinet||nom||"Cabinet")+'</div>';
+        proInfo = '<div style="font-size:12px;color:var(--cream);margin-top:4px">'+escH(pp.cabinet||nom||"Cabinet")+'</div>';
       }
     }
     html += '<div style="background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:10px;box-shadow:var(--shadow)">'
@@ -2267,12 +2257,12 @@ function renderPlanning(){
       +'<div style="font-family:\'Cormorant Garamond\',serif;font-size:18px;color:var(--cream)">'+dateStr+'</div>'
       +'<div style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;padding:3px 8px;border-radius:3px;border:1px solid;color:'+statusColor+'">'+statusLabel+'</div>'
       +'</div>'
-      +'<div style="font-size:13px;color:var(--terra);margin-top:6px">'+r.time+' · '+r.motif+'</div>'
+      +'<div style="font-size:13px;color:var(--terra);margin-top:6px">'+escH(r.time)+' · '+escH(r.motif)+'</div>'
       +proInfo;
     if(isPro){
-      html += '<div style="font-size:10px;color:var(--cdim);margin-top:4px">Client : '+r.clientId+'</div>';
+      html += '<div style="font-size:10px;color:var(--cdim);margin-top:4px">Client : '+escH(r.clientId)+'</div>';
     }
-    if(r.message) html += '<div style="font-size:10.5px;color:var(--cdim);margin-top:6px;padding-top:6px;border-top:1px solid var(--line);line-height:1.55;font-style:italic">'+r.message+'</div>';
+    if(r.message) html += '<div style="font-size:10.5px;color:var(--cdim);margin-top:6px;padding-top:6px;border-top:1px solid var(--line);line-height:1.55;font-style:italic">'+escH(r.message)+'</div>';
     html += '<div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">';
     if(isPro){
       if(r.status==="pending"){
@@ -2305,8 +2295,8 @@ function downloadICS(rdvId){
   var proLoc = "";
   if(pro){
     var pp = pro.proProfile||{};
-    proName = "RDV " + (pp.cabinet || [pro.profile.prenom,pro.profile.nom].filter(Boolean).join(" ") || "Avocate PRIMA");
-    proLoc = pp.cabinet ? pp.cabinet + ", " + (pp.departement||"") : "";
+    proName = "RDV " + icsEsc(pp.cabinet || [pro.profile.prenom,pro.profile.nom].filter(Boolean).join(" ") || "Avocate PRIMA");
+    proLoc = pp.cabinet ? icsEsc(pp.cabinet + ", " + (pp.departement||"")) : "";
   }
   var d = r.date.replace(/-/g,"");
   var t = r.time.replace(/:/g,"") + "00";
@@ -2317,7 +2307,7 @@ function downloadICS(rdvId){
     +"DTSTART:"+d+"T"+t+"\r\n"
     +"DTEND:"+d+"T"+endT+"\r\n"
     +"SUMMARY:"+proName+"\r\n"
-    +"DESCRIPTION:"+r.motif+(r.message?" - "+r.message:"")+"\r\n"
+    +"DESCRIPTION:"+icsEsc(r.motif+(r.message?" - "+r.message:""))+"\r\n"
     +(proLoc?"LOCATION:"+proLoc+"\r\n":"")
     +"BEGIN:VALARM\r\nTRIGGER:-PT24H\r\nACTION:DISPLAY\r\nDESCRIPTION:Rappel : votre rendez-vous PRIMA est demain a "+r.time+"\r\nEND:VALARM\r\n"
     +"BEGIN:VALARM\r\nTRIGGER:-PT1H\r\nACTION:DISPLAY\r\nDESCRIPTION:Rendez-vous PRIMA dans 1 heure\r\nEND:VALARM\r\n"
@@ -2438,7 +2428,7 @@ function viewProDetail(proId){
   if(!pro) return;
   var pp = pro.proProfile||{};
   var p = pro.profile||{};
-  var nom = [p.prenom,p.nom].filter(Boolean).join(" ")||"Avocate";
+  var nom = escH([p.prenom,p.nom].filter(Boolean).join(" ")||"Avocate");
   var reviews = db.getObj("prima_reviews",[]).filter(function(r){return r.proId===proId});
   var avgRating = reviews.length ? (reviews.reduce(function(s,r){return s+r.rating},0)/reviews.length).toFixed(1) : null;
   var stars = function(n){ var s=""; for(var i=1;i<=5;i++) s+='<span style="color:'+(i<=Math.round(n)?'var(--gold-l)':'var(--line)')+'">★</span>'; return s; };
@@ -2447,25 +2437,25 @@ function viewProDetail(proId){
   var jourNoms = {lun:"Lundi",mar:"Mardi",mer:"Mercredi",jeu:"Jeudi",ven:"Vendredi",sam:"Samedi"};
   var wrap = document.getElementById("pro-detail-content");
   var html = '<div style="background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:22px;box-shadow:var(--shadow);text-align:center;margin-bottom:14px">';
-  html += '<div style="width:72px;height:72px;border-radius:50%;background:var(--terra);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-family:\'Cormorant Garamond\',serif;font-size:28px;color:white;border:3px solid rgba(168,66,26,.3)">'+(p.prenom?p.prenom[0].toUpperCase():"A")+(p.nom?p.nom[0].toUpperCase():"")+'</div>';
+  html += '<div style="width:72px;height:72px;border-radius:50%;background:var(--terra);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-family:\'Cormorant Garamond\',serif;font-size:28px;color:white;border:3px solid rgba(168,66,26,.3)">'+escH((p.prenom?p.prenom[0].toUpperCase():"A")+(p.nom?p.nom[0].toUpperCase():""))+'</div>';
   html += '<div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;color:var(--cream)">'+nom+'</div>';
-  html += '<div style="font-size:11px;color:var(--cdim);margin-top:4px">'+(pp.cabinet||"")+'</div>';
+  html += '<div style="font-size:11px;color:var(--cdim);margin-top:4px">'+escH(pp.cabinet||"")+'</div>';
   if(pp.verified) html += '<div style="font-size:9px;color:var(--green);margin-top:6px;letter-spacing:.12em">✓ VÉRIFIÉE PRIMA</div>';
   if(avgRating) html += '<div style="margin-top:8px;font-size:16px">'+stars(avgRating)+' <span style="font-size:12px;color:var(--cdim)">'+avgRating+' ('+reviews.length+' avis)</span></div>';
   html += '</div>';
   // Info cards
   html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">';
-  html += '<div style="background:var(--s1);border:1px solid var(--line);border-radius:10px;padding:14px;box-shadow:var(--shadow)"><div style="font-size:9px;color:var(--cdim);letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px">Département</div><div style="font-size:14px;color:var(--cream)">'+(pp.departement||"—")+'</div></div>';
-  html += '<div style="background:var(--s1);border:1px solid var(--line);border-radius:10px;padding:14px;box-shadow:var(--shadow)"><div style="font-size:9px;color:var(--cdim);letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px">Langues</div><div style="font-size:14px;color:var(--cream)">'+(pp.langues||"Français")+'</div></div>';
+  html += '<div style="background:var(--s1);border:1px solid var(--line);border-radius:10px;padding:14px;box-shadow:var(--shadow)"><div style="font-size:9px;color:var(--cdim);letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px">Département</div><div style="font-size:14px;color:var(--cream)">'+escH(pp.departement||"—")+'</div></div>';
+  html += '<div style="background:var(--s1);border:1px solid var(--line);border-radius:10px;padding:14px;box-shadow:var(--shadow)"><div style="font-size:9px;color:var(--cdim);letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px">Langues</div><div style="font-size:14px;color:var(--cream)">'+escH(pp.langues||"Français")+'</div></div>';
   html += '</div>';
-  if(pp.bio) html += '<div style="background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:14px;box-shadow:var(--shadow)"><div style="font-size:9px;color:var(--cdim);letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px">Présentation</div><div style="font-size:12px;color:var(--cream);line-height:1.7">'+pp.bio+'</div></div>';
-  if(pp.specialites) html += '<div style="background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:14px;box-shadow:var(--shadow)"><div style="font-size:9px;color:var(--cdim);letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px">Spécialités</div><div style="font-size:12px;color:var(--cream);line-height:1.7">'+pp.specialites+'</div></div>';
+  if(pp.bio) html += '<div style="background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:14px;box-shadow:var(--shadow)"><div style="font-size:9px;color:var(--cdim);letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px">Présentation</div><div style="font-size:12px;color:var(--cream);line-height:1.7">'+escH(pp.bio)+'</div></div>';
+  if(pp.specialites) html += '<div style="background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:14px;box-shadow:var(--shadow)"><div style="font-size:9px;color:var(--cdim);letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px">Spécialités</div><div style="font-size:12px;color:var(--cream);line-height:1.7">'+escH(pp.specialites)+'</div></div>';
   // Consultation types
   html += '<div style="font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:var(--cdim);margin:14px 0 8px;display:flex;align-items:center;gap:12px">Consultations proposées<span style="flex:1;height:1px;background:var(--line)"></span></div>';
   for(var t=0;t<types.length;t++){
     var ct=types[t];
     html += '<div style="background:var(--s1);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow)">'
-      +'<div><div style="font-size:13px;color:var(--cream)">'+ct.name+'</div><div style="font-size:10px;color:var(--cdim);margin-top:2px">'+ct.duration+' min · '+(ct.mode||"cabinet")+'</div></div>'
+      +'<div><div style="font-size:13px;color:var(--cream)">'+escH(ct.name)+'</div><div style="font-size:10px;color:var(--cdim);margin-top:2px">'+ct.duration+' min · '+escH(ct.mode||"cabinet")+'</div></div>'
       +'<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:var(--terra)">'+(ct.price>0?ct.price+'€':'Gratuit')+'</div></div>';
   }
   if(pp.aideJuridictionnelle) html += '<div style="font-size:10px;color:var(--green);margin:6px 0 14px">✓ Aide juridictionnelle acceptée</div>';
@@ -2481,8 +2471,8 @@ function viewProDetail(proId){
   html += '<button onclick="openBooking(\''+proId+'\')" style="width:100%;padding:16px;background:var(--green);color:white;border:none;border-radius:10px;font-family:\'DM Mono\',monospace;font-size:12px;letter-spacing:.12em;cursor:pointer;margin-bottom:14px">Prendre rendez-vous</button>';
   // Contact
   var actions = '';
-  if(pp.telephone) actions += '<a href="tel:'+pp.telephone.replace(/\s/g,"")+'" style="flex:1;text-align:center;padding:12px;background:var(--s1);border:1px solid var(--line);border-radius:8px;font-family:\'DM Mono\',monospace;font-size:10px;color:var(--cream);text-decoration:none">Appeler</a>';
-  if(pp.web) actions += '<a href="https://'+pp.web+'" target="_blank" style="flex:1;text-align:center;padding:12px;background:var(--s1);border:1px solid var(--line);border-radius:8px;font-family:\'DM Mono\',monospace;font-size:10px;color:var(--cream);text-decoration:none">Site web</a>';
+  if(pp.telephone) actions += '<a href="tel:'+escH(pp.telephone.replace(/\s/g,""))+'" style="flex:1;text-align:center;padding:12px;background:var(--s1);border:1px solid var(--line);border-radius:8px;font-family:\'DM Mono\',monospace;font-size:10px;color:var(--cream);text-decoration:none">Appeler</a>';
+  if(pp.web) actions += '<a href="https://'+escH(pp.web)+'" target="_blank" style="flex:1;text-align:center;padding:12px;background:var(--s1);border:1px solid var(--line);border-radius:8px;font-family:\'DM Mono\',monospace;font-size:10px;color:var(--cream);text-decoration:none">Site web</a>';
   if(actions) html += '<div style="display:flex;gap:8px;margin-bottom:14px">'+actions+'</div>';
   // Reviews
   html += '<div style="font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:var(--cdim);margin:10px 0 8px;display:flex;align-items:center;gap:12px">Avis ('+reviews.length+')<span style="flex:1;height:1px;background:var(--line)"></span></div>';
@@ -2491,7 +2481,7 @@ function viewProDetail(proId){
     var rev=reviews[rv];
     html += '<div style="background:var(--s1);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:8px;box-shadow:var(--shadow)">'
       +'<div style="display:flex;justify-content:space-between"><div style="font-size:14px">'+stars(rev.rating)+'</div><div style="font-size:9px;color:var(--cdim)">'+new Date(rev.createdAt).toLocaleDateString("fr")+'</div></div>'
-      +(rev.comment?'<div style="font-size:11px;color:var(--cdim);line-height:1.6;margin-top:6px;font-style:italic">'+rev.comment+'</div>':'')
+      +(rev.comment?'<div style="font-size:11px;color:var(--cdim);line-height:1.6;margin-top:6px;font-style:italic">'+escH(rev.comment)+'</div>':'')
       +'</div>';
   }
   wrap.innerHTML = html;
@@ -2560,7 +2550,7 @@ function renderAvailabilityEditor(){
   html += '<button onclick="addConsultationType()" style="width:100%;padding:8px;background:var(--s2);border:1px solid var(--line2);border-radius:8px;font-family:\'DM Mono\',monospace;font-size:10px;color:var(--cdim);cursor:pointer">+ Ajouter un type</button>';
   // Extra profile fields
   html += '<div style="font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:var(--cdim);margin:16px 0 8px;display:flex;align-items:center;gap:12px">Profil détaillé<span style="flex:1;height:1px;background:var(--line)"></span></div>';
-  html += '<div class="prof-field"><label class="prof-label">Biographie / Présentation</label><textarea id="pro-bio" rows="3" placeholder="Présentez-vous en quelques lignes..." style="width:100%;padding:10px 12px;background:var(--s2);border:1px solid var(--line2);border-radius:8px;font-family:\'DM Mono\',monospace;font-size:11px;color:var(--cream);resize:vertical">'+(pp.bio||"")+'</textarea></div>';
+  html += '<div class="prof-field"><label class="prof-label">Biographie / Présentation</label><textarea id="pro-bio" rows="3" placeholder="Présentez-vous en quelques lignes..." style="width:100%;padding:10px 12px;background:var(--s2);border:1px solid var(--line2);border-radius:8px;font-family:\'DM Mono\',monospace;font-size:11px;color:var(--cream);resize:vertical">'+escH(pp.bio||"")+'</textarea></div>';
   html += '<div class="prof-field" style="margin-top:8px"><label class="prof-label">Formation / Parcours</label><input id="pro-formation" value="'+escH(pp.formation||"")+'" placeholder="Université, spécialisation..." style="width:100%;padding:10px 12px;background:var(--s2);border:1px solid var(--line2);border-radius:8px;font-family:\'DM Mono\',monospace;font-size:11px;color:var(--cream)"></div>';
   html += '<div class="prof-field" style="margin-top:8px"><label class="prof-label">Langues parlées</label><input id="pro-langues" value="'+escH(pp.langues||"Français")+'" placeholder="Français, Anglais..." style="width:100%;padding:10px 12px;background:var(--s2);border:1px solid var(--line2);border-radius:8px;font-family:\'DM Mono\',monospace;font-size:11px;color:var(--cream)"></div>';
   html += '<div class="prof-field" style="margin-top:8px"><label class="prof-label">Adresse du cabinet</label><input id="pro-adresse" value="'+escH(pp.adresse||"")+'" placeholder="12 rue de la Paix, 75002 Paris" style="width:100%;padding:10px 12px;background:var(--s2);border:1px solid var(--line2);border-radius:8px;font-family:\'DM Mono\',monospace;font-size:11px;color:var(--cream)"></div>';
@@ -2926,6 +2916,9 @@ function eta(label, id, val, rows){
 }
 
 function escH(s){ return String(s||"").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;"); }
+
+// Escape a value for use inside an .ics (iCalendar) field, preventing line/field injection
+function icsEsc(s){ return String(s||"").replace(/[\r\n]+/g," ").replace(/([,;\\])/g,"\\$1"); }
 
 function saveItem(idx){
   var data = getEditableData(editorType);
