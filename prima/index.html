@@ -1061,12 +1061,12 @@ function seedAdmin(){
   saveUsers(users);
 }
 
-/* ═══ CLOUD SYNC (kvdb.io) — partage des comptes entre appareils ═══ */
-// Bucket kvdb.io partagé par toute l'application. Si vide, un bucket est créé
-// automatiquement au premier lancement et son identifiant s'affiche dans le
-// panneau Admin : reportez-le ici pour le rendre permanent et partagé par tous.
-const KVDB_BUCKET = '';
-const KVDB_USERS_KEY = 'prima_users';
+/* ═══ CLOUD SYNC (JSONBlob.com) — partage des comptes entre appareils ═══ */
+// Identifiant JSONBlob partagé par toute l'application. Si vide, un blob est
+// créé automatiquement au premier lancement et son identifiant s'affiche dans
+// le panneau Admin : reportez-le ici pour le rendre permanent et partagé par
+// tous les testeurs.
+const CLOUD_BLOB_ID = '';
 var cloudBucketId = null;
 var cloudSyncError = '';
 
@@ -1080,14 +1080,19 @@ function fetchWithTimeout(url, opts, ms){
 
 async function getCloudBucket(){
   if(cloudBucketId) return cloudBucketId;
-  var bucket = KVDB_BUCKET || db.get('prima_kvdb_bucket') || '';
-  if(!bucket){
+  var id = CLOUD_BLOB_ID || db.get('prima_cloud_blob') || '';
+  if(!id){
     try{
-      var res = await fetchWithTimeout('https://kvdb.io/', {method:'POST'}, 6000);
+      var res = await fetchWithTimeout('https://jsonblob.com/api/jsonBlob', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json','Accept':'application/json'},
+        body: JSON.stringify([])
+      }, 6000);
       if(res.ok){
-        bucket = (await res.text()).trim();
-        db.set('prima_kvdb_bucket', bucket);
-        cloudSyncError = '';
+        var loc = res.headers.get('Location') || '';
+        id = loc.split('/').filter(Boolean).pop() || '';
+        if(id){ db.set('prima_cloud_blob', id); cloudSyncError = ''; }
+        else cloudSyncError = 'identifiant introuvable';
       } else {
         cloudSyncError = 'Réponse HTTP '+res.status;
       }
@@ -1095,7 +1100,7 @@ async function getCloudBucket(){
       cloudSyncError = (e && e.name==='AbortError') ? 'délai dépassé' : ((e && e.message) || 'erreur réseau');
     }
   }
-  cloudBucketId = bucket || null;
+  cloudBucketId = id || null;
   return cloudBucketId;
 }
 
@@ -1110,9 +1115,9 @@ async function retryCloudSync(){
 
 async function cloudFetchUsers(){
   try{
-    var bucket = await getCloudBucket();
-    if(!bucket) return null;
-    var res = await fetchWithTimeout('https://kvdb.io/'+bucket+'/'+KVDB_USERS_KEY, {cache:'no-store'}, 4000);
+    var id = await getCloudBucket();
+    if(!id) return null;
+    var res = await fetchWithTimeout('https://jsonblob.com/api/jsonBlob/'+id, {headers:{'Accept':'application/json'}, cache:'no-store'}, 4000);
     if(res.status===404) return [];
     if(!res.ok) return null;
     var text = await res.text();
@@ -1122,9 +1127,9 @@ async function cloudFetchUsers(){
 
 async function cloudSaveUsers(users){
   try{
-    var bucket = await getCloudBucket();
-    if(!bucket) return false;
-    await fetchWithTimeout('https://kvdb.io/'+bucket+'/'+KVDB_USERS_KEY, {method:'PUT', body: JSON.stringify(users)}, 6000);
+    var id = await getCloudBucket();
+    if(!id) return false;
+    await fetchWithTimeout('https://jsonblob.com/api/jsonBlob/'+id, {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(users)}, 6000);
     return true;
   }catch(e){ return false; }
 }
@@ -1491,7 +1496,7 @@ function loadAdminPanel(){
   var syncStatusEl = document.getElementById('cloud-sync-status');
   if(cloudBucketId){
     syncIdEl.textContent = cloudBucketId;
-    syncStatusEl.textContent = KVDB_BUCKET
+    syncStatusEl.textContent = CLOUD_BLOB_ID
       ? '● Synchronisation active — comptes partagés entre tous les appareils.'
       : '● Synchronisation active (temporaire) — communiquez cet identifiant pour le rendre permanent et partagé par tous les testeurs.';
   } else {
