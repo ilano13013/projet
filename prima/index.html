@@ -1061,13 +1061,16 @@ function seedAdmin(){
   saveUsers(users);
 }
 
-/* ═══ CLOUD SYNC (JSONBlob.com) — partage des comptes entre appareils ═══ */
-// Identifiant JSONBlob partagé par toute l'application. Si vide, un blob est
-// créé automatiquement au premier lancement et son identifiant s'affiche dans
-// le panneau Admin : reportez-le ici pour le rendre permanent et partagé par
-// tous les testeurs.
+/* ═══ CLOUD SYNC — partage des comptes entre appareils ═══ */
+// Stockage cloud partagé par toute l'application (sans compte requis).
+// Si vide, un espace de stockage est créé automatiquement au premier
+// lancement et son identifiant s'affiche dans le panneau Admin : reportez-le
+// ici (avec le fournisseur) pour le rendre permanent et partagé par tous.
 const CLOUD_BLOB_ID = '';
+const CLOUD_PROVIDER = ''; // 'extendsclass' ou 'kvdb'
 var cloudBucketId = null;
+var cloudProviderName = null;
+var cloudProvider = null;
 var cloudSyncError = '';
 
 function fetchWithTimeout(url, opts, ms){
@@ -1078,35 +1081,76 @@ function fetchWithTimeout(url, opts, ms){
   return fetch(url, opts).finally(function(){ clearTimeout(timer); });
 }
 
+// Fournisseurs de stockage clé-valeur gratuits, sans compte. Essayés dans
+// l'ordre jusqu'à ce qu'un fonctionne (certains services gratuits sont parfois
+// indisponibles).
+const CLOUD_PROVIDERS = {
+  extendsclass: {
+    create: async function(){
+      var res = await fetchWithTimeout('https://api.extendsclass.com/x/json-storage/bin', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify([])
+      }, 6000);
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      var data = await res.json();
+      if(!data || !data.key) throw new Error('réponse invalide');
+      return data.key;
+    },
+    url: function(id){ return 'https://api.extendsclass.com/x/json-storage/bin/'+id; },
+    saveHeaders: {'Content-Type':'application/json'}
+  },
+  kvdb: {
+    create: async function(){
+      var res = await fetchWithTimeout('https://kvdb.io/', {method:'POST'}, 6000);
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      var id = (await res.text()).trim();
+      if(!id) throw new Error('réponse vide');
+      return id;
+    },
+    url: function(id){ return 'https://kvdb.io/'+id+'/prima_users'; },
+    saveHeaders: {}
+  }
+};
+
 async function getCloudBucket(){
   if(cloudBucketId) return cloudBucketId;
   var id = CLOUD_BLOB_ID || db.get('prima_cloud_blob') || '';
-  if(!id){
+  var providerName = CLOUD_PROVIDER || db.get('prima_cloud_provider') || '';
+  if(id && providerName && CLOUD_PROVIDERS[providerName]){
+    cloudBucketId = id;
+    cloudProviderName = providerName;
+    cloudProvider = CLOUD_PROVIDERS[providerName];
+    cloudSyncError = '';
+    return cloudBucketId;
+  }
+  var errors = [];
+  for(var name in CLOUD_PROVIDERS){
     try{
-      var res = await fetchWithTimeout('https://jsonblob.com/api/jsonBlob', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json','Accept':'application/json'},
-        body: JSON.stringify([])
-      }, 6000);
-      if(res.ok){
-        var loc = res.headers.get('Location') || '';
-        id = loc.split('/').filter(Boolean).pop() || '';
-        if(id){ db.set('prima_cloud_blob', id); cloudSyncError = ''; }
-        else cloudSyncError = 'identifiant introuvable';
-      } else {
-        cloudSyncError = 'Réponse HTTP '+res.status;
-      }
+      id = await CLOUD_PROVIDERS[name].create();
+      db.set('prima_cloud_blob', id);
+      db.set('prima_cloud_provider', name);
+      cloudBucketId = id;
+      cloudProviderName = name;
+      cloudProvider = CLOUD_PROVIDERS[name];
+      cloudSyncError = '';
+      return cloudBucketId;
     }catch(e){
-      cloudSyncError = (e && e.name==='AbortError') ? 'délai dépassé' : ((e && e.message) || 'erreur réseau');
+      errors.push(name+': '+((e && e.message) || 'erreur'));
     }
   }
-  cloudBucketId = id || null;
-  return cloudBucketId;
+  cloudSyncError = errors.join(' — ');
+  cloudBucketId = null;
+  cloudProviderName = null;
+  cloudProvider = null;
+  return null;
 }
 
 // Relance une tentative de connexion au cloud et rafraîchit le panneau admin
 async function retryCloudSync(){
   cloudBucketId = null;
+  cloudProviderName = null;
+  cloudProvider = null;
   cloudSyncError = '';
   await getCloudBucket();
   if(cloudBucketId) await syncUsersFromCloud();
@@ -1116,8 +1160,8 @@ async function retryCloudSync(){
 async function cloudFetchUsers(){
   try{
     var id = await getCloudBucket();
-    if(!id) return null;
-    var res = await fetchWithTimeout('https://jsonblob.com/api/jsonBlob/'+id, {headers:{'Accept':'application/json'}, cache:'no-store'}, 4000);
+    if(!id || !cloudProvider) return null;
+    var res = await fetchWithTimeout(cloudProvider.url(id), {headers:{'Accept':'application/json'}, cache:'no-store'}, 4000);
     if(res.status===404) return [];
     if(!res.ok) return null;
     var text = await res.text();
@@ -1128,8 +1172,8 @@ async function cloudFetchUsers(){
 async function cloudSaveUsers(users){
   try{
     var id = await getCloudBucket();
-    if(!id) return false;
-    await fetchWithTimeout('https://jsonblob.com/api/jsonBlob/'+id, {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(users)}, 6000);
+    if(!id || !cloudProvider) return false;
+    await fetchWithTimeout(cloudProvider.url(id), {method:'PUT', headers: cloudProvider.saveHeaders, body: JSON.stringify(users)}, 6000);
     return true;
   }catch(e){ return false; }
 }
@@ -1155,10 +1199,11 @@ async function syncUsersFromCloud(){
 
 function copyCloudSyncId(){
   if(!cloudBucketId){ showToast('Aucun identifiant disponible'); return; }
+  var full = cloudProviderName + ':' + cloudBucketId;
   try{
-    navigator.clipboard.writeText(cloudBucketId);
+    navigator.clipboard.writeText(full);
     showToast('Identifiant copié');
-  }catch(e){ showToast(cloudBucketId); }
+  }catch(e){ showToast(full); }
 }
 
 /* SPLASH */
@@ -1495,7 +1540,7 @@ function loadAdminPanel(){
   var syncIdEl = document.getElementById('cloud-sync-id');
   var syncStatusEl = document.getElementById('cloud-sync-status');
   if(cloudBucketId){
-    syncIdEl.textContent = cloudBucketId;
+    syncIdEl.textContent = cloudProviderName + ':' + cloudBucketId;
     syncStatusEl.textContent = CLOUD_BLOB_ID
       ? '● Synchronisation active — comptes partagés entre tous les appareils.'
       : '● Synchronisation active (temporaire) — communiquez cet identifiant pour le rendre permanent et partagé par tous les testeurs.';
