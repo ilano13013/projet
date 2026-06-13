@@ -1067,7 +1067,7 @@ function seedAdmin(){
 // lancement et son identifiant s'affiche dans le panneau Admin : reportez-le
 // ici (avec le fournisseur) pour le rendre permanent et partagé par tous.
 const CLOUD_BLOB_ID = '';
-const CLOUD_PROVIDER = ''; // 'extendsclass' ou 'kvdb'
+const CLOUD_PROVIDER = ''; // 'jsonstorage' ou 'kvdb'
 var cloudBucketId = null;
 var cloudProviderName = null;
 var cloudProvider = null;
@@ -1085,19 +1085,20 @@ function fetchWithTimeout(url, opts, ms){
 // l'ordre jusqu'à ce qu'un fonctionne (certains services gratuits sont parfois
 // indisponibles).
 const CLOUD_PROVIDERS = {
-  extendsclass: {
+  jsonstorage: {
     create: async function(){
-      var res = await fetchWithTimeout('https://api.extendsclass.com/x/json-storage/bin', {
+      var res = await fetchWithTimeout('https://jsonstorage.net/api/items', {
         method: 'POST',
         headers: {'Content-Type':'application/json'},
         body: JSON.stringify([])
       }, 6000);
       if(!res.ok) throw new Error('HTTP '+res.status);
       var data = await res.json();
-      if(!data || !data.key) throw new Error('réponse invalide');
-      return data.key;
+      var id = data && (data.id || (data.uri && data.uri.split('/').pop()));
+      if(!id) throw new Error('réponse invalide');
+      return id;
     },
-    url: function(id){ return 'https://api.extendsclass.com/x/json-storage/bin/'+id; },
+    url: function(id){ return 'https://jsonstorage.net/api/items/'+id; },
     saveHeaders: {'Content-Type':'application/json'}
   },
   kvdb: {
