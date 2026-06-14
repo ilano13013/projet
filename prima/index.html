@@ -34,7 +34,8 @@ body{background:#F5F0E6 !important;color:#1C1914;font-family:'DM Mono',monospace
 #splash.fade{opacity:0;pointer-events:none}
 .splash-logo{display:flex;flex-direction:column;align-items:center;gap:0;animation:splashIn .8s ease both}
 @keyframes splashIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-.splash-name{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;letter-spacing:12px;color:#1C1914;line-height:1}
+.splash-name{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;letter-spacing:6px;color:#1C1914;line-height:1}
+.splash-name em{font-style:italic;color:var(--terra)}
 .splash-rule{width:60px;height:1px;background:#B8922A;margin:10px auto}
 .splash-sub{font-size:9px;letter-spacing:3.5px;text-transform:uppercase;color:#9A8878}
 .splash-bar-wrap{width:160px;height:2px;background:rgba(168,66,26,.15);border-radius:2px;overflow:hidden}
@@ -350,7 +351,7 @@ nav.visible{display:flex}
       <circle cx="30" cy="8" r="4" fill="#B8922A"/>
       <line x1="21" y1="32" x2="39" y2="32" stroke="#A8421A" stroke-width="1.5" opacity=".38"/>
     </svg>
-    <div class="splash-name">PRIMA</div>
+    <div class="splash-name">Pr<em>ima</em></div>
     <div class="splash-rule"></div>
     <div class="splash-sub">Kit de défense juridique</div>
   </div>
