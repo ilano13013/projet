@@ -813,6 +813,10 @@ nav.visible{display:flex}
   <!-- PLANNING (Pro) -->
   <div class="screen" id="s-planning">
     <div class="page-header"><div><div class="page-title">Mon <em>planning</em></div><div class="page-tag" id="planning-count">Rendez-vous</div></div></div>
+    <div style="padding:0 18px;display:flex;margin-bottom:14px">
+      <button class="plan-tab active" data-tab="upcoming" onclick="switchPlanningTab('upcoming')" style="flex:1;background:none;border:none;border-bottom:2px solid var(--terra);padding:0 0 10px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;color:var(--terra);transition:.18s">À venir</button>
+      <button class="plan-tab" data-tab="past" onclick="switchPlanningTab('past')" style="flex:1;background:none;border:none;border-bottom:2px solid var(--line);padding:0 0 10px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;color:var(--cdim);transition:.18s">Passés</button>
+    </div>
     <div style="padding:0 18px 18px" id="planning-list"></div>
   </div>
 
@@ -2538,6 +2542,19 @@ function renderHomeNextRdv(){
   card.style.display = "block";
 }
 
+var planningTab = "upcoming";
+
+function switchPlanningTab(tab){
+  planningTab = tab;
+  var tabs = document.querySelectorAll(".plan-tab");
+  for(var i=0;i<tabs.length;i++){
+    var active = tabs[i].getAttribute("data-tab") === tab;
+    tabs[i].style.color = active ? "var(--terra)" : "var(--cdim)";
+    tabs[i].style.borderBottomColor = active ? "var(--terra)" : "var(--line)";
+  }
+  renderPlanning();
+}
+
 function renderPlanning(){
   var list = document.getElementById("planning-list");
   if(!list) return;
@@ -2550,18 +2567,31 @@ function renderPlanning(){
   if(homeCount && !isPro) homeCount.textContent = rdvs.length ? rdvs.length + " rendez-vous" : "Voir mon planning";
   var title = document.querySelector("#s-planning .page-title");
   if(title) title.innerHTML = isPro ? "Mon <em>planning</em>" : "Mes <em>rendez-vous</em>";
-  if(!rdvs.length){
-    var emptyMsg = isPro
-      ? "Aucun rendez-vous pour le moment.<br>Les rendez-vous apparaîtront ici dès qu'une utilisatrice en prendra un via l'annuaire."
-      : "Aucun rendez-vous pour le moment.<br>Trouvez un·e avocat·e via \"Prendre rendez-vous\" pour réserver votre premier créneau.";
+  var now = Date.now();
+  var filtered = rdvs.filter(function(r){
+    var rdvTime = new Date(r.date+"T"+r.time).getTime();
+    var isPast = rdvTime < now || r.status==="done" || r.status==="cancelled";
+    return planningTab==="past" ? isPast : !isPast;
+  });
+  if(!filtered.length){
+    var emptyMsg;
+    if(planningTab==="past"){
+      emptyMsg = "Aucun rendez-vous passé pour le moment.";
+    } else {
+      emptyMsg = isPro
+        ? "Aucun rendez-vous à venir.<br>Les rendez-vous apparaîtront ici dès qu'une utilisatrice en prendra un via l'annuaire."
+        : "Aucun rendez-vous à venir.<br>Trouvez un·e avocat·e via \"Prendre rendez-vous\" pour réserver votre premier créneau.";
+    }
     list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--cdim);font-size:12px;line-height:1.7"><div style="font-size:24px;opacity:.3;margin-bottom:10px">—</div>'+emptyMsg+'</div>';
     return;
   }
-  rdvs.sort(function(a,b){ return (a.date+a.time).localeCompare(b.date+b.time); });
+  filtered.sort(function(a,b){
+    return planningTab==="past" ? (b.date+b.time).localeCompare(a.date+a.time) : (a.date+a.time).localeCompare(b.date+b.time);
+  });
   var html = "";
   var users = db.getObj("prima_users",[]);
-  for(var i=0;i<rdvs.length;i++){
-    var r = rdvs[i];
+  for(var i=0;i<filtered.length;i++){
+    var r = filtered[i];
     var statusColor = r.status==="confirmed"?"var(--green)":r.status==="done"?"var(--cdim)":r.status==="cancelled"?"var(--red)":"var(--gold-l)";
     var statusLabel = r.status==="confirmed"?"Confirmé":r.status==="done"?"Terminé":r.status==="cancelled"?"Annulé":"En attente";
     var months = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
@@ -2591,22 +2621,22 @@ function renderPlanning(){
       html += '<div style="font-size:10px;color:var(--cdim);margin-top:4px">Client : '+escH(clientInfo)+(r.telephone?' · '+escH(r.telephone):'')+'</div>';
     }
     if(r.message) html += '<div style="font-size:10.5px;color:var(--cdim);margin-top:6px;padding-top:6px;border-top:1px solid var(--line);line-height:1.55;font-style:italic">'+escH(r.message)+'</div>';
-    html += '<div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">';
-    if(isPro){
-      if(r.status==="pending"){
-        html += '<button onclick="updateRdvStatus('+r.id+',\'confirmed\')" style="flex:1;padding:9px;background:var(--green);color:white;border:none;border-radius:6px;font-family:\'DM Mono\',monospace;font-size:10px;cursor:pointer">Confirmer</button>';
-        html += '<button onclick="updateRdvStatus('+r.id+',\'cancelled\')" style="padding:9px 12px;background:transparent;border:1px solid rgba(184,26,16,.2);border-radius:6px;font-size:10px;color:var(--red);cursor:pointer">Refuser</button>';
-      } else if(r.status==="confirmed"){
-        html += '<button onclick="updateRdvStatus('+r.id+',\'done\')" style="flex:1;padding:9px;background:var(--s2);color:var(--cdim);border:1px solid var(--line2);border-radius:6px;font-family:\'DM Mono\',monospace;font-size:10px;cursor:pointer">Marquer terminé</button>';
-      }
-    } else {
-      // Client buttons
-      if(r.status!=="cancelled" && r.status!=="done"){
+    if(planningTab==="upcoming"){
+      html += '<div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">';
+      if(isPro){
+        if(r.status==="pending"){
+          html += '<button onclick="updateRdvStatus('+r.id+',\'confirmed\')" style="flex:1;padding:9px;background:var(--green);color:white;border:none;border-radius:6px;font-family:\'DM Mono\',monospace;font-size:10px;cursor:pointer">Confirmer</button>';
+          html += '<button onclick="updateRdvStatus('+r.id+',\'cancelled\')" style="padding:9px 12px;background:transparent;border:1px solid rgba(184,26,16,.2);border-radius:6px;font-size:10px;color:var(--red);cursor:pointer">Refuser</button>';
+        } else if(r.status==="confirmed"){
+          html += '<button onclick="updateRdvStatus('+r.id+',\'done\')" style="flex:1;padding:9px;background:var(--s2);color:var(--cdim);border:1px solid var(--line2);border-radius:6px;font-family:\'DM Mono\',monospace;font-size:10px;cursor:pointer">Marquer terminé</button>';
+        }
+      } else {
         html += '<button onclick="downloadICS('+r.id+')" style="flex:1;padding:9px;background:var(--green);color:white;border:none;border-radius:6px;font-family:\'DM Mono\',monospace;font-size:10px;cursor:pointer;letter-spacing:.06em">Ajouter au calendrier</button>';
         html += '<button onclick="requestCancelRdv('+r.id+')" style="padding:9px 12px;background:transparent;border:1px solid rgba(184,26,16,.2);border-radius:6px;font-size:10px;color:var(--red);cursor:pointer">Annuler</button>';
       }
+      html += '</div>';
     }
-    html += '</div></div>';
+    html += '</div>';
   }
   list.innerHTML = html;
 }
