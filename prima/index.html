@@ -79,7 +79,7 @@ body{background:#F5F0E6 !important;color:#1C1914;font-family:'DM Mono',monospace
 /* NAV */
 nav{height:var(--nav);background:rgba(255,255,255,.92);backdrop-filter:blur(20px);border-top:1px solid var(--line2);display:none;align-items:stretch;flex:0 0 auto;position:relative;z-index:100;padding:0 4px;padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -2px 8px rgba(44,36,22,.04)}
 nav.visible{display:flex}
-.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border:none;background:none;color:var(--clow);font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.04em;cursor:pointer;transition:.18s;border-radius:10px;margin:6px 2px;padding:4px 0}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border:none;background:none;color:var(--clow);font-family:'Cormorant Garamond',serif;font-style:italic;font-size:11px;letter-spacing:.04em;cursor:pointer;transition:.18s;border-radius:10px;margin:6px 2px;padding:4px 0}
 .nav-btn.active{color:var(--terra);background:rgba(168,66,26,.1)}
 
 /* PAGE HEADER */
@@ -501,7 +501,7 @@ nav.visible{display:flex}
       <div class="pb-arrow">›</div>
     </div>
     <div style="margin:0 18px 14px;background:#FFFFFF;border:1px solid rgba(168,66,26,.15);border-radius:var(--r);padding:20px 18px;box-shadow:var(--shadow)">
-      <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;color:var(--terra);line-height:1.3;margin-bottom:8px">Vous n'êtes pas seule.</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:22px;font-weight:400;color:var(--terra);line-height:1.3;margin-bottom:8px">Vous n'êtes pas seule.</div>
       <div style="font-size:12px;color:var(--cdim);line-height:1.7">Que ce soit dans votre couple, au travail, dans la rue ou en ligne — si quelque chose vous fait souffrir, vous avez le droit d'agir. PRIMA vous accompagne à chaque étape.</div>
     </div>
     <div class="urgence-banner" onclick="goTo('urgences')" style="background:rgba(184,26,16,.08);border-color:rgba(184,26,16,.2);box-shadow:var(--shadow)">
@@ -581,10 +581,10 @@ nav.visible{display:flex}
     <div class="page-header"><div><div class="page-title">Que vivez-<em>vous ?</em></div><div class="page-tag" id="fiches-tag">Choisissez votre situation</div></div></div>
     <div style="padding:0 18px 10px;display:flex;gap:6px;flex-wrap:wrap" id="fiches-filters">
       <button onclick="showSituation('all')" class="filt-btn active" style="padding:8px 14px;border-radius:8px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.06em;cursor:pointer;border:1px solid var(--line2);background:var(--s1);color:var(--cdim);transition:.2s">Tout</button>
-      <button onclick="showSituation('couple')" class="filt-btn" style="padding:8px 14px;border-radius:8px;font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;border:1px solid var(--terra);background:var(--s1);color:var(--cdim);transition:.2s">● Couple</button>
-      <button onclick="showSituation('travail')" class="filt-btn" style="padding:8px 14px;border-radius:8px;font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;border:1px solid var(--gold-l);background:var(--s1);color:var(--cdim);transition:.2s">● Travail</button>
-      <button onclick="showSituation('rue')" class="filt-btn" style="padding:8px 14px;border-radius:8px;font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;border:1px solid var(--green);background:var(--s1);color:var(--cdim);transition:.2s">● Rue</button>
-      <button onclick="showSituation('ligne')" class="filt-btn" style="padding:8px 14px;border-radius:8px;font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;border:1px solid #5A7ABF;background:var(--s1);color:var(--cdim);transition:.2s">● En ligne</button>
+      <button onclick="showSituation('couple')" class="filt-btn" style="padding:8px 14px;border-radius:8px;font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;border:1px solid var(--terra);background:var(--s2);color:var(--cdim);transition:.2s">● Couple</button>
+      <button onclick="showSituation('travail')" class="filt-btn" style="padding:8px 14px;border-radius:8px;font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;border:1px solid var(--gold-l);background:var(--s2);color:var(--cdim);transition:.2s">● Travail</button>
+      <button onclick="showSituation('rue')" class="filt-btn" style="padding:8px 14px;border-radius:8px;font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;border:1px solid var(--green);background:var(--s2);color:var(--cdim);transition:.2s">● Rue</button>
+      <button onclick="showSituation('ligne')" class="filt-btn" style="padding:8px 14px;border-radius:8px;font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;border:1px solid #5A7ABF;background:var(--s2);color:var(--cdim);transition:.2s">● En ligne</button>
     </div>
     <div class="fiches" id="fiches-list"></div>
   </div>
@@ -1831,8 +1831,8 @@ function renderFiches(data){
 function showSituation(cat){
   // Update filter buttons
   var btns = document.querySelectorAll('.filt-btn');
-  for(var b=0;b<btns.length;b++) btns[b].style.background = 'var(--s1)';
-  if(event && event.target) event.target.style.background = 'var(--s2)';
+  for(var b=0;b<btns.length;b++) btns[b].style.background = 'var(--s2)';
+  if(event && event.target) event.target.style.background = 'var(--s1)';
   // Update tag
   var tag = document.getElementById('fiches-tag');
   var labels = {all:'Toutes les situations', couple:'Dans mon couple', travail:'Au travail', rue:'Dans la rue', ligne:'En ligne'};
