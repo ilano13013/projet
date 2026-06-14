@@ -846,33 +846,50 @@ nav.visible{display:flex}
       </div>
       <div id="booking-pro-info" style="background:var(--s1);border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:12px;box-shadow:var(--shadow)"></div>
 
-      <!-- VISUAL CALENDAR -->
-      <div style="background:var(--s1);border:1px solid var(--line);border-radius:12px;padding:14px 10px;margin-bottom:12px;box-shadow:var(--shadow)">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-          <button onclick="calNavWeek(-1)" id="cal-prev" style="width:32px;height:32px;border-radius:50%;background:var(--s2);border:1px solid var(--line2);font-size:14px;cursor:pointer;color:var(--cdim)">‹</button>
-          <div id="cal-week-label" style="font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--cream);text-align:center"></div>
-          <button onclick="calNavWeek(1)" style="width:32px;height:32px;border-radius:50%;background:var(--s2);border:1px solid var(--line2);font-size:14px;cursor:pointer;color:var(--cdim)">›</button>
+      <div id="booking-form-view">
+        <!-- VISUAL CALENDAR -->
+        <div style="background:var(--s1);border:1px solid var(--line);border-radius:12px;padding:14px 10px;margin-bottom:12px;box-shadow:var(--shadow)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <button onclick="calNavWeek(-1)" id="cal-prev" style="width:32px;height:32px;border-radius:50%;background:var(--s2);border:1px solid var(--line2);font-size:14px;cursor:pointer;color:var(--cdim)">‹</button>
+            <div id="cal-week-label" style="font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--cream);text-align:center"></div>
+            <button onclick="calNavWeek(1)" style="width:32px;height:32px;border-radius:50%;background:var(--s2);border:1px solid var(--line2);font-size:14px;cursor:pointer;color:var(--cdim)">›</button>
+          </div>
+          <div id="cal-grid" style="display:grid;grid-template-columns:repeat(6,1fr);gap:4px"></div>
         </div>
-        <div id="cal-grid" style="display:grid;grid-template-columns:repeat(6,1fr);gap:4px"></div>
+
+        <div id="cal-selected-info" style="display:none;background:rgba(46,107,72,.06);border:1px solid rgba(46,107,72,.18);border-radius:10px;padding:12px;margin-bottom:12px;font-size:12px;color:var(--green);text-align:center"></div>
+
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;gap:10px">
+            <div class="form-group" style="flex:1"><label class="form-label">Prénom</label><input class="form-input" id="book-prenom" placeholder="Prénom" style="background:var(--s1)"></div>
+            <div class="form-group" style="flex:1"><label class="form-label">Nom</label><input class="form-input" id="book-nom" placeholder="Nom" style="background:var(--s1)"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Téléphone</label><input class="form-input" id="book-tel" type="tel" placeholder="06 12 34 56 78" style="background:var(--s1)"></div>
+          <div class="form-group"><label class="form-label">Motif de la consultation</label><select class="form-input" id="book-motif" style="background:var(--s1)">
+            <option value="">Choisir...</option>
+            <option>Première consultation</option>
+            <option>Violence conjugale</option>
+            <option>Harcèlement au travail</option>
+            <option>Discrimination</option>
+            <option>Cyberharcèlement</option>
+            <option>Agression sexuelle</option>
+            <option>Autre</option>
+          </select></div>
+          <div class="form-group"><label class="form-label">Message (optionnel)</label><textarea class="form-textarea" id="book-msg" rows="2" placeholder="Décrivez brièvement votre situation..." style="background:var(--s1)"></textarea></div>
+          <div class="auth-err" id="book-err"></div>
+          <button class="auth-btn" onclick="confirmBooking()" style="background:var(--green)">Confirmer le rendez-vous</button>
+          <div style="font-size:9.5px;color:var(--cdim);text-align:center;line-height:1.5">Gratuit et sans engagement. Le cabinet vous recontactera pour confirmer.</div>
+        </div>
       </div>
 
-      <div id="cal-selected-info" style="display:none;background:rgba(46,107,72,.06);border:1px solid rgba(46,107,72,.18);border-radius:10px;padding:12px;margin-bottom:12px;font-size:12px;color:var(--green);text-align:center"></div>
-
-      <div style="display:flex;flex-direction:column;gap:10px">
-        <div class="form-group"><label class="form-label">Motif de la consultation</label><select class="form-input" id="book-motif" style="background:var(--s1)">
-          <option value="">Choisir...</option>
-          <option>Première consultation</option>
-          <option>Violence conjugale</option>
-          <option>Harcèlement au travail</option>
-          <option>Discrimination</option>
-          <option>Cyberharcèlement</option>
-          <option>Agression sexuelle</option>
-          <option>Autre</option>
-        </select></div>
-        <div class="form-group"><label class="form-label">Message (optionnel)</label><textarea class="form-textarea" id="book-msg" rows="2" placeholder="Décrivez brièvement votre situation..." style="background:var(--s1)"></textarea></div>
-        <div class="auth-err" id="book-err"></div>
-        <button class="auth-btn" onclick="confirmBooking()" style="background:var(--green)">Confirmer le rendez-vous</button>
-        <div style="font-size:9.5px;color:var(--cdim);text-align:center;line-height:1.5">Gratuit et sans engagement. Le cabinet vous recontactera pour confirmer.</div>
+      <div id="booking-confirm-view" style="display:none;text-align:center;padding:10px 4px 4px">
+        <div style="width:56px;height:56px;border-radius:50%;background:rgba(46,107,72,.1);display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--cream);margin-bottom:10px">Rendez-vous <em style="color:var(--green)">confirmé</em></div>
+        <div id="booking-confirm-details" style="background:var(--s1);border:1px solid var(--line);border-radius:10px;padding:14px;font-size:12px;color:var(--cdim);line-height:1.9;text-align:left;box-shadow:var(--shadow);margin-bottom:14px"></div>
+        <div style="font-size:9.5px;color:var(--cdim);line-height:1.5;margin-bottom:16px">Un rappel automatique vous sera envoyé 24h avant. Le cabinet vous recontactera pour confirmer le créneau.</div>
+        <button class="auth-btn" onclick="closeBooking()" style="background:var(--terra)">Terminé</button>
       </div>
     </div>
   </div>
@@ -2255,6 +2272,8 @@ function getClientAppointments(){
   return all.filter(function(r){ return r.clientId === currentUser.id; });
 }
 
+var bookingProName = "";
+
 function openBooking(proId){
   bookingProId = proId;
   calWeekOffset = 0; selectedDate = null; selectedTime = null;
@@ -2265,11 +2284,19 @@ function openBooking(proId){
   if(pro){
     var pp = pro.proProfile||{};
     var nom = [pro.profile.prenom,pro.profile.nom].filter(Boolean).join(" ");
+    bookingProName = pp.cabinet||nom||"le cabinet";
     info.innerHTML = '<div style="font-family:\'Cormorant Garamond\',serif;font-size:16px;color:var(--cream)">'+escH(pp.cabinet||nom)+'</div>'
       +'<div style="font-size:10px;color:var(--cdim);margin-top:3px">'+escH(pp.specialites||"Droit des femmes")+' · '+escH(pp.departement||"")+'</div>'
       +(pp.aideJuridictionnelle?'<div style="font-size:9px;color:var(--green);margin-top:4px">Aide juridictionnelle acceptée</div>':'');
   }
+  if(currentUser){
+    document.getElementById("book-prenom").value = currentUser.profile.prenom||"";
+    document.getElementById("book-nom").value = currentUser.profile.nom||"";
+    document.getElementById("book-tel").value = currentUser.profile.tel||"";
+  }
   document.getElementById("cal-selected-info").style.display = "none";
+  document.getElementById("booking-form-view").style.display = "block";
+  document.getElementById("booking-confirm-view").style.display = "none";
   renderCalendar();
 }
 
@@ -2277,6 +2304,9 @@ function closeBooking(){
   document.getElementById("booking-modal").style.display = "none";
   bookingProId = null; selectedDate = null; selectedTime = null;
   document.getElementById("book-err").textContent = "";
+  document.getElementById("book-prenom").value = "";
+  document.getElementById("book-nom").value = "";
+  document.getElementById("book-tel").value = "";
   document.getElementById("book-msg").value = "";
   document.getElementById("book-motif").value = "";
 }
@@ -2346,33 +2376,56 @@ function renderCalendar(){
   grid.innerHTML = html;
 }
 
-function selectSlot(date, time){
-  selectedDate = date; selectedTime = time;
-  renderCalendar();
-  var info = document.getElementById("cal-selected-info");
+function formatDateFR(date){
   var ms = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
   var ds = ["dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"];
   var p = date.split("-");
   var d = new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2]));
-  info.innerHTML = "✓ "+ds[d.getDay()]+" "+d.getDate()+" "+ms[d.getMonth()]+" à "+time;
+  return ds[d.getDay()]+" "+d.getDate()+" "+ms[d.getMonth()]+" "+d.getFullYear();
+}
+
+function selectSlot(date, time){
+  selectedDate = date; selectedTime = time;
+  renderCalendar();
+  var info = document.getElementById("cal-selected-info");
+  info.innerHTML = "✓ "+formatDateFR(date)+" à "+time;
   info.style.display = "block";
 }
 
 function confirmBooking(){
+  var prenom = document.getElementById("book-prenom").value.trim();
+  var nom = document.getElementById("book-nom").value.trim();
+  var tel = document.getElementById("book-tel").value.trim();
   var motif = document.getElementById("book-motif").value;
   var msg = document.getElementById("book-msg").value.trim();
   var err = document.getElementById("book-err");
   err.textContent = "";
   if(!selectedDate||!selectedTime){ err.textContent = "Sélectionnez un créneau sur le calendrier."; return; }
+  if(!prenom||!nom){ err.textContent = "Indiquez votre nom et prénom."; return; }
+  if(!tel){ err.textContent = "Indiquez votre numéro de téléphone."; return; }
   if(!motif){ err.textContent = "Indiquez le motif de consultation."; return; }
-  var rdv = {id:Date.now(),proId:bookingProId,clientId:currentUser?currentUser.id:"anonyme",date:selectedDate,time:selectedTime,motif:motif,message:msg,status:"pending",createdAt:Date.now()};
+  var rdv = {id:Date.now(),proId:bookingProId,clientId:currentUser?currentUser.id:"anonyme",prenom:prenom,nom:nom,telephone:tel,date:selectedDate,time:selectedTime,motif:motif,message:msg,status:"pending",createdAt:Date.now()};
   var all = db.getObj("prima_rdv",[]);
   all.push(rdv);
   db.setObj("prima_rdv", all);
-  closeBooking();
+  if(currentUser){
+    currentUser.profile.prenom = prenom;
+    currentUser.profile.nom = nom;
+    currentUser.profile.tel = tel;
+    var users = db.getObj("prima_users",[]);
+    var idx = users.findIndex(function(u){ return u.id===currentUser.id; });
+    if(idx>=0){ users[idx]=currentUser; saveUsers(users); }
+    updateProfileUI();
+  }
   setTimeout(function(){ downloadICS(rdv.id); }, 500);
   scheduleRdvNotification(rdv);
-  showToast("Rendez-vous enregistré — rappel automatique 24h avant");
+  document.getElementById("booking-confirm-details").innerHTML =
+    '<div><strong>Cabinet</strong><br>'+escH(bookingProName)+'</div>'
+    +'<div style="margin-top:8px"><strong>Date</strong><br>'+formatDateFR(selectedDate)+' à '+selectedTime+'</div>'
+    +'<div style="margin-top:8px"><strong>Motif</strong><br>'+escH(motif)+'</div>'
+    +'<div style="margin-top:8px"><strong>Contact</strong><br>'+escH(prenom+' '+nom)+' · '+escH(tel)+'</div>';
+  document.getElementById("booking-form-view").style.display = "none";
+  document.getElementById("booking-confirm-view").style.display = "block";
 }
 
 function renderPlanning(){
@@ -2424,7 +2477,8 @@ function renderPlanning(){
       +'<div style="font-size:13px;color:var(--terra);margin-top:6px">'+escH(r.time)+' · '+escH(r.motif)+'</div>'
       +proInfo;
     if(isPro){
-      html += '<div style="font-size:10px;color:var(--cdim);margin-top:4px">Client : '+escH(r.clientId)+'</div>';
+      var clientInfo = r.prenom||r.nom ? [r.prenom,r.nom].filter(Boolean).join(" ") : r.clientId;
+      html += '<div style="font-size:10px;color:var(--cdim);margin-top:4px">Client : '+escH(clientInfo)+(r.telephone?' · '+escH(r.telephone):'')+'</div>';
     }
     if(r.message) html += '<div style="font-size:10.5px;color:var(--cdim);margin-top:6px;padding-top:6px;border-top:1px solid var(--line);line-height:1.55;font-style:italic">'+escH(r.message)+'</div>';
     html += '<div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">';
