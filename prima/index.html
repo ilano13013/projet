@@ -509,6 +509,10 @@ nav.visible{display:flex}
       <div class="urg-text" style="color:var(--cream)">Danger immédiat ? Appeler le</div>
       <div class="urg-num" style="color:var(--red);font-weight:700">17</div>
     </div>
+    <div id="home-next-rdv" onclick="goTo('planning')" style="display:none;margin:0 18px 14px;background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);cursor:pointer">
+      <div style="font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:var(--cdim);margin-bottom:8px">Prochain <em style="font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--terra);font-size:11px;letter-spacing:0;text-transform:none">rendez-vous</em></div>
+      <div id="home-next-rdv-content"></div>
+    </div>
     <div id="sit-header" style="padding:0 18px;margin-bottom:8px"><div style="font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:var(--cdim);display:flex;align-items:center;gap:12px">Je vis une situation difficile...<span style="flex:1;height:1px;background:var(--line);display:block"></span></div></div>
     <div class="home-grid" id="home-grid-part">
       <div class="home-tile" onclick="goTo('fiches');showSituation('couple')" style="border-left:3px solid var(--terra)"><div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--terra)" stroke-width="1.5" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg></div><div class="tile-name">Dans mon couple</div><div class="tile-desc">Violences, contrôle, emprise</div></div>
@@ -877,9 +881,16 @@ nav.visible{display:flex}
           </select></div>
           <div class="form-group"><label class="form-label">Message (optionnel)</label><textarea class="form-textarea" id="book-msg" rows="2" placeholder="Décrivez brièvement votre situation..." style="background:var(--s1)"></textarea></div>
           <div class="auth-err" id="book-err"></div>
-          <button class="auth-btn" onclick="confirmBooking()" style="background:var(--green)">Confirmer le rendez-vous</button>
+          <button class="auth-btn" onclick="reviewBooking()" style="background:var(--green)">Vérifier ma demande</button>
           <div style="font-size:9.5px;color:var(--cdim);text-align:center;line-height:1.5">Gratuit et sans engagement. Le cabinet vous recontactera pour confirmer.</div>
         </div>
+      </div>
+
+      <div id="booking-review-view" style="display:none">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--cream);margin-bottom:12px">Confirmez le <em style="color:var(--terra)">rendez-vous</em></div>
+        <div id="booking-review-details" style="background:var(--s1);border:1px solid var(--line);border-radius:10px;padding:14px;font-size:12px;color:var(--cdim);line-height:1.9;box-shadow:var(--shadow);margin-bottom:14px"></div>
+        <button class="auth-btn" onclick="confirmBooking()" style="background:var(--green);margin-bottom:8px">Confirmer le rendez-vous</button>
+        <button onclick="backToBookingForm()" style="width:100%;padding:11px;background:transparent;border:none;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--cdim);cursor:pointer;text-decoration:underline">Modifier ma demande</button>
       </div>
 
       <div id="booking-confirm-view" style="display:none;text-align:center;padding:10px 4px 4px">
@@ -888,9 +899,25 @@ nav.visible{display:flex}
         </div>
         <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--cream);margin-bottom:10px">Rendez-vous <em style="color:var(--green)">confirmé</em></div>
         <div id="booking-confirm-details" style="background:var(--s1);border:1px solid var(--line);border-radius:10px;padding:14px;font-size:12px;color:var(--cdim);line-height:1.9;text-align:left;box-shadow:var(--shadow);margin-bottom:14px"></div>
+        <div style="display:flex;gap:8px;margin-bottom:10px">
+          <button onclick="downloadICS(lastBookedRdvId)" style="flex:1;padding:10px;background:var(--s1);border:1px solid var(--line2);border-radius:8px;font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:.04em;color:var(--cream);cursor:pointer">Ajouter à l'agenda</button>
+          <button onclick="rebookSamePro()" style="flex:1;padding:10px;background:var(--s1);border:1px solid var(--line2);border-radius:8px;font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:.04em;color:var(--cream);cursor:pointer">Réserver à nouveau</button>
+        </div>
+        <button id="booking-consignes-btn" onclick="toggleConsignes()" style="width:100%;text-align:left;padding:10px 2px;background:transparent;border:none;border-bottom:1px solid var(--line);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.04em;color:var(--terra);cursor:pointer;margin-bottom:10px">Voir les consignes ›</button>
+        <div id="booking-consignes" style="display:none;background:rgba(168,66,26,.05);border:1px solid rgba(168,66,26,.15);border-radius:10px;padding:12px;font-size:11px;color:var(--cdim);line-height:1.7;text-align:left;margin-bottom:14px">Munissez-vous d'une pièce d'identité et de tout document utile (mains courantes, certificats médicaux, échanges écrits...). Si possible, arrivez quelques minutes avant l'heure. En cas d'empêchement, prévenez le cabinet dès que possible.</div>
         <div style="font-size:9.5px;color:var(--cdim);line-height:1.5;margin-bottom:16px">Un rappel automatique vous sera envoyé 24h avant. Le cabinet vous recontactera pour confirmer le créneau.</div>
         <button class="auth-btn" onclick="closeBooking()" style="background:var(--terra)">Terminé</button>
       </div>
+    </div>
+  </div>
+
+  <!-- CANCEL RDV CONFIRMATION MODAL -->
+  <div id="cancel-rdv-modal" style="display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.5);align-items:center;justify-content:center">
+    <div style="background:#F5F0E6;border-radius:var(--r);width:88%;max-width:360px;padding:24px 20px;box-shadow:var(--shadow);text-align:center">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--cream);margin-bottom:10px">Annuler le <em style="color:var(--red)">rendez-vous</em> ?</div>
+      <div style="font-size:12px;color:var(--cdim);line-height:1.6;margin-bottom:18px">Êtes-vous sûre de vouloir annuler ce rendez-vous ? Cette action est définitive et le cabinet en sera informé.</div>
+      <button class="auth-btn" onclick="confirmCancelRdv()" style="background:var(--red);margin-bottom:8px">Oui, annuler le rendez-vous</button>
+      <button onclick="closeCancelModal()" style="width:100%;padding:11px;background:transparent;border:none;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--cdim);cursor:pointer">Non, garder mon rendez-vous</button>
     </div>
   </div>
 
@@ -1534,6 +1561,7 @@ function updateProfileUI(){
     html += '<div style="padding:0 18px 18px"><div class="home-tile admin-tile" onclick="goTo(\'admin\')" style="flex-direction:row;align-items:center;gap:12px;min-height:auto"><span style="font-size:16px;color:var(--gold-l)">⚙</span><div><div class="tile-name">Panneau Admin</div><div class="tile-desc">Utilisateurs et contenu</div></div></div></div>';
   }
   wrap.innerHTML = html;
+  renderHomeNextRdv();
 }
 
 function saveProfile(){
@@ -2273,6 +2301,8 @@ function getClientAppointments(){
 }
 
 var bookingProName = "";
+var lastBookedRdvId = null;
+var pendingCancelRdvId = null;
 
 function openBooking(proId){
   bookingProId = proId;
@@ -2295,8 +2325,11 @@ function openBooking(proId){
     document.getElementById("book-tel").value = currentUser.profile.tel||"";
   }
   document.getElementById("cal-selected-info").style.display = "none";
+  document.getElementById("book-err").textContent = "";
   document.getElementById("booking-form-view").style.display = "block";
+  document.getElementById("booking-review-view").style.display = "none";
   document.getElementById("booking-confirm-view").style.display = "none";
+  document.getElementById("booking-consignes").style.display = "none";
   renderCalendar();
 }
 
@@ -2392,7 +2425,7 @@ function selectSlot(date, time){
   info.style.display = "block";
 }
 
-function confirmBooking(){
+function reviewBooking(){
   var prenom = document.getElementById("book-prenom").value.trim();
   var nom = document.getElementById("book-nom").value.trim();
   var tel = document.getElementById("book-tel").value.trim();
@@ -2404,6 +2437,28 @@ function confirmBooking(){
   if(!prenom||!nom){ err.textContent = "Indiquez votre nom et prénom."; return; }
   if(!tel){ err.textContent = "Indiquez votre numéro de téléphone."; return; }
   if(!motif){ err.textContent = "Indiquez le motif de consultation."; return; }
+  document.getElementById("booking-review-details").innerHTML =
+    '<div><strong>Pour</strong><br>'+escH(prenom+' '+nom)+'</div>'
+    +'<div style="margin-top:8px"><strong>Cabinet</strong><br>'+escH(bookingProName)+'</div>'
+    +'<div style="margin-top:8px"><strong>Date</strong><br>'+formatDateFR(selectedDate)+' à '+selectedTime+'</div>'
+    +'<div style="margin-top:8px"><strong>Motif</strong><br>'+escH(motif)+'</div>'
+    +'<div style="margin-top:8px"><strong>Téléphone</strong><br>'+escH(tel)+'</div>'
+    +(msg?'<div style="margin-top:8px"><strong>Message</strong><br>'+escH(msg)+'</div>':'');
+  document.getElementById("booking-form-view").style.display = "none";
+  document.getElementById("booking-review-view").style.display = "block";
+}
+
+function backToBookingForm(){
+  document.getElementById("booking-review-view").style.display = "none";
+  document.getElementById("booking-form-view").style.display = "block";
+}
+
+function confirmBooking(){
+  var prenom = document.getElementById("book-prenom").value.trim();
+  var nom = document.getElementById("book-nom").value.trim();
+  var tel = document.getElementById("book-tel").value.trim();
+  var motif = document.getElementById("book-motif").value;
+  var msg = document.getElementById("book-msg").value.trim();
   var rdv = {id:Date.now(),proId:bookingProId,clientId:currentUser?currentUser.id:"anonyme",prenom:prenom,nom:nom,telephone:tel,date:selectedDate,time:selectedTime,motif:motif,message:msg,status:"pending",createdAt:Date.now()};
   var all = db.getObj("prima_rdv",[]);
   all.push(rdv);
@@ -2417,6 +2472,7 @@ function confirmBooking(){
     if(idx>=0){ users[idx]=currentUser; saveUsers(users); }
     updateProfileUI();
   }
+  lastBookedRdvId = rdv.id;
   setTimeout(function(){ downloadICS(rdv.id); }, 500);
   scheduleRdvNotification(rdv);
   document.getElementById("booking-confirm-details").innerHTML =
@@ -2424,8 +2480,62 @@ function confirmBooking(){
     +'<div style="margin-top:8px"><strong>Date</strong><br>'+formatDateFR(selectedDate)+' à '+selectedTime+'</div>'
     +'<div style="margin-top:8px"><strong>Motif</strong><br>'+escH(motif)+'</div>'
     +'<div style="margin-top:8px"><strong>Contact</strong><br>'+escH(prenom+' '+nom)+' · '+escH(tel)+'</div>';
-  document.getElementById("booking-form-view").style.display = "none";
+  document.getElementById("booking-consignes").style.display = "none";
+  document.getElementById("booking-consignes-btn").textContent = "Voir les consignes ›";
+  document.getElementById("booking-review-view").style.display = "none";
   document.getElementById("booking-confirm-view").style.display = "block";
+  renderHomeNextRdv();
+  renderPlanning();
+}
+
+function rebookSamePro(){
+  var proId = bookingProId;
+  closeBooking();
+  if(proId) openBooking(proId);
+}
+
+function toggleConsignes(){
+  var el = document.getElementById("booking-consignes");
+  var btn = document.getElementById("booking-consignes-btn");
+  if(el.style.display === "none"){
+    el.style.display = "block";
+    btn.textContent = "Masquer les consignes ‹";
+  } else {
+    el.style.display = "none";
+    btn.textContent = "Voir les consignes ›";
+  }
+}
+
+function renderHomeNextRdv(){
+  var card = document.getElementById("home-next-rdv");
+  if(!card) return;
+  if(!currentUser || currentUser.role === "professionnel"){ card.style.display = "none"; return; }
+  var now = new Date();
+  var todayStr = now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0")+"-"+String(now.getDate()).padStart(2,"0");
+  var rdvs = getClientAppointments().filter(function(r){
+    return (r.status==="pending"||r.status==="confirmed") && r.date >= todayStr;
+  });
+  if(!rdvs.length){ card.style.display = "none"; return; }
+  rdvs.sort(function(a,b){ return (a.date+a.time).localeCompare(b.date+b.time); });
+  var r = rdvs[0];
+  var users = db.getObj("prima_users",[]);
+  var pro = users.find(function(u){ return u.id===r.proId; });
+  var cabinetName = "le cabinet";
+  if(pro){
+    var pp = pro.proProfile||{};
+    var nom = [pro.profile.prenom,pro.profile.nom].filter(Boolean).join(" ");
+    cabinetName = pp.cabinet||nom||"le cabinet";
+  }
+  var statusColor = r.status==="confirmed"?"var(--green)":"var(--gold-l)";
+  var statusLabel = r.status==="confirmed"?"Confirmé":"En attente";
+  document.getElementById("home-next-rdv-content").innerHTML =
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start">'
+    +'<div style="font-family:\'Cormorant Garamond\',serif;font-size:18px;color:var(--cream)">'+formatDateFR(r.date)+'</div>'
+    +'<div style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;padding:3px 8px;border-radius:3px;border:1px solid;color:'+statusColor+'">'+statusLabel+'</div>'
+    +'</div>'
+    +'<div style="font-size:13px;color:var(--terra);margin-top:6px">'+escH(r.time)+' · '+escH(cabinetName)+'</div>'
+    +'<div style="font-size:11px;color:var(--cdim);margin-top:4px">'+escH(r.motif)+'</div>';
+  card.style.display = "block";
 }
 
 function renderPlanning(){
@@ -2493,9 +2603,7 @@ function renderPlanning(){
       // Client buttons
       if(r.status!=="cancelled" && r.status!=="done"){
         html += '<button onclick="downloadICS('+r.id+')" style="flex:1;padding:9px;background:var(--green);color:white;border:none;border-radius:6px;font-family:\'DM Mono\',monospace;font-size:10px;cursor:pointer;letter-spacing:.06em">Ajouter au calendrier</button>';
-      }
-      if(r.status==="pending"){
-        html += '<button onclick="updateRdvStatus('+r.id+',\'cancelled\')" style="padding:9px 12px;background:transparent;border:1px solid rgba(184,26,16,.2);border-radius:6px;font-size:10px;color:var(--red);cursor:pointer">Annuler</button>';
+        html += '<button onclick="requestCancelRdv('+r.id+')" style="padding:9px 12px;background:transparent;border:1px solid rgba(184,26,16,.2);border-radius:6px;font-size:10px;color:var(--red);cursor:pointer">Annuler</button>';
       }
     }
     html += '</div></div>';
@@ -2577,7 +2685,24 @@ function updateRdvStatus(rdvId, status){
   }
   db.setObj("prima_rdv", all);
   renderPlanning();
-  showToast(status==="confirmed"?"Rendez-vous confirmé":status==="done"?"Marqué terminé":"Rendez-vous refusé");
+  renderHomeNextRdv();
+  showToast(status==="confirmed"?"Rendez-vous confirmé":status==="done"?"Marqué terminé":status==="cancelled"?"Rendez-vous annulé":"Rendez-vous refusé");
+}
+
+function requestCancelRdv(rdvId){
+  pendingCancelRdvId = rdvId;
+  document.getElementById("cancel-rdv-modal").style.display = "flex";
+}
+
+function closeCancelModal(){
+  pendingCancelRdvId = null;
+  document.getElementById("cancel-rdv-modal").style.display = "none";
+}
+
+function confirmCancelRdv(){
+  if(pendingCancelRdvId == null) return;
+  updateRdvStatus(pendingCancelRdvId, "cancelled");
+  closeCancelModal();
 }
 
 /* ═══ ABONNEMENT ═══ */
