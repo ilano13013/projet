@@ -855,14 +855,21 @@ nav.visible{display:flex}
       <div id="booking-pro-info" style="background:var(--s1);border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:12px;box-shadow:var(--shadow)"></div>
 
       <div id="booking-form-view">
-        <!-- VISUAL CALENDAR -->
-        <div style="background:var(--s1);border:1px solid var(--line);border-radius:12px;padding:14px 10px;margin-bottom:12px;box-shadow:var(--shadow)">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-            <button onclick="calNavWeek(-1)" id="cal-prev" style="width:32px;height:32px;border-radius:50%;background:var(--s2);border:1px solid var(--line2);font-size:14px;cursor:pointer;color:var(--cdim)">‹</button>
-            <div id="cal-week-label" style="font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--cream);text-align:center"></div>
-            <button onclick="calNavWeek(1)" style="width:32px;height:32px;border-radius:50%;background:var(--s2);border:1px solid var(--line2);font-size:14px;cursor:pointer;color:var(--cdim)">›</button>
+        <!-- DATE PICKER -->
+        <div style="background:var(--s1);border:1px solid var(--line);border-radius:14px;padding:16px 12px;margin-bottom:10px;box-shadow:var(--shadow)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <button onclick="calNavWeek(-1)" id="cal-prev" style="width:30px;height:30px;border-radius:50%;background:var(--s2);border:1px solid var(--line2);font-size:14px;cursor:pointer;color:var(--cdim);line-height:1">‹</button>
+            <div id="cal-week-label" style="font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--cream);text-align:center;letter-spacing:.02em"></div>
+            <button onclick="calNavWeek(1)" style="width:30px;height:30px;border-radius:50%;background:var(--s2);border:1px solid var(--line2);font-size:14px;cursor:pointer;color:var(--cdim);line-height:1">›</button>
           </div>
-          <div id="cal-grid" style="display:grid;grid-template-columns:repeat(6,1fr);gap:4px"></div>
+          <div id="cal-dates" style="display:grid;grid-template-columns:repeat(6,1fr);gap:5px"></div>
+        </div>
+
+        <!-- SLOTS PANEL (shown after selecting a date) -->
+        <div id="cal-slots-panel" style="display:none;background:var(--s1);border:1px solid var(--line);border-radius:14px;padding:16px 14px;margin-bottom:10px;box-shadow:var(--shadow)">
+          <div style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--cdim);margin-bottom:12px" id="cal-slots-label"></div>
+          <div id="cal-slots-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"></div>
+          <div id="cal-no-slots" style="display:none;text-align:center;font-size:11px;color:var(--cdim);padding:8px 0">Aucun créneau disponible ce jour</div>
         </div>
 
         <div id="cal-selected-info" style="display:none;background:rgba(46,107,72,.06);border:1px solid rgba(46,107,72,.18);border-radius:10px;padding:12px;margin-bottom:12px;font-size:12px;color:var(--green);text-align:center"></div>
@@ -2329,6 +2336,7 @@ function openBooking(proId){
     document.getElementById("book-tel").value = currentUser.profile.tel||"";
   }
   document.getElementById("cal-selected-info").style.display = "none";
+  document.getElementById("cal-slots-panel").style.display = "none";
   document.getElementById("book-err").textContent = "";
   document.getElementById("booking-form-view").style.display = "block";
   document.getElementById("booking-review-view").style.display = "none";
@@ -2353,26 +2361,70 @@ function calNavWeek(dir){
   if(calWeekOffset < 0) calWeekOffset = 0;
   selectedDate = null; selectedTime = null;
   document.getElementById("cal-selected-info").style.display = "none";
+  var sp = document.getElementById("cal-slots-panel");
+  if(sp) sp.style.display = "none";
   renderCalendar();
 }
 
 function renderCalendar(){
-  var grid = document.getElementById("cal-grid");
+  var dates = document.getElementById("cal-dates");
   var label = document.getElementById("cal-week-label");
   var prev = document.getElementById("cal-prev");
-  if(!grid) return;
+  if(!dates) return;
   var now = new Date();
   var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   var dow = today.getDay();
   var monOff = dow === 0 ? -6 : 1 - dow;
   var monday = new Date(today); monday.setDate(monday.getDate() + monOff + (calWeekOffset * 7));
   if(prev) prev.style.opacity = calWeekOffset === 0 ? "0.3" : "1";
-  var ms = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+  var ms = ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
   var dn = ["Lun","Mar","Mer","Jeu","Ven","Sam"];
   var sat = new Date(monday); sat.setDate(sat.getDate()+5);
   label.textContent = monday.getMonth()===sat.getMonth()
-    ? monday.getDate()+" — "+sat.getDate()+" "+ms[monday.getMonth()]
-    : monday.getDate()+" "+ms[monday.getMonth()].substring(0,4)+". — "+sat.getDate()+" "+ms[sat.getMonth()].substring(0,4)+".";
+    ? ms[monday.getMonth()]+" "+monday.getFullYear()
+    : ms[monday.getMonth()]+" — "+ms[sat.getMonth()]+" "+sat.getFullYear();
+  var html = "";
+  for(var d=0;d<6;d++){
+    var day = new Date(monday); day.setDate(day.getDate()+d);
+    var ds = day.getFullYear()+"-"+String(day.getMonth()+1).padStart(2,"0")+"-"+String(day.getDate()).padStart(2,"0");
+    var past = day < today;
+    var isToday = day.getTime()===today.getTime();
+    var isSel = selectedDate===ds;
+    var bg, textCol, numCol, cursor, click;
+    if(isSel){ bg="var(--terra)"; textCol="white"; numCol="white"; cursor="pointer"; }
+    else if(past){ bg="var(--s2)"; textCol="var(--clow)"; numCol="var(--clow)"; cursor="default"; }
+    else if(isToday){ bg="var(--s2)"; textCol="var(--terra)"; numCol="var(--terra)"; cursor="pointer"; }
+    else { bg="var(--s2)"; textCol="var(--cdim)"; numCol="var(--cream)"; cursor="pointer"; }
+    click = past ? "" : 'onclick="selectDate(\''+ds+'\')"';
+    html += '<div '+click+' style="text-align:center;padding:9px 2px;border-radius:10px;background:'+bg+';cursor:'+cursor+';transition:.15s;'+(isToday&&!isSel?'box-shadow:0 0 0 1.5px var(--terra)':'')+'">'
+      +'<div style="font-family:\'DM Mono\',monospace;font-size:8px;letter-spacing:.06em;color:'+textCol+';margin-bottom:5px">'+dn[d]+'</div>'
+      +'<div style="font-family:\'Cormorant Garamond\',serif;font-size:21px;font-weight:300;line-height:1;color:'+numCol+'">'+day.getDate()+'</div>'
+      +'</div>';
+  }
+  dates.innerHTML = html;
+}
+
+function selectDate(date){
+  selectedDate = date; selectedTime = null;
+  renderCalendar();
+  renderSlots();
+  document.getElementById("cal-selected-info").style.display = "none";
+}
+
+function renderSlots(){
+  var panel = document.getElementById("cal-slots-panel");
+  var grid = document.getElementById("cal-slots-grid");
+  var noSlots = document.getElementById("cal-no-slots");
+  var slotLabel = document.getElementById("cal-slots-label");
+  if(!panel || !selectedDate){ if(panel) panel.style.display="none"; return; }
+  panel.style.display = "block";
+  slotLabel.textContent = formatDateFR(selectedDate);
+  var now = new Date();
+  var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  var p = selectedDate.split("-");
+  var selDay = new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2]));
+  var isCD = selDay.getTime()===today.getTime();
+  var past = selDay < today;
   var allRdv = db.getObj("prima_rdv",[]);
   var booked = {};
   for(var b=0;b<allRdv.length;b++){
@@ -2380,37 +2432,23 @@ function renderCalendar(){
       booked[allRdv[b].date+"_"+allRdv[b].time] = true;
     }
   }
-  var html = "";
-  for(var d=0;d<6;d++){
-    var day = new Date(monday); day.setDate(day.getDate()+d);
-    var isT = day.getTime()===today.getTime();
-    html += '<div style="text-align:center;padding:6px 0;'+(isT?'background:rgba(168,66,26,.08);border-radius:8px':'')+'">'
-      +'<div style="font-size:9px;color:var(--cdim)">'+dn[d]+'</div>'
-      +'<div style="font-family:\'Cormorant Garamond\',serif;font-size:16px;color:'+(isT?'var(--terra)':'var(--cream)')+'">'+day.getDate()+'</div></div>';
-  }
-  for(var d=0;d<6;d++){
-    var day = new Date(monday); day.setDate(day.getDate()+d);
-    var ds = day.getFullYear()+"-"+String(day.getMonth()+1).padStart(2,"0")+"-"+String(day.getDate()).padStart(2,"0");
-    var past = day < today;
-    var isCD = day.getTime()===today.getTime();
-    html += '<div style="display:flex;flex-direction:column;gap:3px;padding:2px 1px">';
-    for(var s=0;s<defaultSlots.length;s++){
-      var sl = defaultSlots[s];
-      var sH = parseInt(sl.split(":")[0]);
-      var sM = parseInt(sl.split(":")[1]);
-      var gone = past||(isCD&&(sH<now.getHours()||(sH===now.getHours()&&sM<=now.getMinutes())));
-      var taken = booked[ds+"_"+sl];
-      var sel = selectedDate===ds && selectedTime===sl;
-      if(gone||taken){
-        html += '<div style="height:26px"></div>';
-      } else {
-        var st = sel ? "background:var(--terra);color:white;border-color:var(--terra)" : "background:rgba(46,107,72,.06);color:var(--green);border-color:rgba(46,107,72,.15)";
-        html += '<button onclick="selectSlot(\''+ds+'\',\''+sl+'\')" style="padding:4px 1px;border-radius:5px;font-family:\'DM Mono\',monospace;font-size:9px;cursor:pointer;border:1px solid;transition:.15s;'+st+'">'+sl+'</button>';
-      }
-    }
-    html += '</div>';
+  var html = ""; var hasSlots = false;
+  for(var s=0;s<defaultSlots.length;s++){
+    var sl = defaultSlots[s];
+    var sH = parseInt(sl.split(":")[0]);
+    var sM = parseInt(sl.split(":")[1]);
+    var gone = past||(isCD&&(sH<now.getHours()||(sH===now.getHours()&&sM<=now.getMinutes())));
+    if(gone || booked[selectedDate+"_"+sl]) continue;
+    hasSlots = true;
+    var sel = selectedTime===sl;
+    var st = sel
+      ? "background:var(--terra);color:white;border-color:var(--terra)"
+      : "background:var(--s2);color:var(--cream);border-color:var(--line2)";
+    html += '<button onclick="selectSlot(\''+selectedDate+'\',\''+sl+'\')" style="padding:12px 4px;border-radius:8px;font-family:\'DM Mono\',monospace;font-size:12px;letter-spacing:.04em;cursor:pointer;border:1px solid;transition:.15s;'+st+'">'+sl+'</button>';
   }
   grid.innerHTML = html;
+  noSlots.style.display = hasSlots ? "none" : "block";
+  grid.style.display = hasSlots ? "grid" : "none";
 }
 
 function formatDateFR(date){
@@ -2423,7 +2461,7 @@ function formatDateFR(date){
 
 function selectSlot(date, time){
   selectedDate = date; selectedTime = time;
-  renderCalendar();
+  renderSlots();
   var info = document.getElementById("cal-selected-info");
   info.innerHTML = "✓ "+formatDateFR(date)+" à "+time;
   info.style.display = "block";
