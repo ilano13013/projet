@@ -908,6 +908,7 @@ nav.visible{display:flex}
           <div class="form-group"><label class="form-label">Motif de la consultation</label><select class="form-input" id="book-motif" style="background:var(--s1)">
             <option value="">Choisir...</option>
             <option>Première consultation</option>
+            <option>Téléconsultation</option>
             <option>Violence conjugale</option>
             <option>Harcèlement au travail</option>
             <option>Discrimination</option>
@@ -981,6 +982,24 @@ nav.visible{display:flex}
   <div class="screen" id="s-stats">
     <div class="page-header"><div><div class="page-title">Mes <em>statistiques</em></div><div class="page-tag">Tableau de bord</div></div></div>
     <div style="padding:0 18px 18px" id="stats-content"></div>
+  </div>
+
+  <!-- TÉLÉCONSULTATION -->
+  <div class="screen" id="s-teleconsult">
+    <div class="page-header"><div><div class="page-title">Télé<em>consultation</em></div><div class="page-tag">Séances à distance</div></div></div>
+    <div style="padding:0 18px 18px" id="teleconsult-content"></div>
+  </div>
+
+  <!-- GESTION ADMINISTRATIVE -->
+  <div class="screen" id="s-gestion-admin">
+    <div class="page-header"><div><div class="page-title">Gestion <em>administrative</em></div><div class="page-tag">Tâches et dossiers</div></div></div>
+    <div id="gestion-content"></div>
+  </div>
+
+  <!-- FACTURATION -->
+  <div class="screen" id="s-facturation">
+    <div class="page-header"><div><div class="page-title">Ma <em>facturation</em></div><div class="page-tag">Devis et factures</div></div></div>
+    <div id="facturation-content"></div>
   </div>
 
   <!-- LEGAL -->
@@ -1637,7 +1656,7 @@ function updateProfileUI(){
       +'<div class="tile-name">Dossier client</div><div class="tile-desc">Suivi des consultations</div>'
       +(isPrem?'':'<div class="tile-lock-badge">🔒 Premium</div>')+'</div>';
 
-    html += '<div class="home-tile'+(isPrem?'':' locked')+'" onclick="'+(isPrem?'showToast(\'Téléconsultation — bientôt disponible\')':'requireTier(\'premium\')')+'">'
+    html += '<div class="home-tile'+(isPrem?'':' locked')+'" onclick="'+(isPrem?'goTo(\'teleconsult\')':'requireTier(\'premium\')')+'">'
       +'<div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="'+(isPrem?'var(--terra)':'var(--clow)')+'" stroke-width="1.5" stroke-linecap="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div>'
       +'<div class="tile-name">Téléconsultation</div><div class="tile-desc">Consultations à distance</div>'
       +(isPrem?'':'<div class="tile-lock-badge">🔒 Premium</div>')+'</div>';
@@ -1653,12 +1672,12 @@ function updateProfileUI(){
       +'<div class="tile-name">Statistiques</div><div class="tile-desc">Tableau de bord</div>'
       +(isExp?'':'<div class="tile-lock-badge">🔒 Expert</div>')+'</div>';
 
-    html += '<div class="home-tile'+(isExp?'':' locked')+'" onclick="'+(isExp?'showToast(\'Facturation — bientôt disponible\')':'requireTier(\'expert\')')+'">'
+    html += '<div class="home-tile'+(isExp?'':' locked')+'" onclick="'+(isExp?'goTo(\'facturation\')':'requireTier(\'expert\')')+'">'
       +'<div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="'+(isExp?'var(--terra)':'var(--clow)')+'" stroke-width="1.5" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>'
       +'<div class="tile-name">Facturation</div><div class="tile-desc">Devis et factures</div>'
       +(isExp?'':'<div class="tile-lock-badge">🔒 Expert</div>')+'</div>';
 
-    html += '<div class="home-tile'+(isExp?'':' locked')+'" onclick="'+(isExp?'showToast(\'Gestion administrative — bientôt disponible\')':'requireTier(\'expert\')')+'">'
+    html += '<div class="home-tile'+(isExp?'':' locked')+'" onclick="'+(isExp?'goTo(\'gestion-admin\')':'requireTier(\'expert\')')+'">'
       +'<div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="'+(isExp?'var(--terra)':'var(--clow)')+'" stroke-width="1.5" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>'
       +'<div class="tile-name">Gestion admin.</div><div class="tile-desc">Documents et dossiers</div>'
       +(isExp?'':'<div class="tile-lock-badge">🔒 Expert</div>')+'</div>';
@@ -2928,6 +2947,9 @@ goTo = function(id){
   if(id==="abonnement") loadAboScreen();
   if(id==="legal") showLegal("cgu");
   if(id==="stats") renderStats();
+  if(id==="teleconsult") renderTeleconsult();
+  if(id==="gestion-admin") renderGestion();
+  if(id==="facturation") renderFacturation();
   if(id==="annuaire"){
     var isPro = currentUser && currentUser.role === "professionnel";
     var tag = document.getElementById("annuaire-tag");
@@ -3233,6 +3255,218 @@ function renderStats(){
   var avgPrice = types.reduce(function(s,t){return s+t.price},0)/types.length;
   html += '<div style="background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--shadow)"><div style="font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--cdim);margin-bottom:8px">Chiffre d\'affaires estimé</div><div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;color:var(--green)">'+Math.round(done*avgPrice)+'€</div><div style="font-size:10px;color:var(--cdim);margin-top:4px">Basé sur '+done+' consultations × '+Math.round(avgPrice)+'€ moyen</div></div>';
   wrap.innerHTML = html;
+}
+
+/* ═══ TÉLÉCONSULTATION ═══ */
+function renderTeleconsult(){
+  var wrap = document.getElementById('teleconsult-content');
+  if(!wrap||!currentUser) return;
+  var pp = currentUser.proProfile||{};
+  var lnk = escH(pp.teleconsultLink||'');
+  var prix = escH(pp.teleconsultPrice||'');
+  var rdvs = getProAppointments().filter(function(r){
+    return (r.status==='pending'||r.status==='confirmed') && new Date(r.date+'T'+r.time).getTime()>=Date.now();
+  }).sort(function(a,b){return (a.date+a.time).localeCompare(b.date+b.time);});
+  var h='';
+  h+='<div style="font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:var(--cdim);display:flex;align-items:center;gap:12px;margin-bottom:12px">Paramètres<span style="flex:1;height:1px;background:var(--line)"></span></div>';
+  h+='<div style="background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-bottom:18px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow)">';
+  h+='<div class="prof-field"><label class="prof-label">Lien de visioconférence</label><input class="prof-input" type="url" id="tc-link" placeholder="https://zoom.us/j/... · meet.google.com/..." value="'+lnk+'"></div>';
+  h+='<div style="font-size:10px;color:var(--cdim);line-height:1.65;margin-top:-6px">Zoom, Google Meet, Microsoft Teams — ce lien est partagé à vos clients à la confirmation du RDV.</div>';
+  h+='<div class="prof-field"><label class="prof-label">Tarif de la séance (€)</label><input class="prof-input" type="number" id="tc-price" placeholder="80" value="'+prix+'" min="0"></div>';
+  h+='<button class="prof-save-btn" onclick="saveTeleconsultSettings()">Enregistrer les paramètres</button>';
+  h+='</div>';
+  h+='<div style="font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:var(--cdim);display:flex;align-items:center;gap:12px;margin-bottom:12px">Prochaines séances · '+rdvs.length+'<span style="flex:1;height:1px;background:var(--line)"></span></div>';
+  if(!rdvs.length){
+    h+='<div class="empty-state"><div class="empty-icon">📹</div><div class="empty-text">Aucune séance à venir<br><span style="font-size:10px">Les RDV avec motif « Téléconsultation » apparaissent ici</span></div></div>';
+  } else {
+    rdvs.forEach(function(r){
+      var ds = new Date(r.date+'T'+r.time).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+      var isCnf = r.status==='confirmed';
+      h+='<div style="background:var(--s1);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:10px;box-shadow:var(--shadow)">';
+      h+='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">';
+      h+='<div><div style="font-family:\'Cormorant Garamond\',serif;font-size:17px;color:var(--cream)">'+escH(r.prenom)+' '+escH(r.nom)+'</div>';
+      h+='<div style="font-size:10.5px;color:var(--cdim);margin-top:3px">'+escH(ds)+' · '+escH(r.time)+'</div></div>';
+      h+='<div style="font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:4px;'+(isCnf?'background:rgba(46,107,72,.1);color:var(--green);border:1px solid rgba(46,107,72,.2)':'background:rgba(184,146,42,.1);color:var(--gold-l);border:1px solid rgba(184,146,42,.2)')+'">'+escH(isCnf?'Confirmé':'En attente')+'</div>';
+      h+='</div>';
+      h+='<div style="font-size:11px;color:var(--cdim);padding:8px 0;border-top:1px solid var(--line)">'+escH(r.motif)+(r.telephone?'<span style="margin-left:10px;color:var(--terra)">'+escH(r.telephone)+'</span>':'')+'</div>';
+      if(pp.teleconsultLink && isCnf){
+        h+='<a href="'+escH(pp.teleconsultLink)+'" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;background:var(--terra);color:#fff;padding:12px;border-radius:8px;font-family:\'DM Mono\',monospace;font-size:11px;letter-spacing:.1em;text-decoration:none;margin-top:10px;text-transform:uppercase">▶ Rejoindre la séance</a>';
+      } else if(!pp.teleconsultLink){
+        h+='<div style="margin-top:10px;font-size:10px;color:var(--cdim);text-align:center;padding:9px;border:1px dashed var(--line2);border-radius:6px">Configurez votre lien de visio ci-dessus</div>';
+      } else {
+        h+='<div style="margin-top:10px;font-size:10px;color:var(--gold-l);text-align:center;padding:9px;border:1px solid rgba(184,146,42,.2);border-radius:6px">En attente de confirmation avant d\'accéder à la séance</div>';
+      }
+      h+='</div>';
+    });
+  }
+  wrap.innerHTML = h;
+}
+
+function saveTeleconsultSettings(){
+  if(!currentUser||!currentUser.proProfile) return;
+  var le=document.getElementById('tc-link'), pe=document.getElementById('tc-price');
+  if(!le) return;
+  currentUser.proProfile.teleconsultLink = le.value.trim();
+  currentUser.proProfile.teleconsultPrice = pe?pe.value.trim():'';
+  var users=db.getObj('prima_users',[]); var idx=users.findIndex(function(u){return u.id===currentUser.id;});
+  if(idx>=0){users[idx]=currentUser;saveUsers(users);}
+  showToast('Paramètres enregistrés ✓'); renderTeleconsult();
+}
+
+/* ═══ GESTION ADMINISTRATIVE ═══ */
+var gestionFormOpen = false;
+function toggleGestionForm(){
+  gestionFormOpen = !gestionFormOpen;
+  var f=document.getElementById('gestion-form');
+  if(f) f.style.display = gestionFormOpen?'flex':'none';
+}
+function saveTask(){
+  var title=(document.getElementById('g-title')||{}).value||'';
+  if(!title.trim()){showToast('Indiquez un intitulé');return;}
+  var tasks=db.getObj('prima_tasks',[]);
+  tasks.push({id:Date.now(),proId:currentUser.id,title:title.trim(),dueDate:(document.getElementById('g-date')||{}).value||'',cat:(document.getElementById('g-cat')||{}).value||'autre',client:(document.getElementById('g-client')||{}).value||'',done:false,createdAt:Date.now()});
+  db.setObj('prima_tasks',tasks); gestionFormOpen=false; renderGestion();
+}
+function toggleTaskDone(id){
+  var tasks=db.getObj('prima_tasks',[]); var idx=tasks.findIndex(function(t){return t.id===id;});
+  if(idx>=0){tasks[idx].done=!tasks[idx].done;db.setObj('prima_tasks',tasks);} renderGestion();
+}
+function deleteTask(id){
+  var tasks=db.getObj('prima_tasks',[]).filter(function(t){return t.id!==id;});
+  db.setObj('prima_tasks',tasks); renderGestion();
+}
+function renderGestion(){
+  var wrap=document.getElementById('gestion-content');
+  if(!wrap||!currentUser) return;
+  var today=new Date().toISOString().slice(0,10);
+  var tasks=db.getObj('prima_tasks',[]).filter(function(t){return t.proId===currentUser.id;});
+  tasks.sort(function(a,b){
+    if(a.done&&!b.done) return 1; if(!a.done&&b.done) return -1;
+    return (a.dueDate||'9999').localeCompare(b.dueDate||'9999');
+  });
+  var pending=tasks.filter(function(t){return !t.done;}).length;
+  var done=tasks.filter(function(t){return t.done;}).length;
+  var overdue=tasks.filter(function(t){return !t.done&&t.dueDate&&t.dueDate<today;}).length;
+  var catDot={procedure:'var(--terra)',dossier:'#5A7ABF',deadline:'var(--red)',admin:'var(--gold-l)',autre:'var(--clow)'};
+  var catLbl={procedure:'Procédure',dossier:'Dossier client',deadline:'Délai légal',admin:'Administratif',autre:'Autre'};
+  var h='';
+  h+='<button class="add-btn" onclick="toggleGestionForm()">＋ &nbsp;Nouvelle tâche</button>';
+  h+='<div class="inc-form" id="gestion-form" style="display:'+(gestionFormOpen?'flex':'none')+'">';
+  h+='<div class="form-group"><label class="form-label">Intitulé</label><input class="form-input" type="text" id="g-title" placeholder="Ex : Préparer assignation Dupont…"></div>';
+  h+='<div class="form-row"><div class="form-group"><label class="form-label">Échéance</label><input class="form-input" type="date" id="g-date"></div>';
+  h+='<div class="form-group"><label class="form-label">Catégorie</label><select class="form-input" id="g-cat"><option value="procedure">Procédure</option><option value="dossier">Dossier client</option><option value="deadline">Délai légal</option><option value="admin">Administratif</option><option value="autre">Autre</option></select></div></div>';
+  h+='<div class="form-group"><label class="form-label">Client (optionnel)</label><input class="form-input" type="text" id="g-client" placeholder="Nom du client"></div>';
+  h+='<div class="form-actions"><button class="btn-save" onclick="saveTask()">Ajouter</button><button class="btn-cancel" onclick="toggleGestionForm()">Annuler</button></div></div>';
+  if(tasks.length){
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:0 18px 14px">';
+    h+='<div style="background:var(--s1);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center;box-shadow:var(--shadow)"><div style="font-family:\'Cormorant Garamond\',serif;font-size:30px;color:var(--cream)">'+pending+'</div><div style="font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--cdim);margin-top:3px">En cours</div></div>';
+    h+='<div style="background:var(--s1);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center;box-shadow:var(--shadow)"><div style="font-family:\'Cormorant Garamond\',serif;font-size:30px;color:var(--green)">'+done+'</div><div style="font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--cdim);margin-top:3px">Terminées</div></div>';
+    h+='<div style="background:var(--s1);border:1px solid '+(overdue?'rgba(196,24,12,.3)':'var(--line)')+';border-radius:12px;padding:14px;text-align:center;box-shadow:var(--shadow)"><div style="font-family:\'Cormorant Garamond\',serif;font-size:30px;color:'+(overdue?'var(--red)':'var(--cdim)')+'">'+overdue+'</div><div style="font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--cdim);margin-top:3px">En retard</div></div>';
+    h+='</div>';
+  }
+  if(!tasks.length){
+    h+='<div class="empty-state"><div class="empty-icon">☑</div><div class="empty-text">Aucune tâche administrative</div></div>';
+  } else {
+    h+='<div style="padding:0 18px;display:flex;flex-direction:column;gap:8px">';
+    tasks.forEach(function(t){
+      var isOvr=!t.done&&t.dueDate&&t.dueDate<today;
+      var dlbl=t.dueDate?new Date(t.dueDate+'T12:00:00').toLocaleDateString('fr-FR',{day:'numeric',month:'short'}):'';
+      var dc=catDot[t.cat||'autre']||'var(--clow)'; var dl=catLbl[t.cat||'autre']||'Autre';
+      h+='<div style="background:var(--s1);border:1px solid '+(isOvr?'rgba(196,24,12,.3)':'var(--line)')+';border-radius:12px;padding:13px 14px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow);'+(t.done?'opacity:.5':'')+(isOvr?';background:rgba(196,24,12,.03)':'')+'">';
+      h+='<button onclick="toggleTaskDone('+t.id+')" style="width:22px;height:22px;border-radius:50%;border:2px solid '+(t.done?'var(--green)':'var(--line2)')+';background:'+(t.done?'var(--green)':'transparent')+';cursor:pointer;flex:0 0 auto;color:#fff;font-size:11px;line-height:1;display:flex;align-items:center;justify-content:center">'+(t.done?'✓':'')+'</button>';
+      h+='<div style="flex:1;min-width:0">';
+      h+='<div style="font-size:13px;color:var(--cream);text-decoration:'+(t.done?'line-through':'none')+';line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escH(t.title)+'</div>';
+      h+='<div style="display:flex;align-items:center;gap:8px;margin-top:5px;flex-wrap:wrap">';
+      h+='<span style="font-size:8.5px;letter-spacing:.06em;color:'+dc+'">● '+escH(dl)+'</span>';
+      if(t.dueDate) h+='<span style="font-size:9px;color:'+(isOvr?'var(--red)':'var(--cdim)')+'">'+escH(dlbl)+'</span>';
+      if(t.client) h+='<span style="font-size:9px;color:var(--cdim)">· '+escH(t.client)+'</span>';
+      h+='</div></div>';
+      h+='<button onclick="deleteTask('+t.id+')" style="background:none;border:none;color:var(--clow);cursor:pointer;font-size:16px;padding:4px;border-radius:4px;line-height:1" title="Supprimer">×</button>';
+      h+='</div>';
+    });
+    h+='</div>';
+  }
+  wrap.innerHTML = h;
+}
+
+/* ═══ FACTURATION ═══ */
+var factureFormOpen = false;
+function toggleFactureForm(){
+  factureFormOpen=!factureFormOpen;
+  var f=document.getElementById('facture-form');
+  if(f) f.style.display=factureFormOpen?'flex':'none';
+}
+function saveFacture(){
+  var client=(document.getElementById('f-client')||{}).value||'';
+  var service=(document.getElementById('f-service')||{}).value||'';
+  var amount=parseFloat((document.getElementById('f-amount')||{}).value)||0;
+  var date=(document.getElementById('f-date-fact')||{}).value||new Date().toISOString().slice(0,10);
+  if(!client.trim()||!amount){showToast('Client et montant requis');return;}
+  var facts=db.getObj('prima_factures',[]);
+  var num='F-'+String(facts.filter(function(f){return f.proId===currentUser.id;}).length+1).padStart(3,'0');
+  facts.push({id:Date.now(),proId:currentUser.id,num:num,client:client.trim(),service:service.trim(),amount:amount,date:date,status:'en_attente',createdAt:Date.now()});
+  db.setObj('prima_factures',facts); factureFormOpen=false; renderFacturation();
+}
+function updateFactureStatus(id,status){
+  var facts=db.getObj('prima_factures',[]); var idx=facts.findIndex(function(f){return f.id===id;});
+  if(idx>=0){facts[idx].status=status;db.setObj('prima_factures',facts);} renderFacturation();
+}
+function deleteFacture(id){
+  var facts=db.getObj('prima_factures',[]).filter(function(f){return f.id!==id;});
+  db.setObj('prima_factures',facts); renderFacturation();
+}
+function renderFacturation(){
+  var wrap=document.getElementById('facturation-content');
+  if(!wrap||!currentUser) return;
+  var facts=db.getObj('prima_factures',[]).filter(function(f){return f.proId===currentUser.id;});
+  facts.sort(function(a,b){return b.createdAt-a.createdAt;});
+  var totalFact=facts.reduce(function(s,f){return s+(f.status!=='annulee'?f.amount:0);},0);
+  var totalEnc=facts.reduce(function(s,f){return s+(f.status==='payee'?f.amount:0);},0);
+  var h='';
+  if(facts.length){
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">';
+    h+='<div style="background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:18px;box-shadow:var(--shadow)"><div style="font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--cdim);margin-bottom:6px">Total facturé</div><div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;color:var(--cream)">'+totalFact.toFixed(0)+'<span style="font-size:16px">€</span></div></div>';
+    h+='<div style="background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:18px;box-shadow:var(--shadow)"><div style="font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--cdim);margin-bottom:6px">Encaissé</div><div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;color:var(--green)">'+totalEnc.toFixed(0)+'<span style="font-size:16px">€</span></div></div>';
+    h+='</div>';
+  }
+  h+='<button class="add-btn" onclick="toggleFactureForm()">＋ &nbsp;Nouvelle facture</button>';
+  h+='<div class="inc-form" id="facture-form" style="display:'+(factureFormOpen?'flex':'none')+'">';
+  h+='<div class="form-group"><label class="form-label">Client</label><input class="form-input" type="text" id="f-client" placeholder="Nom Prénom ou Société"></div>';
+  h+='<div class="form-group"><label class="form-label">Prestation</label><input class="form-input" type="text" id="f-service" placeholder="Ex : Consultation initiale — Violence conjugale"></div>';
+  h+='<div class="form-row"><div class="form-group"><label class="form-label">Montant (€)</label><input class="form-input" type="number" id="f-amount" placeholder="150" min="0" step="0.01"></div>';
+  h+='<div class="form-group"><label class="form-label">Date</label><input class="form-input" type="date" id="f-date-fact" value="'+new Date().toISOString().slice(0,10)+'"></div></div>';
+  h+='<div class="form-actions"><button class="btn-save" onclick="saveFacture()">Créer la facture</button><button class="btn-cancel" onclick="toggleFactureForm()">Annuler</button></div></div>';
+  if(!facts.length){
+    h+='<div class="empty-state"><div class="empty-icon">🧾</div><div class="empty-text">Aucune facture pour l\'instant</div></div>';
+  } else {
+    h+='<div style="padding:0 18px;display:flex;flex-direction:column;gap:10px;margin-top:4px">';
+    var stLbl={en_attente:'En attente',payee:'Payée',annulee:'Annulée'};
+    var stCol={en_attente:'var(--gold-l)',payee:'var(--green)',annulee:'var(--clow)'};
+    var stBg={en_attente:'rgba(184,146,42,.1)',payee:'rgba(46,107,72,.1)',annulee:'rgba(154,142,128,.1)'};
+    var stBd={en_attente:'rgba(184,146,42,.25)',payee:'rgba(46,107,72,.2)',annulee:'rgba(154,142,128,.2)'};
+    facts.forEach(function(f){
+      var dl=new Date(f.date+'T12:00:00').toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
+      h+='<div style="background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--shadow)">';
+      h+='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">';
+      h+='<div><div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--cdim);margin-bottom:3px">'+escH(f.num||'—')+'</div>';
+      h+='<div style="font-family:\'Cormorant Garamond\',serif;font-size:18px;color:var(--cream)">'+escH(f.client)+'</div>';
+      if(f.service) h+='<div style="font-size:11px;color:var(--cdim);margin-top:2px;line-height:1.4">'+escH(f.service)+'</div>';
+      h+='</div>';
+      h+='<div style="text-align:right"><div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:var(--terra)">'+f.amount.toFixed(0)+'€</div>';
+      h+='<div style="font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;color:'+stCol[f.status]+';background:'+stBg[f.status]+';border:1px solid '+stBd[f.status]+';padding:2px 8px;border-radius:4px;margin-top:4px">'+escH(stLbl[f.status])+'</div></div>';
+      h+='</div>';
+      h+='<div style="font-size:10px;color:var(--cdim);padding-top:9px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between">';
+      h+='<span>'+escH(dl)+'</span>';
+      h+='<div style="display:flex;gap:6px">';
+      if(f.status==='en_attente') h+='<button onclick="updateFactureStatus('+f.id+',\'payee\')" style="background:rgba(46,107,72,.1);color:var(--green);border:1px solid rgba(46,107,72,.2);padding:5px 10px;border-radius:6px;font-family:\'DM Mono\',monospace;font-size:9px;cursor:pointer;letter-spacing:.06em">✓ Marquer payée</button>';
+      if(f.status==='en_attente') h+='<button onclick="updateFactureStatus('+f.id+',\'annulee\')" style="background:rgba(154,142,128,.1);color:var(--cdim);border:1px solid rgba(154,142,128,.2);padding:5px 10px;border-radius:6px;font-family:\'DM Mono\',monospace;font-size:9px;cursor:pointer">Annuler</button>';
+      if(f.status!=='en_attente') h+='<button onclick="deleteFacture('+f.id+')" style="background:none;border:none;color:var(--clow);cursor:pointer;font-size:15px;padding:2px 6px;border-radius:4px">×</button>';
+      h+='</div></div>';
+      h+='</div>';
+    });
+    h+='</div>';
+  }
+  wrap.innerHTML = h;
 }
 
 /* ═══ ADVANCED FILTERS ═══ */
