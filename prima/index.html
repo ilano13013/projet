@@ -130,6 +130,14 @@ nav.visible{display:flex}
 .tile-name{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:400;color:var(--cream);line-height:1.2}
 .tile-desc{font-size:9.5px;color:var(--cdim);line-height:1.6;letter-spacing:.03em}
 .tile-badge{font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);background:rgba(184,146,42,.1);border:1px solid rgba(184,146,42,.2);padding:2px 7px;border-radius:3px;display:inline-block;margin-top:2px}
+/* Pro feature gating */
+.home-tile.locked{opacity:.42}
+.home-tile.locked:hover,.home-tile.locked:active{background:var(--s1)}
+.tile-lock-badge{position:absolute;top:9px;right:9px;display:flex;align-items:center;gap:3px;font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--cdim);background:var(--s2);border:1px solid var(--line2);padding:2px 7px;border-radius:4px;font-family:'DM Mono',monospace}
+.pro-section-lbl{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--cdim);padding:0 18px;margin:14px 0 8px;display:flex;align-items:center;gap:10px}
+.pro-section-lbl span{flex:1;height:1px;background:var(--line);display:block}
+.pro-section-lbl.unlocked{color:var(--green)}
+.pro-section-lbl.locked-lbl{color:var(--clow)}
 /* Situation tiles — single-column horizontal row layout */
 #home-grid-part{grid-template-columns:1fr;gap:8px}
 #home-grid-part .home-tile{display:grid;grid-template-columns:42px 1fr 16px;grid-template-rows:auto auto;column-gap:14px;row-gap:3px;min-height:0;padding:15px 16px;align-items:start}
@@ -949,6 +957,20 @@ nav.visible{display:flex}
     </div>
   </div>
 
+  <!-- UPGRADE MODAL -->
+  <div id="upgrade-modal" style="display:none;position:fixed;inset:0;z-index:700;background:rgba(28,25,20,.55);align-items:flex-end;justify-content:center">
+    <div style="background:var(--s1);border-radius:24px 24px 0 0;padding:28px 24px calc(32px + env(safe-area-inset-bottom));width:100%;max-width:480px;box-shadow:0 -4px 24px rgba(44,36,22,.12)">
+      <div style="width:32px;height:3px;background:var(--line2);border-radius:2px;margin:0 auto 24px"></div>
+      <div style="text-align:center;margin-bottom:24px">
+        <div style="width:56px;height:56px;background:rgba(168,66,26,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:24px">🔒</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--cream);line-height:1.2" id="upgrade-modal-title">Formule Premium requise</div>
+        <div style="font-size:12px;color:var(--cdim);line-height:1.7;margin-top:10px" id="upgrade-modal-desc">Cette fonctionnalité est disponible dans la formule Premium (49€/mois).</div>
+      </div>
+      <button class="auth-btn" onclick="closeUpgradeModal();goTo('abonnement')" style="margin-bottom:10px">Voir les formules d'abonnement →</button>
+      <button onclick="closeUpgradeModal()" style="width:100%;padding:12px;background:transparent;border:none;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--cdim);cursor:pointer">Pas maintenant</button>
+    </div>
+  </div>
+
   <!-- PRO DETAIL VIEW (for clients) -->
   <div class="screen" id="s-pro-detail">
     <div class="page-header"><div><div class="page-title">Profil <em id="pro-detail-title">avocat·e</em></div><div class="page-tag">Détails du cabinet</div></div><button onclick="goTo('annuaire')" style="background:var(--s1);border:1px solid var(--line2);border-radius:8px;padding:8px 14px;font-family:'DM Mono',monospace;font-size:10px;color:var(--cdim);cursor:pointer;margin-bottom:6px">← Retour</button></div>
@@ -1575,14 +1597,72 @@ function updateProfileUI(){
   if(isPro){
     var pp = currentUser.proProfile || {};
     var tier = pp.tier || 'gratuit';
+    var tOrd = {gratuit:0,premium:1,expert:2};
+    var tVal = tOrd[tier]||0;
+    var isPrem = tVal >= 1;
+    var isExp  = tVal >= 2;
     var rdvCount = getProAppointments().length;
-    html += '<div style="padding:0 18px;margin-bottom:10px"><div style="font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:var(--cdim);display:flex;align-items:center;gap:12px">Espace Professionnel<span style="flex:1;height:1px;background:var(--line);display:block"></span></div></div>';
+
+    html += '<div class="pro-section-lbl">Espace professionnel<span></span></div>';
+    html += '<div class="home-grid" style="padding:0 18px 6px">';
+
+    /* — Toujours disponible — */
+    html += '<div class="home-tile" onclick="goTo(\'pro-profil\')">'
+      +'<div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--terra)" stroke-width="1.5" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>'
+      +'<div class="tile-name">Mon profil pro</div><div class="tile-desc">Cabinet, tarifs, spécialités</div></div>';
+
+    html += '<div class="home-tile" onclick="goTo(\'abonnement\')" style="border-color:rgba(184,146,42,.3)">'
+      +'<div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold-l)" stroke-width="1.5" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>'
+      +'<div class="tile-name">Mon abonnement</div><div class="tile-desc">Formule : '+tier+'</div>'
+      +'<div class="tile-badge">'+(tier==='gratuit'?'Passer Premium':'Actif')+'</div></div>';
+
+    html += '</div>';
+
+    /* — Formule Premium — */
+    html += '<div class="pro-section-lbl '+(isPrem?'unlocked':'locked-lbl')+'">'+(isPrem?'✓ Premium inclus':'Formule Premium — 49€/mois')+'<span></span></div>';
+    html += '<div class="home-grid" style="padding:0 18px 6px">';
+
+    html += '<div class="home-tile'+(isPrem?'':' locked')+'" onclick="'+(isPrem?'goTo(\'planning\')':'requireTier(\'premium\')')+'">'
+      +'<div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="'+(isPrem?'var(--green)':'var(--clow)')+'" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>'
+      +'<div class="tile-name">Mon planning</div><div class="tile-desc">'+(isPrem?rdvCount+' rendez-vous':'RDV en ligne')+'</div>'
+      +(isPrem?'':'<div class="tile-lock-badge">🔒 Premium</div>')+'</div>';
+
+    html += '<div class="home-tile'+(isPrem?'':' locked')+'" onclick="'+(isPrem?'goTo(\'annuaire\')':'requireTier(\'premium\')')+'">'
+      +'<div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="'+(isPrem?'var(--terra)':'var(--clow)')+'" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>'
+      +'<div class="tile-name">Ma fiche annuaire</div><div class="tile-desc">Visibilité publique</div>'
+      +(isPrem?'':'<div class="tile-lock-badge">🔒 Premium</div>')+'</div>';
+
+    html += '<div class="home-tile'+(isPrem?'':' locked')+'" onclick="'+(isPrem?'showToast(\'Dossier client — bientôt disponible\')':'requireTier(\'premium\')')+'">'
+      +'<div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="'+(isPrem?'var(--terra)':'var(--clow)')+'" stroke-width="1.5" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>'
+      +'<div class="tile-name">Dossier client</div><div class="tile-desc">Suivi des consultations</div>'
+      +(isPrem?'':'<div class="tile-lock-badge">🔒 Premium</div>')+'</div>';
+
+    html += '<div class="home-tile'+(isPrem?'':' locked')+'" onclick="'+(isPrem?'showToast(\'Téléconsultation — bientôt disponible\')':'requireTier(\'premium\')')+'">'
+      +'<div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="'+(isPrem?'var(--terra)':'var(--clow)')+'" stroke-width="1.5" stroke-linecap="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div>'
+      +'<div class="tile-name">Téléconsultation</div><div class="tile-desc">Consultations à distance</div>'
+      +(isPrem?'':'<div class="tile-lock-badge">🔒 Premium</div>')+'</div>';
+
+    html += '</div>';
+
+    /* — Formule Expert — */
+    html += '<div class="pro-section-lbl '+(isExp?'unlocked':'locked-lbl')+'">'+(isExp?'✓ Expert inclus':'Formule Expert — 89€/mois')+'<span></span></div>';
     html += '<div class="home-grid" style="padding:0 18px 10px">';
-    html += '<div class="home-tile" onclick="goTo(\'pro-profil\')"><div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--terra)" stroke-width="1.5" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="tile-name">Mon profil pro</div><div class="tile-desc">Cabinet, tarifs, visibilité</div></div>';
-    html += '<div class="home-tile" onclick="goTo(\'planning\')" style="border-left:3px solid var(--green)"><div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="tile-name">Mon planning</div><div class="tile-desc">' + rdvCount + ' rendez-vous</div></div>';
-    html += '<div class="home-tile" onclick="goTo(\'abonnement\')" style="border-color:rgba(184,146,42,.3)"><div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold-l)" stroke-width="1.5" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div class="tile-name">Mon abonnement</div><div class="tile-desc">Formule : ' + tier + '</div><div class="tile-badge">' + (tier==='gratuit'?'Passer Premium':'Actif') + '</div></div>';
-    html += '<div class="home-tile" onclick="goTo(\'annuaire\')"><div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--terra)" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><div class="tile-name">Annuaire</div><div class="tile-desc">Ma fiche publique</div></div>';
-    html += '<div class="home-tile" onclick="goTo(\'stats\')"><div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--terra)" stroke-width="1.5" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div class="tile-name">Statistiques</div><div class="tile-desc">Mon tableau de bord</div></div>';
+
+    html += '<div class="home-tile'+(isExp?'':' locked')+'" onclick="'+(isExp?'goTo(\'stats\')':'requireTier(\'expert\')')+'">'
+      +'<div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="'+(isExp?'var(--terra)':'var(--clow)')+'" stroke-width="1.5" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>'
+      +'<div class="tile-name">Statistiques</div><div class="tile-desc">Tableau de bord</div>'
+      +(isExp?'':'<div class="tile-lock-badge">🔒 Expert</div>')+'</div>';
+
+    html += '<div class="home-tile'+(isExp?'':' locked')+'" onclick="'+(isExp?'showToast(\'Facturation — bientôt disponible\')':'requireTier(\'expert\')')+'">'
+      +'<div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="'+(isExp?'var(--terra)':'var(--clow)')+'" stroke-width="1.5" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>'
+      +'<div class="tile-name">Facturation</div><div class="tile-desc">Devis et factures</div>'
+      +(isExp?'':'<div class="tile-lock-badge">🔒 Expert</div>')+'</div>';
+
+    html += '<div class="home-tile'+(isExp?'':' locked')+'" onclick="'+(isExp?'showToast(\'Gestion administrative — bientôt disponible\')':'requireTier(\'expert\')')+'">'
+      +'<div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="'+(isExp?'var(--terra)':'var(--clow)')+'" stroke-width="1.5" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>'
+      +'<div class="tile-name">Gestion admin.</div><div class="tile-desc">Documents et dossiers</div>'
+      +(isExp?'':'<div class="tile-lock-badge">🔒 Expert</div>')+'</div>';
+
     html += '</div>';
   }
   if(currentUser.isAdmin){
@@ -2810,6 +2890,20 @@ function loadAboScreen(){
   var status = document.getElementById("abo-status");
   if(tier==="gratuit") status.textContent = "Passez Premium pour apparaître dans l'annuaire et recevoir des rendez-vous.";
   else status.textContent = "Votre abonnement "+tier+" est actif.";
+}
+
+function requireTier(needed){
+  var tier = (currentUser && currentUser.proProfile && currentUser.proProfile.tier) || 'gratuit';
+  var tOrd = {gratuit:0,premium:1,expert:2};
+  if((tOrd[tier]||0) >= (tOrd[needed]||0)) return;
+  var isPrem = needed === 'premium';
+  document.getElementById('upgrade-modal-title').textContent = 'Formule ' + (isPrem ? 'Premium' : 'Expert') + ' requise';
+  document.getElementById('upgrade-modal-desc').textContent = 'Cette fonctionnalité est incluse dans la formule ' + (isPrem ? 'Premium — 49€/mois' : 'Expert — 89€/mois') + '. Passez à la formule supérieure pour y accéder.';
+  document.getElementById('upgrade-modal').style.display = 'flex';
+}
+
+function closeUpgradeModal(){
+  document.getElementById('upgrade-modal').style.display = 'none';
 }
 
 function selectAbo(tier){
