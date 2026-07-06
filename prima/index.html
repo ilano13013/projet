@@ -2242,6 +2242,7 @@ function renderAnnuaire(data){
     return;
   }
   var sorted = sortByDistance(data);
+  var allUsers = db.getObj("prima_users",[]);
   var html = "";
   var hasPro = false;
   var hasAsso = false;
@@ -2279,19 +2280,24 @@ function renderAnnuaire(data){
       profileBtn = '<button onclick="viewProDetail(\''+r.proId+'\')" style="flex:1;padding:10px;background:var(--s2);color:var(--cream);border:1px solid var(--line2);border-radius:8px;font-family:\'DM Mono\',monospace;font-size:10px;cursor:pointer">Voir le profil</button>';
       bookBtn = '<button onclick="openBooking(\''+r.proId+'\')" style="flex:1;padding:10px;background:var(--green);color:white;border:none;border-radius:8px;font-family:\'DM Mono\',monospace;font-size:10px;cursor:pointer">Prendre RDV</button>';
     }
-    // Review score
+    // Review score + visio badge
     var reviewBadge = "";
+    var visioBadge = "";
     if(r.type==="pro" && r.proId){
       var revs = db.getObj("prima_reviews",[]).filter(function(rv){return rv.proId===r.proId});
       if(revs.length){
         var avg = (revs.reduce(function(s,rv){return s+rv.rating},0)/revs.length).toFixed(1);
         reviewBadge = '<div style="font-size:10px;color:var(--gold-l);margin-top:2px">★ '+avg+' ('+revs.length+' avis)</div>';
       }
+      var proMeta = allUsers.find(function(u){return u.id===r.proId;});
+      if(proMeta && proMeta.proProfile && proMeta.proProfile.teleconsultLink){
+        visioBadge = '<div style="display:inline-flex;align-items:center;gap:4px;font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;color:#5A7ABF;background:rgba(90,122,191,.1);border:1px solid rgba(90,122,191,.22);padding:2px 8px;border-radius:4px;margin-top:4px">📹 Téléconsultation disponible</div>';
+      }
     }
     html += '<div class="resource-card" style="'+borderStyle+'">'
           + '<div class="rc-top"><div class="rc-name">' + escH(r.name) + '</div>' + typeBadge + '</div>'
           + '<div class="rc-spec">' + escH(r.spec) + '</div>'
-          + distBadge + aid + tierBadge + reviewBadge
+          + distBadge + aid + tierBadge + reviewBadge + visioBadge
           + '<div class="rc-actions">' + ph + wb + '</div>'
           + (profileBtn||bookBtn ? '<div style="display:flex;gap:6px;margin-top:6px">' + profileBtn + bookBtn + '</div>' : '')
           + '</div>';
@@ -2776,6 +2782,16 @@ function renderPlanning(){
     }
     if(r.message) html += '<div style="font-size:10.5px;color:var(--cdim);margin-top:6px;padding-top:6px;border-top:1px solid var(--line);line-height:1.55;font-style:italic">'+escH(r.message)+'</div>';
     if(planningTab==="upcoming"){
+      // Bouton téléconsultation côté client (avant les actions)
+      if(!isPro && r.status==="confirmed" && r.motif==="Téléconsultation"){
+        var proTc = users.find(function(u){return u.id===r.proId;});
+        var tcLnk = proTc && proTc.proProfile && proTc.proProfile.teleconsultLink;
+        if(tcLnk){
+          html += '<a href="'+escH(tcLnk)+'" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;background:var(--terra);color:#fff;border-radius:8px;font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:.08em;text-decoration:none;margin-top:10px">▶ Rejoindre la téléconsultation</a>';
+        } else {
+          html += '<div style="margin-top:10px;padding:10px;text-align:center;background:rgba(168,66,26,.06);border:1px dashed rgba(168,66,26,.2);border-radius:6px;font-size:10px;color:var(--cdim)">Lien de séance communiqué par le cabinet avant le RDV</div>';
+        }
+      }
       html += '<div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">';
       if(isPro){
         if(r.status==="pending"){
