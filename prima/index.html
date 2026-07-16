@@ -390,6 +390,29 @@ nav.visible{display:flex}
   .pdash-cols{grid-template-columns:3fr 2fr}
 }
 
+/* ── CLIENTS / DOSSIERS ── */
+.pcard-list{padding:0 18px;display:flex;flex-direction:column;gap:8px}
+.litem{background:var(--s1);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:13px;box-shadow:var(--shadow);cursor:pointer;transition:.15s;text-align:left}
+.litem:hover{background:var(--s2)}
+.litem-av{width:40px;height:40px;border-radius:50%;background:var(--s3);color:var(--terra);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;flex:0 0 auto}
+.litem-main{flex:1;min-width:0}
+.litem-t{font-size:13px;color:var(--cream);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.litem-s{font-size:10px;color:var(--cdim);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.litem-meta{flex:0 0 auto;text-align:right}
+.dstatus{font-size:8px;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:20px;white-space:nowrap;display:inline-block}
+.dtabs{display:flex;margin:0 18px 14px;border-bottom:1px solid var(--line)}
+.dtab{flex:1;padding:11px 4px;text-align:center;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.05em;color:var(--cdim);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:.15s}
+.dtab.active{color:var(--terra);border-bottom-color:var(--terra)}
+.detail-back{display:inline-flex;align-items:center;gap:7px;margin:0 18px 14px;background:none;border:none;color:var(--cdim);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.04em;cursor:pointer;padding:6px 0}
+.detail-back:hover{color:var(--terra)}
+.detail-card{margin:0 18px 12px;background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;box-shadow:var(--shadow)}
+.detail-sec{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--cdim);margin:16px 18px 8px}
+.drow{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-top:1px solid var(--line);font-size:12px}
+.drow:first-of-type{border-top:none}
+.drow-k{color:var(--cdim);flex:0 0 auto}
+.drow-v{color:var(--cream);text-align:right;min-width:0}
+@media(max-width:899px){nav .nav-btn.desk-only{display:none}}
+
 /* ══════════════════════════════════════════════════════════
    MODE PROFESSIONNEL · APPLICATION DESKTOP (PC)
    Actif uniquement pour body.pro-mode sur écran large (≥900px).
@@ -1107,6 +1130,30 @@ nav.visible{display:flex}
     <div id="facturation-content"></div>
   </div>
 
+  <!-- CLIENTS -->
+  <div class="screen" id="s-clients">
+    <div class="page-header"><div><div class="page-title">Mes <em>clients</em></div><div class="page-tag">Fiches et contacts</div></div></div>
+    <div id="clients-content"></div>
+  </div>
+
+  <!-- CLIENT DETAIL -->
+  <div class="screen" id="s-client-detail">
+    <div class="page-header"><div><div class="page-title">Fiche <em>client</em></div><div class="page-tag">Détail et historique</div></div></div>
+    <div id="client-detail-content"></div>
+  </div>
+
+  <!-- DOSSIERS -->
+  <div class="screen" id="s-dossiers">
+    <div class="page-header"><div><div class="page-title">Mes <em>dossiers</em></div><div class="page-tag">Suivi des affaires</div></div></div>
+    <div id="dossiers-content"></div>
+  </div>
+
+  <!-- DOSSIER DETAIL -->
+  <div class="screen" id="s-dossier-detail">
+    <div class="page-header"><div><div class="page-title">Le <em>dossier</em></div><div class="page-tag">Détail et suivi</div></div></div>
+    <div id="dossier-detail-content"></div>
+  </div>
+
   <!-- LEGAL -->
   <div class="screen" id="s-legal">
     <div class="page-header"><div><div class="page-title">Mentions <em>légales</em></div><div class="page-tag" id="legal-tag">Informations juridiques</div></div></div>
@@ -1232,6 +1279,12 @@ nav.visible{display:flex}
   </button>
   <button class="nav-btn" data-screen="annuaire" data-role="professionnel" onclick="goTo('annuaire')" style="display:none">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Annuaire
+  </button>
+  <button class="nav-btn desk-only" data-screen="clients" data-role="professionnel" onclick="goTo('clients')" style="display:none">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Clients
+  </button>
+  <button class="nav-btn desk-only" data-screen="dossiers" data-role="professionnel" onclick="goTo('dossiers')" style="display:none">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>Dossiers
   </button>
   <button class="nav-btn" data-screen="pro-profil" data-role="professionnel" onclick="goTo('pro-profil')" style="display:none">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profil
@@ -1786,9 +1839,14 @@ function updateProfileUI(){
       +'<div class="tile-name">Ma fiche annuaire</div><div class="tile-desc">Visibilité publique</div>'
       +(isPrem?'':'<div class="tile-lock-badge">🔒 Premium</div>')+'</div>';
 
-    html += '<div class="home-tile'+(isPrem?'':' locked')+'" onclick="'+(isPrem?'showToast(\'Dossier client — bientôt disponible\')':'requireTier(\'premium\')')+'">'
+    html += '<div class="home-tile'+(isPrem?'':' locked')+'" onclick="'+(isPrem?'goTo(\'clients\')':'requireTier(\'premium\')')+'">'
       +'<div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="'+(isPrem?'var(--terra)':'var(--clow)')+'" stroke-width="1.5" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>'
-      +'<div class="tile-name">Dossier client</div><div class="tile-desc">Suivi des consultations</div>'
+      +'<div class="tile-name">Clients</div><div class="tile-desc">Fiches et contacts</div>'
+      +(isPrem?'':'<div class="tile-lock-badge">🔒 Premium</div>')+'</div>';
+
+    html += '<div class="home-tile'+(isPrem?'':' locked')+'" onclick="'+(isPrem?'goTo(\'dossiers\')':'requireTier(\'premium\')')+'">'
+      +'<div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="'+(isPrem?'var(--terra)':'var(--clow)')+'" stroke-width="1.5" stroke-linecap="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg></div>'
+      +'<div class="tile-name">Dossiers</div><div class="tile-desc">Suivi des affaires</div>'
       +(isPrem?'':'<div class="tile-lock-badge">🔒 Premium</div>')+'</div>';
 
     html += '<div class="home-tile'+(isPrem?'':' locked')+'" onclick="'+(isPrem?'goTo(\'teleconsult\')':'requireTier(\'premium\')')+'">'
@@ -1862,8 +1920,9 @@ function renderProDashboard(){
   var rdvWeek     = active.filter(function(r){return r.date>=weekStart && r.date<=weekEnd;}).length;
   var rdvUpcoming = active.filter(function(r){return r.date>=todayStr;}).length;
 
+  var clientsStored = db.getObj('prima_clients',[]).filter(function(c){return c.proId===currentUser.id;}).length;
   var clientsSet={}; rdvs.forEach(function(r){ var k=(r.clientId&&r.clientId!=='anonyme')?r.clientId:((r.prenom||'')+'|'+(r.nom||'')); if(k&&k!=='|') clientsSet[k]=1; });
-  var clientCount = Object.keys(clientsSet).length;
+  var clientCount = clientsStored || Object.keys(clientsSet).length;
 
   var encMonth    = facts.reduce(function(s,f){ return s+((f.status==='payee' && (f.date||'').slice(0,7)===monthStr)?f.amount:0); },0);
   var factPending = facts.filter(function(f){return f.status==='en_attente';}).length;
@@ -1875,7 +1934,7 @@ function renderProDashboard(){
   h+='<div class="pdash-head"><div>'
     +'<div class="pdash-hello">Bonjour, <em>'+escH(greetName)+'</em></div>'
     +'<div class="pdash-sub">Votre cabinet en un coup d\'œil</div></div>'
-    +'<button class="pdash-cta" onclick="'+(isExp?"goTo('gestion-admin')":"requireTier('expert')")+'">+ Nouveau dossier</button></div>';
+    +'<button class="pdash-cta" onclick="openNewDossier()">+ Nouveau dossier</button></div>';
 
   h+='<div class="pdash-kpis">'
     +'<div class="pkpi"><div class="pkpi-lbl">Rendez-vous cette semaine</div><div class="pkpi-val">'+rdvWeek+'</div><div class="pkpi-sub">'+rdvUpcoming+' à venir au total</div></div>'
@@ -3181,6 +3240,290 @@ function selectAbo(tier){
   showToast("Formule "+tier+" activée");
 }
 
+/* ═══════════════════════════════════════════════════════════
+   MODULE CLIENTS / DOSSIERS  (Premium)
+   ═══════════════════════════════════════════════════════════ */
+function initialsFrom(name){
+  name=(name||'').trim(); if(!name) return '?';
+  var pr=name.split(/\s+/);
+  return ((pr[0].charAt(0)||'')+(pr.length>1?pr[pr.length-1].charAt(0):'')).toUpperCase();
+}
+function proTierVal(){
+  var t=(currentUser&&currentUser.proProfile&&currentUser.proProfile.tier)||'gratuit';
+  return {gratuit:0,premium:1,expert:2}[t]||0;
+}
+function proLockPanel(needed){
+  var lbl=needed==='expert'?'Expert':'Premium';
+  var price=needed==='expert'?'89€/mois':'49€/mois';
+  return '<div style="margin:36px 18px;text-align:center;padding:40px 24px;background:var(--s1);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)">'
+    +'<div style="width:54px;height:54px;border-radius:50%;background:rgba(168,66,26,.1);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:22px">🔒</div>'
+    +'<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:var(--cream);margin-bottom:8px">Formule '+lbl+' requise</div>'
+    +'<div style="font-size:12px;color:var(--cdim);line-height:1.6;max-width:34ch;margin:0 auto 20px">Cette fonctionnalité est incluse dans la formule '+lbl+' — '+price+'.</div>'
+    +'<button class="pdash-cta" onclick="goTo(\'abonnement\')">Voir les formules →</button></div>';
+}
+function getProClients(){ if(!currentUser) return []; return db.getObj('prima_clients',[]).filter(function(c){return c.proId===currentUser.id;}); }
+function getProDossiers(){ if(!currentUser) return []; return db.getObj('prima_dossiers',[]).filter(function(d){return d.proId===currentUser.id;}); }
+
+var DSTATUS={
+  ouvert:{l:'Ouvert',c:'var(--terra)',bg:'rgba(168,66,26,.1)',bd:'rgba(168,66,26,.25)'},
+  en_cours:{l:'En cours',c:'#2A7ABF',bg:'rgba(42,122,191,.1)',bd:'rgba(42,122,191,.25)'},
+  en_attente:{l:'En attente',c:'var(--gold-l)',bg:'rgba(184,146,42,.12)',bd:'rgba(184,146,42,.25)'},
+  clos:{l:'Clos',c:'var(--green)',bg:'rgba(46,107,72,.1)',bd:'rgba(46,107,72,.2)'}
+};
+var DTYPES=['Droit du travail','Droit de la famille','Droit pénal','Succession','Immobilier','Droit commercial','Autre'];
+function dstatusPill(st){ var s=DSTATUS[st]||DSTATUS.ouvert; return '<span class="dstatus" style="color:'+s.c+';background:'+s.bg+';border:1px solid '+s.bd+'">'+s.l+'</span>'; }
+
+/* ── CLIENTS ── */
+var clientFormOpen=false, clientEditId=null, currentClientId=null;
+function toggleClientForm(){ clientFormOpen=!clientFormOpen; if(!clientFormOpen) clientEditId=null; renderClients(); }
+function editClient(id){ clientEditId=id; clientFormOpen=true; goTo('clients'); }
+function saveClient(){
+  var nom=((document.getElementById('cl-nom')||{}).value||'').trim();
+  if(!nom){ showToast('Le nom est requis'); return; }
+  var data={
+    prenom:((document.getElementById('cl-prenom')||{}).value||'').trim(),
+    nom:nom,
+    email:((document.getElementById('cl-email')||{}).value||'').trim(),
+    telephone:((document.getElementById('cl-tel')||{}).value||'').trim(),
+    adresse:((document.getElementById('cl-adr')||{}).value||'').trim(),
+    notes:((document.getElementById('cl-notes')||{}).value||'').trim()
+  };
+  var clients=db.getObj('prima_clients',[]);
+  if(clientEditId){
+    var i=clients.findIndex(function(c){return c.id===clientEditId;});
+    if(i>=0) clients[i]=Object.assign(clients[i],data);
+  } else {
+    clients.push(Object.assign({id:Date.now(),proId:currentUser.id,createdAt:Date.now()},data));
+  }
+  db.setObj('prima_clients',clients);
+  clientFormOpen=false; clientEditId=null; renderClients();
+  showToast('Client enregistré ✓');
+}
+function deleteClient(id){
+  db.setObj('prima_clients', db.getObj('prima_clients',[]).filter(function(c){return c.id!==id;}));
+  showToast('Client supprimé'); goTo('clients');
+}
+function renderClients(){
+  var wrap=document.getElementById('clients-content');
+  if(!wrap||!currentUser) return;
+  if(proTierVal()<1){ wrap.innerHTML=proLockPanel('premium'); return; }
+  var clients=getProClients().sort(function(a,b){return ((a.nom||'')+(a.prenom||'')).localeCompare((b.nom||'')+(b.prenom||''));});
+  var dossiers=getProDossiers();
+  var ed=clientEditId?(clients.find(function(c){return c.id===clientEditId;})||{}):{};
+  var h='';
+  h+='<button class="add-btn" onclick="toggleClientForm()">＋ &nbsp;Nouveau client</button>';
+  h+='<div class="inc-form" id="client-form" style="display:'+(clientFormOpen?'flex':'none')+'">';
+  h+='<div class="form-row"><div class="form-group"><label class="form-label">Prénom</label><input class="form-input" id="cl-prenom" value="'+escH(ed.prenom||'')+'"></div>';
+  h+='<div class="form-group"><label class="form-label">Nom *</label><input class="form-input" id="cl-nom" value="'+escH(ed.nom||'')+'"></div></div>';
+  h+='<div class="form-row"><div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" id="cl-email" value="'+escH(ed.email||'')+'"></div>';
+  h+='<div class="form-group"><label class="form-label">Téléphone</label><input class="form-input" id="cl-tel" value="'+escH(ed.telephone||'')+'"></div></div>';
+  h+='<div class="form-group"><label class="form-label">Adresse</label><input class="form-input" id="cl-adr" value="'+escH(ed.adresse||'')+'"></div>';
+  h+='<div class="form-group"><label class="form-label">Notes</label><textarea class="form-input" id="cl-notes" rows="2">'+escH(ed.notes||'')+'</textarea></div>';
+  h+='<div class="form-actions"><button class="btn-save" onclick="saveClient()">'+(clientEditId?'Enregistrer':'Ajouter')+'</button><button class="btn-cancel" onclick="toggleClientForm()">Annuler</button></div></div>';
+  if(!clients.length){
+    h+='<div class="empty-state"><div class="empty-icon">👤</div><div class="empty-text">Aucun client pour l\'instant<br>Ajoutez votre premier client.</div></div>';
+  } else {
+    h+='<div class="pcard-list">';
+    clients.forEach(function(c){
+      var nm=((c.prenom||'')+' '+(c.nom||'')).trim()||'Client';
+      var dc=dossiers.filter(function(d){return d.clientId===c.id;}).length;
+      h+='<div class="litem" onclick="viewClientDetail('+c.id+')">';
+      h+='<div class="litem-av">'+escH(initialsFrom(nm))+'</div>';
+      h+='<div class="litem-main"><div class="litem-t">'+escH(nm)+'</div><div class="litem-s">'+(c.telephone?escH(c.telephone)+' · ':'')+escH(c.email||'—')+'</div></div>';
+      h+='<div class="litem-meta"><div style="font-family:\'Cormorant Garamond\',serif;font-size:20px;color:var(--terra);line-height:1">'+dc+'</div><div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--cdim);margin-top:2px">dossier'+(dc>1?'s':'')+'</div></div>';
+      h+='</div>';
+    });
+    h+='</div>';
+  }
+  wrap.innerHTML=h;
+}
+function viewClientDetail(id){ currentClientId=id; goTo('client-detail'); }
+function renderClientDetail(){
+  var wrap=document.getElementById('client-detail-content');
+  if(!wrap||!currentUser) return;
+  var c=getProClients().find(function(x){return x.id===currentClientId;});
+  if(!c){ wrap.innerHTML='<div class="empty-state"><div class="empty-text">Client introuvable</div></div>'; return; }
+  var nm=((c.prenom||'')+' '+(c.nom||'')).trim()||'Client';
+  var nml=nm.toLowerCase();
+  var dossiers=getProDossiers().filter(function(d){return d.clientId===c.id;});
+  var rdvs=getProAppointments().filter(function(r){return (((r.prenom||'')+' '+(r.nom||'')).trim().toLowerCase())===nml;});
+  var facts=db.getObj('prima_factures',[]).filter(function(f){return f.proId===currentUser.id && (f.client||'').trim().toLowerCase()===nml;});
+  var h='';
+  h+='<button class="detail-back" onclick="goTo(\'clients\')">‹ Retour aux clients</button>';
+  h+='<div class="detail-card">';
+  h+='<div style="display:flex;align-items:center;gap:14px;margin-bottom:6px"><div class="litem-av" style="width:48px;height:48px;font-size:17px">'+escH(initialsFrom(nm))+'</div>';
+  h+='<div style="flex:1;min-width:0"><div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:var(--cream);line-height:1.1">'+escH(nm)+'</div>'+(c.adresse?'<div style="font-size:11px;color:var(--cdim);margin-top:4px">'+escH(c.adresse)+'</div>':'')+'</div></div>';
+  h+='<div style="margin-top:10px">';
+  if(c.telephone) h+='<div class="drow"><span class="drow-k">Téléphone</span><span class="drow-v">'+escH(c.telephone)+'</span></div>';
+  if(c.email) h+='<div class="drow"><span class="drow-k">Email</span><span class="drow-v">'+escH(c.email)+'</span></div>';
+  if(c.notes) h+='<div class="drow"><span class="drow-k">Notes</span><span class="drow-v">'+escH(c.notes)+'</span></div>';
+  h+='</div>';
+  h+='<div style="display:flex;gap:8px;margin-top:14px"><button class="btn-save" onclick="editClient('+c.id+')">Modifier</button><button class="btn-cancel" onclick="deleteClient('+c.id+')">Supprimer</button></div>';
+  h+='</div>';
+  // Dossiers
+  h+='<div class="detail-sec">Dossiers ('+dossiers.length+')</div>';
+  h+='<div style="margin:0 18px 6px"><button class="pdash-cta" style="width:100%;padding:11px" onclick="openDossierForClient('+c.id+')">＋ Nouveau dossier pour ce client</button></div>';
+  if(dossiers.length){
+    h+='<div class="pcard-list">';
+    dossiers.forEach(function(d){
+      h+='<div class="litem" onclick="viewDossierDetail('+d.id+')"><div class="litem-main"><div class="litem-t">'+escH(d.ref||'')+' · '+escH(d.titre||'Dossier')+'</div><div class="litem-s">'+escH(d.type||'')+'</div></div>'+dstatusPill(d.status)+'</div>';
+    });
+    h+='</div>';
+  } else {
+    h+='<div style="margin:0 18px 6px;font-size:11px;color:var(--clow);font-style:italic;padding:4px 2px">Aucun dossier pour ce client.</div>';
+  }
+  // Rendez-vous
+  if(rdvs.length){
+    h+='<div class="detail-sec">Rendez-vous ('+rdvs.length+')</div><div class="pcard-list">';
+    rdvs.sort(function(a,b){return (b.date+b.time).localeCompare(a.date+a.time);});
+    rdvs.forEach(function(r){
+      h+='<div class="litem" style="cursor:default"><div class="litem-main"><div class="litem-t">'+escH(formatDateFR(r.date))+' · '+escH(r.time||'')+'</div><div class="litem-s">'+escH(r.motif||'Consultation')+'</div></div>'+(r.status==='confirmed'?dstatusPill('clos').replace('Clos','Confirmé'):'<span class="dstatus" style="color:var(--gold-l);background:rgba(184,146,42,.12);border:1px solid rgba(184,146,42,.25)">En attente</span>')+'</div>';
+    });
+    h+='</div>';
+  }
+  // Factures
+  if(facts.length){
+    h+='<div class="detail-sec">Factures ('+facts.length+')</div><div class="pcard-list">';
+    facts.sort(function(a,b){return b.createdAt-a.createdAt;});
+    facts.forEach(function(f){
+      var stl={en_attente:'En attente',payee:'Payée',annulee:'Annulée'}[f.status]||f.status;
+      h+='<div class="litem" style="cursor:default"><div class="litem-main"><div class="litem-t">'+escH(f.num||'')+' · '+f.amount.toFixed(0)+'€</div><div class="litem-s">'+escH(f.service||'')+'</div></div><span class="litem-s">'+escH(stl)+'</span></div>';
+    });
+    h+='</div>';
+  }
+  wrap.innerHTML=h;
+}
+
+/* ── DOSSIERS ── */
+var dossierFormOpen=false, dossierEditId=null, dossierPreClient=null, dossierFilter='all', currentDossierId=null;
+function toggleDossierForm(){ dossierFormOpen=!dossierFormOpen; if(!dossierFormOpen){dossierEditId=null;dossierPreClient=null;} renderDossiers(); }
+function setDossierFilter(f){ dossierFilter=f; renderDossiers(); }
+function openNewDossier(){ if(proTierVal()<1){requireTier('premium');return;} dossierEditId=null; dossierPreClient=null; dossierFormOpen=true; goTo('dossiers'); }
+function openDossierForClient(cid){ dossierEditId=null; dossierPreClient=cid; dossierFormOpen=true; goTo('dossiers'); }
+function editDossier(id){ dossierEditId=id; dossierFormOpen=true; goTo('dossiers'); }
+function saveDossier(){
+  var titre=((document.getElementById('d-titre')||{}).value||'').trim();
+  if(!titre){ showToast('Un intitulé est requis'); return; }
+  var data={
+    clientId: parseInt((document.getElementById('d-client')||{}).value||'0',10)||null,
+    titre:titre,
+    type:(document.getElementById('d-type')||{}).value||'Autre',
+    status:(document.getElementById('d-status')||{}).value||'ouvert',
+    echeance:(document.getElementById('d-echeance')||{}).value||'',
+    description:((document.getElementById('d-desc')||{}).value||'').trim()
+  };
+  var dossiers=db.getObj('prima_dossiers',[]);
+  if(dossierEditId){
+    var i=dossiers.findIndex(function(d){return d.id===dossierEditId;});
+    if(i>=0) dossiers[i]=Object.assign(dossiers[i],data);
+  } else {
+    var ref='D-'+String(dossiers.filter(function(d){return d.proId===currentUser.id;}).length+1).padStart(3,'0');
+    dossiers.push(Object.assign({id:Date.now(),proId:currentUser.id,ref:ref,createdAt:Date.now()},data));
+  }
+  db.setObj('prima_dossiers',dossiers);
+  dossierFormOpen=false; dossierEditId=null; dossierPreClient=null; renderDossiers();
+  showToast('Dossier enregistré ✓');
+}
+function updateDossierStatus(id,st){
+  var dossiers=db.getObj('prima_dossiers',[]); var i=dossiers.findIndex(function(d){return d.id===id;});
+  if(i>=0){ dossiers[i].status=st; db.setObj('prima_dossiers',dossiers); }
+  renderDossierDetail();
+}
+function deleteDossier(id){
+  db.setObj('prima_dossiers', db.getObj('prima_dossiers',[]).filter(function(d){return d.id!==id;}));
+  showToast('Dossier supprimé'); goTo('dossiers');
+}
+function renderDossiers(){
+  var wrap=document.getElementById('dossiers-content');
+  if(!wrap||!currentUser) return;
+  if(proTierVal()<1){ wrap.innerHTML=proLockPanel('premium'); return; }
+  var clients=getProClients();
+  var all=getProDossiers().sort(function(a,b){return b.createdAt-a.createdAt;});
+  var dossiers=dossierFilter==='all'?all:all.filter(function(d){return d.status===dossierFilter;});
+  var clientName=function(cid){ var c=clients.find(function(x){return x.id===cid;}); return c?(((c.prenom||'')+' '+(c.nom||'')).trim()||'Client'):'—'; };
+  var ed=dossierEditId?(all.find(function(d){return d.id===dossierEditId;})||{}):{};
+  var preC=dossierEditId?ed.clientId:dossierPreClient;
+  var h='';
+  h+='<button class="add-btn" onclick="toggleDossierForm()">＋ &nbsp;Nouveau dossier</button>';
+  h+='<div class="inc-form" id="dossier-form" style="display:'+(dossierFormOpen?'flex':'none')+'">';
+  h+='<div class="form-group"><label class="form-label">Intitulé *</label><input class="form-input" id="d-titre" placeholder="Ex : Litige prud\'homal Dupont" value="'+escH(ed.titre||'')+'"></div>';
+  h+='<div class="form-group"><label class="form-label">Client</label><select class="form-input" id="d-client"><option value="">— Aucun / à définir —</option>';
+  clients.forEach(function(c){ var nm=((c.prenom||'')+' '+(c.nom||'')).trim()||'Client'; h+='<option value="'+c.id+'"'+(preC===c.id?' selected':'')+'>'+escH(nm)+'</option>'; });
+  h+='</select></div>';
+  h+='<div class="form-row"><div class="form-group"><label class="form-label">Domaine</label><select class="form-input" id="d-type">';
+  DTYPES.forEach(function(t){ h+='<option'+(ed.type===t?' selected':'')+'>'+escH(t)+'</option>'; });
+  h+='</select></div>';
+  h+='<div class="form-group"><label class="form-label">Statut</label><select class="form-input" id="d-status">';
+  Object.keys(DSTATUS).forEach(function(k){ h+='<option value="'+k+'"'+(ed.status===k?' selected':'')+'>'+DSTATUS[k].l+'</option>'; });
+  h+='</select></div></div>';
+  h+='<div class="form-group"><label class="form-label">Échéance (optionnel)</label><input class="form-input" type="date" id="d-echeance" value="'+escH(ed.echeance||'')+'"></div>';
+  h+='<div class="form-group"><label class="form-label">Description</label><textarea class="form-input" id="d-desc" rows="2">'+escH(ed.description||'')+'</textarea></div>';
+  h+='<div class="form-actions"><button class="btn-save" onclick="saveDossier()">'+(dossierEditId?'Enregistrer':'Ajouter')+'</button><button class="btn-cancel" onclick="toggleDossierForm()">Annuler</button></div></div>';
+  // filter tabs
+  var tabs=[['all','Tous'],['ouvert','Ouverts'],['en_cours','En cours'],['clos','Clos']];
+  h+='<div class="dtabs">';
+  tabs.forEach(function(t){ h+='<button class="dtab'+(dossierFilter===t[0]?' active':'')+'" onclick="setDossierFilter(\''+t[0]+'\')">'+t[1]+'</button>'; });
+  h+='</div>';
+  if(!dossiers.length){
+    h+='<div class="empty-state"><div class="empty-icon">🗂</div><div class="empty-text">'+(all.length?'Aucun dossier dans cette catégorie':'Aucun dossier pour l\'instant<br>Créez votre premier dossier.')+'</div></div>';
+  } else {
+    var today=new Date().toISOString().slice(0,10);
+    h+='<div class="pcard-list">';
+    dossiers.forEach(function(d){
+      var ovr=d.echeance&&d.echeance<today&&d.status!=='clos';
+      h+='<div class="litem" onclick="viewDossierDetail('+d.id+')">';
+      h+='<div class="litem-main"><div class="litem-t">'+escH(d.ref||'')+' · '+escH(d.titre||'Dossier')+'</div>';
+      h+='<div class="litem-s">'+escH(clientName(d.clientId))+' · '+escH(d.type||'')+(d.echeance?' · <span style="color:'+(ovr?'var(--red)':'var(--cdim)')+'">échéance '+escH(formatDateFR(d.echeance))+'</span>':'')+'</div></div>';
+      h+='<div class="litem-meta">'+dstatusPill(d.status)+'</div>';
+      h+='</div>';
+    });
+    h+='</div>';
+  }
+  wrap.innerHTML=h;
+}
+function viewDossierDetail(id){ currentDossierId=id; goTo('dossier-detail'); }
+function renderDossierDetail(){
+  var wrap=document.getElementById('dossier-detail-content');
+  if(!wrap||!currentUser) return;
+  var d=getProDossiers().find(function(x){return x.id===currentDossierId;});
+  if(!d){ wrap.innerHTML='<div class="empty-state"><div class="empty-text">Dossier introuvable</div></div>'; return; }
+  var c=getProClients().find(function(x){return x.id===d.clientId;});
+  var cnm=c?(((c.prenom||'')+' '+(c.nom||'')).trim()||'Client'):null;
+  var facts=cnm?db.getObj('prima_factures',[]).filter(function(f){return f.proId===currentUser.id && (f.client||'').trim().toLowerCase()===cnm.toLowerCase();}):[];
+  var today=new Date().toISOString().slice(0,10);
+  var ovr=d.echeance&&d.echeance<today&&d.status!=='clos';
+  var h='';
+  h+='<button class="detail-back" onclick="goTo(\'dossiers\')">‹ Retour aux dossiers</button>';
+  h+='<div class="detail-card">';
+  h+='<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px"><div style="min-width:0"><div style="font-size:10px;letter-spacing:.1em;color:var(--cdim)">'+escH(d.ref||'')+'</div><div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:var(--cream);line-height:1.15;margin-top:2px">'+escH(d.titre||'Dossier')+'</div></div>'+dstatusPill(d.status)+'</div>';
+  h+='<div style="margin-top:14px">';
+  if(cnm) h+='<div class="drow"><span class="drow-k">Client</span><span class="drow-v"><button onclick="viewClientDetail('+c.id+')" style="background:none;border:none;color:var(--terra);cursor:pointer;font-family:inherit;font-size:12px;padding:0">'+escH(cnm)+' ›</button></span></div>';
+  h+='<div class="drow"><span class="drow-k">Domaine</span><span class="drow-v">'+escH(d.type||'—')+'</span></div>';
+  if(d.echeance) h+='<div class="drow"><span class="drow-k">Échéance</span><span class="drow-v" style="color:'+(ovr?'var(--red)':'var(--cream)')+'">'+escH(formatDateFR(d.echeance))+(ovr?' (dépassée)':'')+'</span></div>';
+  if(d.description) h+='<div class="drow"><span class="drow-k">Détail</span><span class="drow-v">'+escH(d.description)+'</span></div>';
+  h+='</div></div>';
+  // status change
+  h+='<div class="detail-sec">Statut du dossier</div>';
+  h+='<div style="margin:0 18px 12px;display:flex;gap:6px;flex-wrap:wrap">';
+  Object.keys(DSTATUS).forEach(function(k){
+    var on=d.status===k; var s=DSTATUS[k];
+    h+='<button onclick="updateDossierStatus('+d.id+',\''+k+'\')" style="flex:1;min-width:70px;padding:9px 6px;border-radius:8px;font-family:\'DM Mono\',monospace;font-size:10px;cursor:pointer;border:1px solid '+(on?s.bd:'var(--line2)')+';background:'+(on?s.bg:'transparent')+';color:'+(on?s.c:'var(--cdim)')+'">'+s.l+'</button>';
+  });
+  h+='</div>';
+  // factures liées
+  if(facts.length){
+    h+='<div class="detail-sec">Factures du client ('+facts.length+')</div><div class="pcard-list">';
+    facts.sort(function(a,b){return b.createdAt-a.createdAt;});
+    facts.forEach(function(f){
+      var stl={en_attente:'En attente',payee:'Payée',annulee:'Annulée'}[f.status]||f.status;
+      h+='<div class="litem" style="cursor:default"><div class="litem-main"><div class="litem-t">'+escH(f.num||'')+' · '+f.amount.toFixed(0)+'€</div><div class="litem-s">'+escH(f.service||'')+'</div></div><span class="litem-s">'+escH(stl)+'</span></div>';
+    });
+    h+='</div>';
+  }
+  h+='<div style="display:flex;gap:8px;margin:16px 18px 0"><button class="btn-save" onclick="editDossier('+d.id+')">Modifier</button><button class="btn-cancel" onclick="deleteDossier('+d.id+')">Supprimer</button></div>';
+  wrap.innerHTML=h;
+}
+
 // Hook into goTo for new screens
 var _origGoTo = goTo;
 goTo = function(id){
@@ -3192,6 +3535,10 @@ goTo = function(id){
   if(id==="teleconsult") renderTeleconsult();
   if(id==="gestion-admin") renderGestion();
   if(id==="facturation") renderFacturation();
+  if(id==="clients") renderClients();
+  if(id==="dossiers") renderDossiers();
+  if(id==="client-detail") renderClientDetail();
+  if(id==="dossier-detail") renderDossierDetail();
   if(id==="annuaire"){
     var isPro = currentUser && currentUser.role === "professionnel";
     var tag = document.getElementById("annuaire-tag");
