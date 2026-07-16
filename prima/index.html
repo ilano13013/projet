@@ -3319,6 +3319,18 @@ var DSTATUS={
 };
 var DTYPES=['Droit du travail','Droit de la famille','Droit pénal','Succession','Immobilier','Droit commercial','Autre'];
 function dstatusPill(st){ var s=DSTATUS[st]||DSTATUS.ouvert; return '<span class="dstatus" style="color:'+s.c+';background:'+s.bg+';border:1px solid '+s.bd+'">'+s.l+'</span>'; }
+function toggleNewClientFields(){
+  var sel=document.getElementById('d-client'); var blk=document.getElementById('d-newclient');
+  if(!sel||!blk) return;
+  blk.style.display = sel.value==='__new__' ? '' : 'none';
+}
+function factureDossierPick(){
+  var sel=document.getElementById('f-dossier'); var ci=document.getElementById('f-client');
+  if(!sel||!ci) return;
+  var opt=sel.options[sel.selectedIndex];
+  var nm=opt?opt.getAttribute('data-client'):'';
+  if(nm && !ci.value.trim()) ci.value=nm;
+}
 
 /* ── CLIENTS ── */
 var clientFormOpen=false, clientEditId=null, currentClientId=null;
@@ -3451,8 +3463,25 @@ function editDossier(id){ dossierEditId=id; dossierFormOpen=true; goTo('dossiers
 function saveDossier(){
   var titre=((document.getElementById('d-titre')||{}).value||'').trim();
   if(!titre){ showToast('Un intitulé est requis'); return; }
+  var clientSel=(document.getElementById('d-client')||{}).value||'';
+  var clientId=null;
+  if(clientSel==='__new__'){
+    var nnom=((document.getElementById('dc-nom')||{}).value||'').trim();
+    if(!nnom){ showToast('Nom du nouveau client requis'); return; }
+    var clients=db.getObj('prima_clients',[]);
+    var nc={id:Date.now(),proId:currentUser.id,
+      prenom:((document.getElementById('dc-prenom')||{}).value||'').trim(),
+      nom:nnom,
+      telephone:((document.getElementById('dc-tel')||{}).value||'').trim(),
+      email:((document.getElementById('dc-email')||{}).value||'').trim(),
+      adresse:'',notes:'',createdAt:Date.now()};
+    clients.push(nc); db.setObj('prima_clients',clients);
+    clientId=nc.id;
+  } else {
+    clientId=parseInt(clientSel||'0',10)||null;
+  }
   var data={
-    clientId: parseInt((document.getElementById('d-client')||{}).value||'0',10)||null,
+    clientId: clientId,
     titre:titre,
     type:(document.getElementById('d-type')||{}).value||'Autre',
     status:(document.getElementById('d-status')||{}).value||'ouvert',
@@ -3494,9 +3523,14 @@ function renderDossiers(){
   h+='<button class="add-btn" onclick="toggleDossierForm()">＋ &nbsp;Nouveau dossier</button>';
   h+='<div class="inc-form" id="dossier-form" style="display:'+(dossierFormOpen?'flex':'none')+'">';
   h+='<div class="form-group"><label class="form-label">Intitulé *</label><input class="form-input" id="d-titre" placeholder="Ex : Litige prud\'homal Dupont" value="'+escH(ed.titre||'')+'"></div>';
-  h+='<div class="form-group"><label class="form-label">Client</label><select class="form-input" id="d-client"><option value="">— Aucun / à définir —</option>';
+  h+='<div class="form-group"><label class="form-label">Client</label><select class="form-input" id="d-client" onchange="toggleNewClientFields()"><option value="">— Aucun / à définir —</option>';
   clients.forEach(function(c){ var nm=((c.prenom||'')+' '+(c.nom||'')).trim()||'Client'; h+='<option value="'+c.id+'"'+(preC===c.id?' selected':'')+'>'+escH(nm)+'</option>'; });
+  h+='<option value="__new__">＋ Nouveau client…</option>';
   h+='</select></div>';
+  h+='<div class="form-group" id="d-newclient" style="display:none">';
+  h+='<div class="form-row"><div class="form-group"><label class="form-label">Prénom</label><input class="form-input" id="dc-prenom"></div><div class="form-group"><label class="form-label">Nom *</label><input class="form-input" id="dc-nom"></div></div>';
+  h+='<div class="form-row"><div class="form-group"><label class="form-label">Téléphone</label><input class="form-input" id="dc-tel"></div><div class="form-group"><label class="form-label">Email</label><input class="form-input" id="dc-email"></div></div>';
+  h+='</div>';
   h+='<div class="form-row"><div class="form-group"><label class="form-label">Domaine</label><select class="form-input" id="d-type">';
   DTYPES.forEach(function(t){ h+='<option'+(ed.type===t?' selected':'')+'>'+escH(t)+'</option>'; });
   h+='</select></div>';
@@ -3536,7 +3570,11 @@ function renderDossierDetail(){
   if(!d){ wrap.innerHTML='<div class="empty-state"><div class="empty-text">Dossier introuvable</div></div>'; return; }
   var c=getProClients().find(function(x){return x.id===d.clientId;});
   var cnm=c?(((c.prenom||'')+' '+(c.nom||'')).trim()||'Client'):null;
-  var facts=cnm?db.getObj('prima_factures',[]).filter(function(f){return f.proId===currentUser.id && (f.client||'').trim().toLowerCase()===cnm.toLowerCase();}):[];
+  var facts=db.getObj('prima_factures',[]).filter(function(f){
+    if(f.proId!==currentUser.id) return false;
+    if(f.dossierId===d.id) return true;
+    return !f.dossierId && cnm && (f.client||'').trim().toLowerCase()===cnm.toLowerCase();
+  });
   var today=new Date().toISOString().slice(0,10);
   var ovr=d.echeance&&d.echeance<today&&d.status!=='clos';
   var h='';
@@ -3559,7 +3597,7 @@ function renderDossierDetail(){
   h+='</div>';
   // factures liées
   if(facts.length){
-    h+='<div class="detail-sec">Factures du client ('+facts.length+')</div><div class="pcard-list">';
+    h+='<div class="detail-sec">Factures liées ('+facts.length+')</div><div class="pcard-list">';
     facts.sort(function(a,b){return b.createdAt-a.createdAt;});
     facts.forEach(function(f){
       var stl={en_attente:'En attente',payee:'Payée',annulee:'Annulée'}[f.status]||f.status;
@@ -4197,9 +4235,10 @@ function saveFacture(){
   var amount=parseFloat((document.getElementById('f-amount')||{}).value)||0;
   var date=(document.getElementById('f-date-fact')||{}).value||new Date().toISOString().slice(0,10);
   if(!client.trim()||!amount){showToast('Client et montant requis');return;}
+  var dossierId=parseInt((document.getElementById('f-dossier')||{}).value||'0',10)||null;
   var facts=db.getObj('prima_factures',[]);
   var num='F-'+String(facts.filter(function(f){return f.proId===currentUser.id;}).length+1).padStart(3,'0');
-  facts.push({id:Date.now(),proId:currentUser.id,num:num,client:client.trim(),service:service.trim(),amount:amount,date:date,status:'en_attente',createdAt:Date.now()});
+  facts.push({id:Date.now(),proId:currentUser.id,num:num,client:client.trim(),service:service.trim(),amount:amount,date:date,dossierId:dossierId,status:'en_attente',createdAt:Date.now()});
   db.setObj('prima_factures',facts); factureFormOpen=false; renderFacturation();
 }
 function updateFactureStatus(id,status){
@@ -4227,6 +4266,12 @@ function renderFacturation(){
   h+='<button class="add-btn" onclick="toggleFactureForm()">＋ &nbsp;Nouvelle facture</button>';
   h+='<div class="inc-form" id="facture-form" style="display:'+(factureFormOpen?'flex':'none')+'">';
   h+='<div class="form-group"><label class="form-label">Client</label><input class="form-input" type="text" id="f-client" placeholder="Nom Prénom ou Société"></div>';
+  var _fdoss=getProDossiers();
+  if(_fdoss.length){
+    h+='<div class="form-group"><label class="form-label">Dossier lié (optionnel)</label><select class="form-input" id="f-dossier" onchange="factureDossierPick()"><option value="">— Aucun —</option>';
+    _fdoss.forEach(function(d){ var c=getProClients().find(function(x){return x.id===d.clientId;}); var cn=c?(((c.prenom||'')+' '+(c.nom||'')).trim()):''; h+='<option value="'+d.id+'" data-client="'+escH(cn)+'">'+escH(d.ref+' · '+d.titre)+'</option>'; });
+    h+='</select></div>';
+  }
   h+='<div class="form-group"><label class="form-label">Prestation</label><input class="form-input" type="text" id="f-service" placeholder="Ex : Consultation initiale — Violence conjugale"></div>';
   h+='<div class="form-row"><div class="form-group"><label class="form-label">Montant (€)</label><input class="form-input" type="number" id="f-amount" placeholder="150" min="0" step="0.01"></div>';
   h+='<div class="form-group"><label class="form-label">Date</label><input class="form-input" type="date" id="f-date-fact" value="'+new Date().toISOString().slice(0,10)+'"></div></div>';
@@ -4246,6 +4291,7 @@ function renderFacturation(){
       h+='<div><div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--cdim);margin-bottom:3px">'+escH(f.num||'—')+'</div>';
       h+='<div style="font-family:\'Cormorant Garamond\',serif;font-size:18px;color:var(--cream)">'+escH(f.client)+'</div>';
       if(f.service) h+='<div style="font-size:11px;color:var(--cdim);margin-top:2px;line-height:1.4">'+escH(f.service)+'</div>';
+      if(f.dossierId){ var _fd=getProDossiers().find(function(x){return x.id===f.dossierId;}); if(_fd) h+='<div style="font-size:9.5px;color:var(--terra);margin-top:5px;letter-spacing:.03em;cursor:pointer" onclick="viewDossierDetail('+_fd.id+')">🗂 '+escH(_fd.ref+' · '+_fd.titre)+' ›</div>'; }
       h+='</div>';
       h+='<div style="text-align:right"><div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:var(--terra)">'+f.amount.toFixed(0)+'€</div>';
       h+='<div style="font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;color:'+stCol[f.status]+';background:'+stBg[f.status]+';border:1px solid '+stBd[f.status]+';padding:2px 8px;border-radius:4px;margin-top:4px">'+escH(stLbl[f.status])+'</div></div>';
