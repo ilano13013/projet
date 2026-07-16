@@ -575,7 +575,7 @@ nav.visible{display:flex}
       <input type="hidden" id="reg-role" value="particulier">
       <div id="reg-anon-note" class="auth-anon-note">
         <span>●</span>
-        <span>Votre compte est <strong>anonyme par défaut</strong>. Aucun nom requis.</span>
+        <span>Vos informations restent <strong>confidentielles</strong> et stockées uniquement sur votre appareil.</span>
       </div>
       <div id="reg-pro-note" class="auth-anon-note" style="display:none;border-color:rgba(42,122,191,.2);background:rgba(42,122,191,.07)">
         <span>●</span>
@@ -648,7 +648,7 @@ nav.visible{display:flex}
     <div class="profile-banner" onclick="goTo('profile')">
       <div class="pb-avatar" id="pb-av">P</div>
       <div class="pb-info">
-        <div class="pb-name" id="pb-name">Utilisateur anonyme</div>
+        <div class="pb-name" id="pb-name">Mon compte</div>
         <div class="pb-id" id="pb-id">Mon profil</div>
       </div>
       <div id="pb-admin-badge"></div>
@@ -682,7 +682,6 @@ nav.visible{display:flex}
       <div class="home-tile" onclick="goTo('droits')"><div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--terra)" stroke-width="1.5" stroke-linecap="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></div><div class="tile-name">Mes droits</div><div class="tile-desc">Ce que dit la loi</div></div>
       <div class="home-tile" onclick="goTo('annuaire')"><div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--terra)" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><path d="M11 8a3 3 0 100 6"/></svg></div><div class="tile-name">Prendre rendez-vous</div><div class="tile-desc">Avocat·e·s près de chez vous</div></div>
       <div class="home-tile" onclick="goTo('planning')" style="border-left:3px solid var(--green)"><div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="tile-name">Mes rendez-vous</div><div class="tile-desc" id="home-rdv-count">Voir mon planning</div></div>
-      <div class="home-tile featured" onclick="goTo('commander')"><div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--terra)" stroke-width="1.5" stroke-linecap="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div><div class="tile-name">Commander</div><div class="tile-desc">Kit physique complet</div><div class="tile-badge">50% reversés</div></div>
     </div>
     <div id="admin-tile-wrap"></div>
     <div class="tools-header" id="tools-header">Outils</div>
@@ -799,54 +798,6 @@ nav.visible{display:flex}
     <div class="droits" id="droits-list"></div>
   </div>
 
-  <!-- COMMANDER -->
-  <div class="screen" id="s-commander">
-    <div class="commander-hero" style="background:linear-gradient(180deg,rgba(128,90,170,.08) 0%,transparent 100%)">
-      <div class="cmd-eyebrow">Kit physique PRIMA</div>
-      <div class="cmd-title">Que faire quand<br><em>tout bascule ?</em></div>
-      <div class="cmd-sub">Un kit concret, illustré et accessible pour savoir comment réagir face aux situations difficiles. Des solutions existent. Tu n'es pas seul(e).</div>
-    </div>
-    <div style="padding:0 18px 20px;display:flex;flex-direction:column;gap:14px">
-
-      <div style="font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:var(--cdim);display:flex;align-items:center;gap:12px">Contenu du kit<span style="flex:1;height:1px;background:var(--line);display:block"></span></div>
-
-      <div style="background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:20px 18px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:16px">
-        <div style="display:flex;gap:14px;align-items:flex-start">
-          <div style="width:40px;height:40px;border-radius:10px;background:rgba(128,90,170,.1);border:1px solid rgba(128,90,170,.2);display:flex;align-items:center;justify-content:center;flex:0 0 auto"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#805AAA" stroke-width="1.5" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg></div>
-          <div><div style="font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--cream)">Dépliant illustré</div><div style="font-size:11px;color:var(--cdim);line-height:1.6;margin-top:4px">"Que faire quand tout bascule ?" — Guide réflexe illustré pour réagir face aux situations difficiles. Exemples concrets, étapes claires, ton bienveillant.</div></div>
-        </div>
-        <div style="height:1px;background:var(--line)"></div>
-        <div style="display:flex;gap:14px;align-items:flex-start">
-          <div style="width:40px;height:40px;border-radius:10px;background:rgba(168,66,26,.08);border:1px solid rgba(168,66,26,.15);display:flex;align-items:center;justify-content:center;flex:0 0 auto"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--terra)" stroke-width="1.5" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><line x1="9" y1="7" x2="16" y2="7"/><line x1="9" y1="11" x2="14" y2="11"/></svg></div>
-          <div><div style="font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--cream)">Carnet de suivi des démarches</div><div style="font-size:11px;color:var(--cdim);line-height:1.6;margin-top:4px">Pages structurées pour noter chaque étape : rendez-vous, appels, courriers envoyés, réponses reçues. Votre fil conducteur dans les démarches.</div></div>
-        </div>
-        <div style="height:1px;background:var(--line)"></div>
-        <div style="display:flex;gap:14px;align-items:flex-start">
-          <div style="width:40px;height:40px;border-radius:10px;background:rgba(46,107,72,.08);border:1px solid rgba(46,107,72,.15);display:flex;align-items:center;justify-content:center;flex:0 0 auto"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.5" stroke-linecap="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg></div>
-          <div><div style="font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--cream)">Pochette de classement</div><div style="font-size:11px;color:var(--cdim);line-height:1.6;margin-top:4px">Pour ranger et protéger vos documents importants : certificats médicaux, courriers, captures d'écran imprimées, récépissés de plainte.</div></div>
-        </div>
-        <div style="height:1px;background:var(--line)"></div>
-        <div style="display:flex;gap:14px;align-items:flex-start">
-          <div style="width:40px;height:40px;border-radius:10px;background:rgba(184,26,16,.06);border:1px solid rgba(184,26,16,.12);display:flex;align-items:center;justify-content:center;flex:0 0 auto"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.5" stroke-linecap="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div>
-          <div><div style="font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--cream)">Carte solidaire</div><div style="font-size:11px;color:var(--cdim);line-height:1.6;margin-top:4px">Format portefeuille, plastifiée. Les numéros et associations à contacter en cas de besoin : 3919, CIDFF, France Victimes, hébergement d'urgence.</div></div>
-        </div>
-      </div>
-
-      <div style="background:linear-gradient(135deg,rgba(46,107,72,.08),rgba(46,107,72,.03));border:1px solid rgba(46,107,72,.18);border-radius:var(--r);padding:20px 18px;box-shadow:var(--shadow)">
-        <div style="font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:700;font-style:italic;color:var(--green);line-height:1">50%</div>
-        <div style="font-size:12px;color:var(--cream);line-height:1.6;margin-top:8px">des bénéfices nets reversés à une association d'hébergement d'urgence pour femmes victimes de violences.</div>
-      </div>
-
-      <div style="background:var(--terra);border-radius:var(--r);padding:28px 22px;display:flex;flex-direction:column;gap:14px;box-shadow:0 4px 16px rgba(168,66,26,.15)">
-        <div style="font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.5)">Kit unique · livraison 48h</div>
-        <div style="font-family:'Cormorant Garamond',serif;font-size:64px;font-weight:300;font-style:italic;color:#F0E9DC;line-height:1"><sup style="font-size:20px;vertical-align:top;margin-top:8px">€</sup>19<sup style="font-size:22px">,90</sup></div>
-        <div style="font-size:12px;color:rgba(255,255,255,.65);line-height:1.6">Dépliant illustré + carnet de suivi + pochette de classement + carte solidaire. Livraison discrète.</div>
-        <button style="display:block;text-align:center;background:#F0E9DC;color:var(--terra);font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.15em;text-transform:uppercase;padding:16px;border-radius:8px;font-weight:500;cursor:pointer;border:none;width:100%" onclick="showToast('Bientôt disponible — prima-defense.fr')">Commander — 19,90€</button>
-        <div style="font-size:9.5px;color:rgba(255,255,255,.4);text-align:center">Dont 7,88€ reversés à l'association partenaire</div>
-      </div>
-    </div>
-  </div>
-
   <!-- PRO PROFIL -->
   <div class="screen" id="s-pro-profil">
     <div class="page-header"><div><div class="page-title">Profil <em>professionnel</em></div><div class="page-tag">Votre fiche dans l'annuaire PRIMA</div></div></div>
@@ -885,12 +836,12 @@ nav.visible{display:flex}
 
   <!-- PROFILE -->
   <div class="screen" id="s-profile">
-    <div class="page-header"><div><div class="page-title">Mon <em>profil</em></div><div class="page-tag" id="prof-page-tag">Anonyme par défaut</div></div></div>
+    <div class="page-header"><div><div class="page-title">Mon <em>profil</em></div><div class="page-tag" id="prof-page-tag">Profil personnel</div></div></div>
     <div class="profile-wrap">
       <div class="profile-header-card">
         <div class="profile-avatar-big" id="prof-av-big">P</div>
         <div class="profile-id-display" id="prof-id-display">PRIMA-0000</div>
-        <div id="prof-badge-wrap"><div class="profile-anon-badge">● Profil anonyme</div></div>
+        <div id="prof-badge-wrap"><div class="profile-anon-badge">● Profil personnel</div></div>
       </div>
       <div class="prof-section-title">Informations de contact <span id="prof-optional-label">(optionnel)</span></div>
       <div class="prof-note" id="prof-note-text">Ces informations sont optionnelles et visibles uniquement par vous. Renseignez-les si vous souhaitez être contacté·e facilement en cas de besoin d'assistance.</div>
@@ -952,7 +903,7 @@ nav.visible{display:flex}
       </div>
       <div class="admin-section">
         <div class="admin-section-title">Utilisateurs</div>
-        <div class="admin-privacy-note">● Les particuliers restent anonymes — vous ne voyez que l'identifiant et le département. Les professionnels (avocat·e·s) sont visibles avec leur nom, cabinet et formule d'abonnement.</div>
+        <div class="admin-privacy-note">● Les données des particuliers restent confidentielles — vous ne voyez que l'identifiant et le département. Les professionnels (avocat·e·s) sont visibles avec leur nom, cabinet et formule d'abonnement.</div>
         <div class="user-list" id="admin-user-list"><div class="admin-empty">Chargement...</div></div>
       </div>
       <div class="admin-section">
@@ -1763,7 +1714,7 @@ function updateProfileUI(){
   var role = currentUser.role || 'particulier';
   var isPro = role === 'professionnel';
   var initials = (p.prenom?p.prenom[0].toUpperCase():'') + (p.nom?p.nom[0].toUpperCase():'') || (isPro?'A':'P');
-  var displayName = [p.prenom,p.nom].filter(Boolean).join(' ') || (isPro?proTitle(currentUser.proProfile&&currentUser.proProfile.genre):'Utilisateur anonyme');
+  var displayName = [p.prenom,p.nom].filter(Boolean).join(' ') || (isPro?proTitle(currentUser.proProfile&&currentUser.proProfile.genre):(currentUser.email||'Mon compte'));
   var photo = isPro && currentUser.proProfile && currentUser.proProfile.photo;
   var pbAv = document.getElementById('pb-av');
   var profAvBig = document.getElementById('prof-av-big');
@@ -1805,12 +1756,12 @@ function updateProfileUI(){
     if(optLabel) optLabel.textContent = '(obligatoire pour l\'annuaire)';
     if(noteText) noteText.textContent = 'Vos informations sont visibles dans l\'annuaire PRIMA pour que les victimes puissent vous trouver et vous contacter. Complétez votre profil professionnel via la tuile "Mon profil pro" sur l\'accueil.';
   } else {
-    if(badgeWrap) badgeWrap.innerHTML = '<div class="profile-anon-badge">● Profil anonyme</div>';
+    if(badgeWrap) badgeWrap.innerHTML = '<div class="profile-anon-badge">● Profil personnel</div>';
     if(optLabel) optLabel.textContent = '(optionnel)';
     if(noteText) noteText.textContent = 'Ces informations sont optionnelles et visibles uniquement par vous. Renseignez-les si vous souhaitez être contactée facilement en cas de besoin.';
   }
   var profTag = document.getElementById('prof-page-tag');
-  if(profTag) profTag.textContent = isPro ? 'Professionnel — visible dans l\'annuaire' : 'Anonyme par défaut';
+  if(profTag) profTag.textContent = isPro ? 'Professionnel — visible dans l\'annuaire' : 'Profil personnel';
 
   // Update nav bar based on role
   updateNav(role);
@@ -3681,7 +3632,34 @@ function sendMessage(sender){
   var msgs=db.getObj('prima_messages',[]);
   msgs.push({id:Date.now(),proId:currentUser.id,clientId:currentConvClient,sender:sender,text:text,createdAt:Date.now()});
   db.setObj('prima_messages',msgs);
+  // Un message envoyé par le professionnel est aussi transmis au client par email
+  if(sender==='pro'){
+    var c=getProClients().find(function(x){return x.id===currentConvClient;});
+    if(c && c.email && c.email.trim()){
+      var sent=sendMessageEmail(c.email.trim(), ((c.prenom||'')+' '+(c.nom||'')).trim()||'', text);
+      showToast(sent ? 'Message envoyé · email au client' : 'Message envoyé · ouverture de l\'email');
+    } else {
+      showToast('Message enregistré · ce client n\'a pas d\'email');
+    }
+  }
   renderConversation();
+}
+function sendMessageEmail(email, clientName, text){
+  var pp=(currentUser&&currentUser.proProfile)||{};
+  var pnom=(currentUser&&currentUser.profile&&currentUser.profile.nom)?('Maître '+currentUser.profile.nom):(pp.cabinet||'votre avocat·e');
+  var subject='Nouveau message de '+pnom+' — PRIMA';
+  var body='Bonjour'+(clientName?(' '+clientName):'')+',\n\nVous avez reçu un nouveau message de '+pnom+' via PRIMA :\n\n« '+text+' »\n\nConnectez-vous à votre espace PRIMA pour consulter la conversation et répondre.\n\nCordialement,\nL\'équipe PRIMA';
+  // Envoi automatique si EmailJS est configuré
+  if(typeof emailjsReady!=='undefined' && emailjsReady && typeof emailjs!=='undefined'){
+    try{ emailjs.send(EMAILJS_SERVICE,'template_message',{to_email:email,subject:subject,message:body}); return true; }catch(e){}
+  }
+  // Repli : ouverture du client mail (aucun serveur requis)
+  try{
+    var a=document.createElement('a');
+    a.href='mailto:'+encodeURIComponent(email)+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+    a.target='_blank'; a.click();
+  }catch(e){}
+  return false;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -4341,7 +4319,7 @@ var legalContent = {
     +'<p style="margin-bottom:10px"><strong>Date de mise à jour :</strong> Juin 2026</p>'
     +'<p style="margin-bottom:10px"><strong>Article 1 — Objet.</strong> Les présentes CGU régissent l\'utilisation de l\'application PRIMA, kit de défense juridique numérique. En créant un compte, vous acceptez ces conditions.</p>'
     +'<p style="margin-bottom:10px"><strong>Article 2 — Accès au service.</strong> L\'application est accessible gratuitement pour les particuliers. Les professionnels du droit peuvent souscrire un abonnement payant pour apparaître dans l\'annuaire.</p>'
-    +'<p style="margin-bottom:10px"><strong>Article 3 — Comptes utilisateurs.</strong> Les comptes particuliers sont anonymes par défaut. Les comptes professionnels requièrent une vérification d\'identité (SIRET, inscription au barreau). Chaque utilisateur est responsable de la confidentialité de ses identifiants.</p>'
+    +'<p style="margin-bottom:10px"><strong>Article 3 — Comptes utilisateurs.</strong> Les comptes particuliers sont personnels et confidentiels ; leurs données sont stockées localement sur l\'appareil de l\'utilisateur. Les comptes professionnels requièrent une vérification d\'identité (SIRET, inscription au barreau). Chaque utilisateur est responsable de la confidentialité de ses identifiants.</p>'
     +'<p style="margin-bottom:10px"><strong>Article 4 — Contenu juridique.</strong> Les informations fournies dans PRIMA sont de nature informative et pédagogique. Elles ne constituent en aucun cas un conseil juridique personnalisé et ne se substituent pas à la consultation d\'un avocat.</p>'
     +'<p style="margin-bottom:10px"><strong>Article 5 — Carnet de preuves.</strong> Le carnet de preuves est un outil de documentation personnelle. PRIMA ne garantit pas la recevabilité juridique des éléments documentés. Consultez un avocat pour toute démarche judiciaire.</p>'
     +'<p style="margin-bottom:10px"><strong>Article 6 — Rendez-vous.</strong> PRIMA met en relation les utilisatrices et les professionnels inscrits. PRIMA n\'est pas partie prenante des consultations et ne peut être tenu responsable du contenu des échanges entre utilisatrices et professionnels.</p>'
@@ -4351,13 +4329,11 @@ var legalContent = {
 
   cgv: '<div style="font-family:\'Cormorant Garamond\',serif;font-size:20px;color:var(--cream);margin-bottom:14px">Conditions Générales de Vente</div>'
     +'<div style="font-size:11px;color:var(--cdim);line-height:1.75">'
-    +'<p style="margin-bottom:10px"><strong>Article 1 — Produits.</strong> PRIMA propose à la vente un kit physique de défense juridique au prix de 19,90€ TTC, livraison incluse. Le contenu du kit est décrit sur la page Commander de l\'application.</p>'
-    +'<p style="margin-bottom:10px"><strong>Article 2 — Commande.</strong> La validation de la commande implique l\'acceptation des présentes CGV et le paiement intégral du prix. Un email de confirmation est envoyé à l\'adresse indiquée.</p>'
-    +'<p style="margin-bottom:10px"><strong>Article 3 — Livraison.</strong> La livraison est effectuée sous 48 heures ouvrées en France métropolitaine. L\'emballage est discret, sans mention visible du contenu.</p>'
-    +'<p style="margin-bottom:10px"><strong>Article 4 — Engagement solidaire.</strong> 50% des bénéfices nets de chaque vente sont reversés à une association d\'hébergement d\'urgence pour femmes victimes de violences.</p>'
-    +'<p style="margin-bottom:10px"><strong>Article 5 — Droit de rétractation.</strong> Conformément à l\'article L.221-18 du Code de la consommation, vous disposez de 14 jours à compter de la réception du kit pour exercer votre droit de rétractation, sans motif et sans pénalité.</p>'
-    +'<p style="margin-bottom:10px"><strong>Article 6 — Abonnements professionnels.</strong> Les abonnements (Premium 49€/mois, Expert 89€/mois) sont sans engagement. La résiliation prend effet à la fin du mois en cours. Aucun remboursement prorata n\'est effectué.</p>'
-    +'<p style="margin-bottom:10px"><strong>Article 7 — Réclamations.</strong> Toute réclamation peut être adressée à contact@prima-defense.fr. Réponse sous 48 heures ouvrées.</p>'
+    +'<p style="margin-bottom:10px"><strong>Article 1 — Objet.</strong> Les présentes CGV régissent les abonnements professionnels proposés aux professionnels du droit au sein de l\'application PRIMA. L\'accès à l\'application est gratuit pour les particuliers.</p>'
+    +'<p style="margin-bottom:10px"><strong>Article 2 — Formules.</strong> PRIMA propose deux abonnements : Premium (49€/mois) et Expert (89€/mois). Le détail des fonctionnalités incluses est présenté sur la page Abonnement de l\'application.</p>'
+    +'<p style="margin-bottom:10px"><strong>Article 3 — Paiement et facturation.</strong> Les abonnements sont facturés mensuellement. La souscription implique l\'acceptation des présentes CGV. Un email de confirmation est envoyé à l\'adresse indiquée.</p>'
+    +'<p style="margin-bottom:10px"><strong>Article 4 — Résiliation.</strong> Les abonnements sont sans engagement. La résiliation prend effet à la fin du mois en cours. Aucun remboursement prorata n\'est effectué.</p>'
+    +'<p style="margin-bottom:10px"><strong>Article 5 — Réclamations.</strong> Toute réclamation peut être adressée à contact@prima-defense.fr. Réponse sous 48 heures ouvrées.</p>'
     +'</div>',
 
   privacy: '<div style="font-family:\'Cormorant Garamond\',serif;font-size:20px;color:var(--cream);margin-bottom:14px">Politique de Confidentialité</div>'
