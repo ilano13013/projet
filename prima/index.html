@@ -3163,13 +3163,41 @@ function scheduleRdvNotification(rdv){
 
 function updateRdvStatus(rdvId, status){
   var all = db.getObj("prima_rdv",[]);
+  var rdv = null;
   for(var i=0;i<all.length;i++){
-    if(all[i].id === rdvId){ all[i].status = status; break; }
+    if(all[i].id === rdvId){ all[i].status = status; rdv = all[i]; break; }
   }
   db.setObj("prima_rdv", all);
+  // Confirmer un rendez-vous crée automatiquement la fiche client (si absente)
+  var createdClient = false;
+  if(status==="confirmed" && rdv && currentUser && currentUser.role==="professionnel"){
+    createdClient = ensureClientFromRdv(rdv);
+  }
   renderPlanning();
   renderHomeNextRdv();
-  showToast(status==="confirmed"?"Rendez-vous confirmé":status==="done"?"Marqué terminé":status==="cancelled"?"Rendez-vous annulé":"Rendez-vous refusé");
+  var msg = status==="confirmed"?"Rendez-vous confirmé":status==="done"?"Marqué terminé":status==="cancelled"?"Rendez-vous annulé":"Rendez-vous refusé";
+  if(createdClient) msg += " · fiche client créée";
+  showToast(msg);
+}
+// Crée une fiche client à partir d'un rendez-vous, si aucun client du même nom n'existe déjà
+function ensureClientFromRdv(rdv){
+  var nm = ((rdv.prenom||'')+' '+(rdv.nom||'')).trim();
+  if(!nm) return false;
+  var clients = db.getObj('prima_clients',[]);
+  var exists = clients.some(function(c){
+    return c.proId===currentUser.id && (((c.prenom||'')+' '+(c.nom||'')).trim().toLowerCase())===nm.toLowerCase();
+  });
+  if(exists) return false;
+  clients.push({
+    id: Date.now(), proId: currentUser.id,
+    prenom: (rdv.prenom||'').trim(), nom: (rdv.nom||'').trim(),
+    email: (rdv.email||'').trim(), telephone: (rdv.telephone||'').trim(),
+    adresse: '',
+    notes: 'Fiche créée automatiquement à la confirmation d\'un rendez-vous ('+(rdv.motif||'consultation')+(rdv.date?' — '+formatDateFR(rdv.date):'')+').',
+    createdAt: Date.now()
+  });
+  db.setObj('prima_clients', clients);
+  return true;
 }
 
 function requestCancelRdv(rdvId){
