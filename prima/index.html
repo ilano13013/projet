@@ -413,6 +413,19 @@ nav.visible{display:flex}
 .drow-v{color:var(--cream);text-align:right;min-width:0}
 @media(max-width:899px){nav .nav-btn.desk-only{display:none}}
 
+/* ── MESSAGERIE ── */
+.msg-thread{padding:8px 18px 24px;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:76%;padding:11px 14px;border-radius:14px;font-size:12.5px;line-height:1.5;word-wrap:break-word;overflow-wrap:anywhere}
+.msg-pro{align-self:flex-end;background:var(--terra);color:#fff;border-bottom-right-radius:4px}
+.msg-client{align-self:flex-start;background:var(--s1);color:var(--cream);border:1px solid var(--line);border-bottom-left-radius:4px}
+.msg-time{font-size:9px;opacity:.75;margin-top:5px;display:block}
+.msg-compose{position:sticky;bottom:0;background:#F5F0E6;padding:12px 18px calc(12px + env(safe-area-inset-bottom));margin-top:6px;border-top:1px solid var(--line);display:flex;gap:8px;align-items:flex-end}
+.msg-compose textarea{flex:1;background:var(--s1);border:1px solid var(--line2);border-radius:12px;padding:11px 14px;font-family:'DM Mono',monospace;font-size:12.5px;color:var(--cream);outline:none;resize:none;min-height:44px;max-height:120px}
+.msg-send{background:var(--terra);color:#fff;border:none;width:44px;height:44px;border-radius:12px;cursor:pointer;flex:0 0 auto;font-size:16px;transition:.2s}
+.msg-send:hover{background:var(--terra-l)}
+.msg-log{background:transparent;color:var(--cdim);border:1px solid var(--line2);height:44px;padding:0 12px;border-radius:12px;cursor:pointer;flex:0 0 auto;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.04em}
+.doc-ic{width:40px;height:40px;border-radius:10px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:18px;flex:0 0 auto}
+
 /* ══════════════════════════════════════════════════════════
    MODE PROFESSIONNEL · APPLICATION DESKTOP (PC)
    Actif uniquement pour body.pro-mode sur écran large (≥900px).
@@ -1154,6 +1167,24 @@ nav.visible{display:flex}
     <div id="dossier-detail-content"></div>
   </div>
 
+  <!-- MESSAGERIE -->
+  <div class="screen" id="s-messagerie">
+    <div class="page-header"><div><div class="page-title">Ma <em>messagerie</em></div><div class="page-tag">Échanges avec vos clients</div></div></div>
+    <div id="messagerie-content"></div>
+  </div>
+
+  <!-- CONVERSATION -->
+  <div class="screen" id="s-conversation">
+    <div class="page-header"><div><div class="page-title" id="conv-title">Conversation</div><div class="page-tag" id="conv-tag">Espace sécurisé</div></div></div>
+    <div id="conversation-content"></div>
+  </div>
+
+  <!-- DOCUMENTS -->
+  <div class="screen" id="s-documents">
+    <div class="page-header"><div><div class="page-title">Mes <em>documents</em></div><div class="page-tag">Pièces et fichiers</div></div></div>
+    <div id="documents-content"></div>
+  </div>
+
   <!-- LEGAL -->
   <div class="screen" id="s-legal">
     <div class="page-header"><div><div class="page-title">Mentions <em>légales</em></div><div class="page-tag" id="legal-tag">Informations juridiques</div></div></div>
@@ -1285,6 +1316,12 @@ nav.visible{display:flex}
   </button>
   <button class="nav-btn desk-only" data-screen="dossiers" data-role="professionnel" onclick="goTo('dossiers')" style="display:none">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>Dossiers
+  </button>
+  <button class="nav-btn desk-only" data-screen="messagerie" data-role="professionnel" onclick="goTo('messagerie')" style="display:none">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Messagerie
+  </button>
+  <button class="nav-btn desk-only" data-screen="documents" data-role="professionnel" onclick="goTo('documents')" style="display:none">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Documents
   </button>
   <button class="nav-btn" data-screen="pro-profil" data-role="professionnel" onclick="goTo('pro-profil')" style="display:none">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profil
@@ -1852,6 +1889,16 @@ function updateProfileUI(){
     html += '<div class="home-tile'+(isPrem?'':' locked')+'" onclick="'+(isPrem?'goTo(\'teleconsult\')':'requireTier(\'premium\')')+'">'
       +'<div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="'+(isPrem?'var(--terra)':'var(--clow)')+'" stroke-width="1.5" stroke-linecap="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div>'
       +'<div class="tile-name">Téléconsultation</div><div class="tile-desc">Consultations à distance</div>'
+      +(isPrem?'':'<div class="tile-lock-badge">🔒 Premium</div>')+'</div>';
+
+    html += '<div class="home-tile'+(isPrem?'':' locked')+'" onclick="'+(isPrem?'goTo(\'messagerie\')':'requireTier(\'premium\')')+'">'
+      +'<div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="'+(isPrem?'var(--terra)':'var(--clow)')+'" stroke-width="1.5" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>'
+      +'<div class="tile-name">Messagerie</div><div class="tile-desc">Échanges sécurisés</div>'
+      +(isPrem?'':'<div class="tile-lock-badge">🔒 Premium</div>')+'</div>';
+
+    html += '<div class="home-tile'+(isPrem?'':' locked')+'" onclick="'+(isPrem?'goTo(\'documents\')':'requireTier(\'premium\')')+'">'
+      +'<div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="'+(isPrem?'var(--terra)':'var(--clow)')+'" stroke-width="1.5" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>'
+      +'<div class="tile-name">Documents</div><div class="tile-desc">Pièces et fichiers</div>'
       +(isPrem?'':'<div class="tile-lock-badge">🔒 Premium</div>')+'</div>';
 
     html += '</div>';
@@ -3524,6 +3571,162 @@ function renderDossierDetail(){
   wrap.innerHTML=h;
 }
 
+/* ═══════════════════════════════════════════════════════════
+   MODULE MESSAGERIE  (Premium)
+   ═══════════════════════════════════════════════════════════ */
+var currentConvClient=null;
+function getProMessages(){ if(!currentUser) return []; return db.getObj('prima_messages',[]).filter(function(m){return m.proId===currentUser.id;}); }
+function msgTimeLabel(ts){ var d=new Date(ts); return d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'})+' · '+d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}); }
+function msgTimeAgo(ts){ var s=Math.floor((Date.now()-ts)/1000); if(s<60)return 'à l\'instant'; var m=Math.floor(s/60); if(m<60)return 'il y a '+m+' min'; var h=Math.floor(m/60); if(h<24)return 'il y a '+h+' h'; return 'il y a '+Math.floor(h/24)+' j'; }
+function renderMessagerie(){
+  var wrap=document.getElementById('messagerie-content');
+  if(!wrap||!currentUser) return;
+  if(proTierVal()<1){ wrap.innerHTML=proLockPanel('premium'); return; }
+  var clients=getProClients();
+  var msgs=getProMessages();
+  var h='';
+  if(!clients.length){
+    h+='<div class="empty-state"><div class="empty-icon">💬</div><div class="empty-text">Aucun client à contacter<br>Ajoutez d\'abord des clients pour échanger avec eux.</div></div>';
+    h+='<div style="margin:0 18px"><button class="pdash-cta" style="width:100%" onclick="goTo(\'clients\')">Aller aux clients →</button></div>';
+    wrap.innerHTML=h; return;
+  }
+  var lastOf={};
+  msgs.forEach(function(m){ if(!lastOf[m.clientId]||m.createdAt>lastOf[m.clientId].createdAt) lastOf[m.clientId]=m; });
+  clients.sort(function(a,b){ var la=lastOf[a.id]?lastOf[a.id].createdAt:0, lb=lastOf[b.id]?lastOf[b.id].createdAt:0; return lb-la; });
+  h+='<div class="pcard-list">';
+  clients.forEach(function(c){
+    var nm=((c.prenom||'')+' '+(c.nom||'')).trim()||'Client';
+    var last=lastOf[c.id];
+    var preview=last?((last.sender==='pro'?'Vous : ':'')+last.text):'Démarrer la conversation';
+    h+='<div class="litem" onclick="openConversation('+c.id+')">';
+    h+='<div class="litem-av">'+escH(initialsFrom(nm))+'</div>';
+    h+='<div class="litem-main"><div class="litem-t">'+escH(nm)+'</div><div class="litem-s">'+escH(preview)+'</div></div>';
+    if(last) h+='<div class="litem-meta"><div style="font-size:9px;color:var(--cdim)">'+escH(msgTimeAgo(last.createdAt))+'</div></div>';
+    h+='</div>';
+  });
+  h+='</div>';
+  wrap.innerHTML=h;
+}
+function openConversation(cid){ currentConvClient=cid; goTo('conversation'); }
+function renderConversation(){
+  var wrap=document.getElementById('conversation-content');
+  if(!wrap||!currentUser||!currentConvClient) return;
+  var c=getProClients().find(function(x){return x.id===currentConvClient;});
+  if(!c){ wrap.innerHTML='<div class="empty-state"><div class="empty-text">Client introuvable</div></div>'; return; }
+  var nm=((c.prenom||'')+' '+(c.nom||'')).trim()||'Client';
+  var tEl=document.getElementById('conv-title'); if(tEl) tEl.textContent=nm;
+  var tagEl=document.getElementById('conv-tag'); if(tagEl) tagEl.textContent='Espace d\'échange sécurisé';
+  var msgs=getProMessages().filter(function(m){return m.clientId===currentConvClient;}).sort(function(a,b){return a.createdAt-b.createdAt;});
+  var h='';
+  h+='<button class="detail-back" onclick="goTo(\'messagerie\')">‹ Toutes les conversations</button>';
+  h+='<div class="msg-thread" id="msg-thread">';
+  if(!msgs.length){
+    h+='<div class="pdash-empty">Aucun message pour l\'instant.<br>Écrivez le premier message à '+escH(nm)+'.</div>';
+  } else {
+    msgs.forEach(function(m){
+      var side=m.sender==='pro'?'msg-pro':'msg-client';
+      h+='<div class="msg '+side+'">'+escH(m.text).replace(/\n/g,'<br>')+'<span class="msg-time">'+escH(msgTimeLabel(m.createdAt))+'</span></div>';
+    });
+  }
+  h+='</div>';
+  h+='<div class="msg-compose">'
+    +'<textarea id="msg-input" placeholder="Écrire un message…" rows="1"></textarea>'
+    +'<button class="msg-log" onclick="sendMessage(\'client\')" title="Consigner un message reçu du client">Reçu</button>'
+    +'<button class="msg-send" onclick="sendMessage(\'pro\')" title="Envoyer">➤</button>'
+    +'</div>';
+  wrap.innerHTML=h;
+  var sc=document.getElementById('s-conversation'); if(sc) sc.scrollTop=sc.scrollHeight;
+}
+function sendMessage(sender){
+  var inp=document.getElementById('msg-input'); if(!inp) return;
+  var text=(inp.value||'').trim(); if(!text) return;
+  var msgs=db.getObj('prima_messages',[]);
+  msgs.push({id:Date.now(),proId:currentUser.id,clientId:currentConvClient,sender:sender,text:text,createdAt:Date.now()});
+  db.setObj('prima_messages',msgs);
+  renderConversation();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MODULE DOCUMENTS  (Premium)
+   ═══════════════════════════════════════════════════════════ */
+var docFormOpen=false;
+function docIcon(mime,name){
+  var n=(name||'').toLowerCase(); mime=mime||'';
+  if(/^image\//.test(mime)) return '🖼';
+  if(mime==='application/pdf'||/\.pdf$/.test(n)) return '📕';
+  if(/word|\.docx?$/.test(mime+n)) return '📘';
+  if(/sheet|excel|\.xlsx?$|\.csv$/.test(mime+n)) return '📗';
+  return '📄';
+}
+function fmtSize(b){ if(b<1024)return b+' o'; if(b<1048576)return (b/1024).toFixed(0)+' Ko'; return (b/1048576).toFixed(1)+' Mo'; }
+function toggleDocForm(){ docFormOpen=!docFormOpen; renderDocuments(); }
+function saveDocument(){
+  var fi=document.getElementById('doc-file');
+  var file=fi&&fi.files&&fi.files[0];
+  if(!file){ showToast('Choisissez un fichier'); return; }
+  if(file.size>2*1048576){ showToast('Fichier trop volumineux (max 2 Mo)'); return; }
+  var clientId=parseInt((document.getElementById('doc-client')||{}).value||'0',10)||null;
+  var dossierId=parseInt((document.getElementById('doc-dossier')||{}).value||'0',10)||null;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var docs=db.getObj('prima_documents',[]);
+    docs.push({id:Date.now(),proId:currentUser.id,name:file.name,mime:file.type,size:file.size,data:e.target.result,clientId:clientId,dossierId:dossierId,createdAt:Date.now()});
+    try{ db.setObj('prima_documents',docs); }
+    catch(err){ showToast('Espace de stockage plein — supprimez des fichiers'); return; }
+    docFormOpen=false; renderDocuments(); showToast('Document importé ✓');
+  };
+  reader.onerror=function(){ showToast('Lecture du fichier impossible'); };
+  reader.readAsDataURL(file);
+}
+function downloadDocument(id){
+  var d=db.getObj('prima_documents',[]).find(function(x){return x.id===id;});
+  if(!d) return;
+  var a=document.createElement('a'); a.href=d.data; a.download=d.name||'document';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+function deleteDocument(id){
+  db.setObj('prima_documents', db.getObj('prima_documents',[]).filter(function(x){return x.id!==id;}));
+  renderDocuments(); showToast('Document supprimé');
+}
+function renderDocuments(){
+  var wrap=document.getElementById('documents-content');
+  if(!wrap||!currentUser) return;
+  if(proTierVal()<1){ wrap.innerHTML=proLockPanel('premium'); return; }
+  var clients=getProClients();
+  var dossiers=getProDossiers();
+  var docs=db.getObj('prima_documents',[]).filter(function(x){return x.proId===currentUser.id;}).sort(function(a,b){return b.createdAt-a.createdAt;});
+  var cName=function(id){ var c=clients.find(function(x){return x.id===id;}); return c?(((c.prenom||'')+' '+(c.nom||'')).trim()||'Client'):null; };
+  var dName=function(id){ var d=dossiers.find(function(x){return x.id===id;}); return d?(d.ref+' · '+d.titre):null; };
+  var h='';
+  h+='<button class="add-btn" onclick="toggleDocForm()">＋ &nbsp;Importer un document</button>';
+  h+='<div class="inc-form" id="doc-form" style="display:'+(docFormOpen?'flex':'none')+'">';
+  h+='<div class="form-group"><label class="form-label">Fichier (max 2 Mo)</label><input class="form-input" type="file" id="doc-file"></div>';
+  h+='<div class="form-row"><div class="form-group"><label class="form-label">Client (optionnel)</label><select class="form-input" id="doc-client"><option value="">—</option>';
+  clients.forEach(function(c){ var nm=((c.prenom||'')+' '+(c.nom||'')).trim()||'Client'; h+='<option value="'+c.id+'">'+escH(nm)+'</option>'; });
+  h+='</select></div>';
+  h+='<div class="form-group"><label class="form-label">Dossier (optionnel)</label><select class="form-input" id="doc-dossier"><option value="">—</option>';
+  dossiers.forEach(function(d){ h+='<option value="'+d.id+'">'+escH(d.ref+' · '+d.titre)+'</option>'; });
+  h+='</select></div></div>';
+  h+='<div class="form-actions"><button class="btn-save" onclick="saveDocument()">Importer</button><button class="btn-cancel" onclick="toggleDocForm()">Annuler</button></div></div>';
+  if(!docs.length){
+    h+='<div class="empty-state"><div class="empty-icon">📄</div><div class="empty-text">Aucun document<br>Importez vos pièces et fichiers.</div></div>';
+  } else {
+    h+='<div class="pcard-list">';
+    docs.forEach(function(d){
+      var meta=[]; var cn=cName(d.clientId); var dn=dName(d.dossierId);
+      if(cn) meta.push(cn); if(dn) meta.push(dn); meta.push(fmtSize(d.size));
+      h+='<div class="litem" style="cursor:default">';
+      h+='<div class="doc-ic">'+docIcon(d.mime,d.name)+'</div>';
+      h+='<div class="litem-main"><div class="litem-t">'+escH(d.name)+'</div><div class="litem-s">'+escH(meta.join(' · '))+'</div></div>';
+      h+='<button onclick="downloadDocument('+d.id+')" title="Télécharger" style="background:none;border:none;color:var(--terra);cursor:pointer;font-size:17px;padding:6px">⤓</button>';
+      h+='<button onclick="deleteDocument('+d.id+')" title="Supprimer" style="background:none;border:none;color:var(--clow);cursor:pointer;font-size:17px;padding:6px">×</button>';
+      h+='</div>';
+    });
+    h+='</div>';
+  }
+  wrap.innerHTML=h;
+}
+
 // Hook into goTo for new screens
 var _origGoTo = goTo;
 goTo = function(id){
@@ -3539,6 +3742,9 @@ goTo = function(id){
   if(id==="dossiers") renderDossiers();
   if(id==="client-detail") renderClientDetail();
   if(id==="dossier-detail") renderDossierDetail();
+  if(id==="messagerie") renderMessagerie();
+  if(id==="conversation") renderConversation();
+  if(id==="documents") renderDocuments();
   if(id==="annuaire"){
     var isPro = currentUser && currentUser.role === "professionnel";
     var tag = document.getElementById("annuaire-tag");
