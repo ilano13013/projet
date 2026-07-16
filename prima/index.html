@@ -3769,6 +3769,7 @@ function renderDocuments(){
 var _origGoTo = goTo;
 goTo = function(id){
   _origGoTo(id);
+  if(id==="home" && currentUser && currentUser.role==="professionnel") renderProDashboard();
   if(id==="planning") renderPlanning();
   if(id==="abonnement") loadAboScreen();
   if(id==="legal") showLegal("cgu");
