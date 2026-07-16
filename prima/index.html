@@ -353,6 +353,44 @@ nav.visible{display:flex}
 @media(min-width:480px){.home-grid{grid-template-columns:repeat(3,1fr)}.screen,nav{max-width:480px;margin-left:auto;margin-right:auto}}
 
 /* ══════════════════════════════════════════════════════════
+   TABLEAU DE BORD PROFESSIONNEL · Vue d'ensemble
+   Rendu dans #pro-dashboard (masqué pour les particuliers).
+   ══════════════════════════════════════════════════════════ */
+.pdash-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:0 18px 20px;padding-top:34px}
+.pdash-hello{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:300;color:var(--cream);line-height:1.05}
+.pdash-hello em{font-style:italic;color:var(--terra)}
+.pdash-sub{font-size:11px;letter-spacing:.04em;color:var(--cdim);margin-top:7px}
+.pdash-cta{background:var(--terra);color:#fff;border:none;padding:12px 20px;border-radius:10px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.08em;cursor:pointer;white-space:nowrap;transition:.2s}
+.pdash-cta:hover{background:var(--terra-l)}
+.pdash-kpis{display:grid;grid-template-columns:1fr;gap:12px;margin:0 18px 14px}
+.pkpi{background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;box-shadow:var(--shadow);min-width:0}
+.pkpi-lbl{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--cdim);margin-bottom:9px}
+.pkpi-val{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:400;color:var(--cream);line-height:1}
+.pkpi-val small{font-size:17px;color:var(--cdim)}
+.pkpi-sub{font-size:10px;color:var(--gold-l);letter-spacing:.03em;margin-top:9px}
+.pdash-cols{display:grid;grid-template-columns:1fr;gap:12px;margin:0 18px 6px}
+.pcard{background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;box-shadow:var(--shadow);min-width:0}
+.pcard-title{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--cdim);margin-bottom:6px}
+.pact{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line)}
+.pact:first-of-type{border-top:none}
+.pact-av{width:34px;height:34px;border-radius:50%;background:var(--s3);color:var(--terra);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:600;flex:0 0 auto}
+.pact-main{flex:1;min-width:0}
+.pact-t{font-size:12px;color:var(--cream);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pact-s{font-size:10px;color:var(--cdim);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pill{font-size:8px;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:20px;white-space:nowrap;flex:0 0 auto}
+.pag{display:flex;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.pag:first-of-type{border-top:none}
+.pag-time{font-family:'DM Mono',monospace;font-size:12px;color:var(--terra);font-weight:500;flex:0 0 auto;width:48px}
+.pag-main{flex:1;min-width:0}
+.pag-t{font-size:12px;color:var(--cream)}
+.pag-s{font-size:10px;color:var(--cdim);margin-top:2px}
+.pdash-empty{font-size:11px;color:var(--clow);text-align:center;padding:16px 0;font-style:italic}
+@media(min-width:760px){
+  .pdash-kpis{grid-template-columns:repeat(3,1fr)}
+  .pdash-cols{grid-template-columns:3fr 2fr}
+}
+
+/* ══════════════════════════════════════════════════════════
    MODE PROFESSIONNEL · APPLICATION DESKTOP (PC)
    Actif uniquement pour body.pro-mode sur écran large (≥900px).
    L'interface particulier et l'affichage mobile ne sont pas modifiés.
@@ -570,6 +608,7 @@ nav.visible{display:flex}
       <div class="home-rule"></div>
       <div class="home-tagline">Votre kit juridique numérique.<br>Toujours avec vous.</div>
     </div>
+    <div id="pro-dashboard" style="display:none"></div>
     <div class="profile-banner" onclick="goTo('profile')">
       <div class="pb-avatar" id="pb-av">P</div>
       <div class="pb-info">
@@ -579,7 +618,7 @@ nav.visible{display:flex}
       <div id="pb-admin-badge"></div>
       <div class="pb-arrow">›</div>
     </div>
-    <div style="margin:0 18px 14px;background:#FFFFFF;border:1px solid rgba(168,66,26,.15);border-radius:var(--r);padding:20px 18px;box-shadow:var(--shadow)">
+    <div id="home-intro-msg" style="margin:0 18px 14px;background:#FFFFFF;border:1px solid rgba(168,66,26,.15);border-radius:var(--r);padding:20px 18px;box-shadow:var(--shadow)">
       <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:22px;font-weight:400;color:var(--terra);line-height:1.3;margin-bottom:8px">Vous n'êtes pas seule.</div>
       <div style="font-size:12px;color:var(--cdim);line-height:1.7;font-style:italic">Que ce soit dans votre couple, au travail, dans la rue ou en ligne. Si quelque chose vous fait souffrir, vous avez le droit d'agir. PRIMA vous accompagne à chaque étape.</div>
     </div>
@@ -600,7 +639,7 @@ nav.visible{display:flex}
       <div class="home-tile" onclick="goTo('fiches');showSituation('ligne')" style="border-left:3px solid #5A7ABF"><div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5A7ABF" stroke-width="1.5" stroke-linecap="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div><div class="tile-name">En ligne</div><div class="tile-desc">Cyberharcèlement, photos intimes</div></div>
     </div>
     <div id="outils-header" style="padding:0 18px;margin:4px 0 8px"><div style="font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:var(--cdim);display:flex;align-items:center;gap:12px">Mes outils<span style="flex:1;height:1px;background:var(--line);display:block"></span></div></div>
-    <div class="home-grid">
+    <div class="home-grid" id="home-grid-tools-part">
       <div class="home-tile" onclick="goTo('carnet')"><div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--terra)" stroke-width="1.5" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><line x1="9" y1="7" x2="16" y2="7"/><line x1="9" y1="11" x2="14" y2="11"/></svg></div><div class="tile-name">Mon carnet</div><div class="tile-desc">Documenter un incident</div></div>
       <div class="home-tile" onclick="goTo('lettres')"><div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--terra)" stroke-width="1.5" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div><div class="tile-name">Mes lettres</div><div class="tile-desc">Modèles de courriers</div></div>
       <div class="home-tile" onclick="goTo('urgences')"><div class="tile-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.5" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div class="tile-name">Urgences</div><div class="tile-desc">Numéros d'aide</div></div>
@@ -1686,18 +1725,25 @@ function updateProfileUI(){
   // Update nav bar based on role
   updateNav(role);
 
-  // Role-specific home content
-  var partGrid = document.getElementById('home-grid-part');
-  var toolsHeader = document.getElementById('tools-header');
-  var toolsGrid = document.getElementById('tools-grid');
-  var sitHeader = document.getElementById('sit-header');
-  var outilsHeader = document.getElementById('outils-header');
-  var welcomeMsg = document.querySelector('#s-home .profile-banner');
-  if(partGrid) partGrid.style.display = isPro ? 'none' : '';
-  if(toolsHeader) toolsHeader.style.display = isPro ? 'none' : '';
-  if(toolsGrid) toolsGrid.style.display = isPro ? 'none' : '';
-  if(sitHeader) sitHeader.style.display = isPro ? 'none' : '';
-  if(outilsHeader) outilsHeader.style.display = isPro ? 'none' : '';
+  // Role-specific home content : le pro ne voit QUE ses outils pro,
+  // avec un tableau de bord "Vue d'ensemble" à la place du contenu particulier.
+  var hideForPro = ['home-grid-part','tools-header','tools-grid','sit-header',
+    'outils-header','home-intro-msg','home-grid-tools-part','home-next-rdv'];
+  hideForPro.forEach(function(elId){
+    var el = document.getElementById(elId);
+    if(el) el.style.display = isPro ? 'none' : '';
+  });
+  var homeBrand = document.querySelector('#s-home .home-brand');
+  var homeBanner = document.querySelector('#s-home .profile-banner');
+  var homeUrg = document.querySelector('#s-home .urgence-banner');
+  if(homeBrand) homeBrand.style.display = isPro ? 'none' : '';
+  if(homeBanner) homeBanner.style.display = isPro ? 'none' : '';
+  if(homeUrg) homeUrg.style.display = isPro ? 'none' : '';
+  var proDash = document.getElementById('pro-dashboard');
+  if(proDash){
+    proDash.style.display = isPro ? 'block' : 'none';
+    if(isPro) renderProDashboard();
+  }
 
   // Admin/Pro tile area
   var wrap = document.getElementById('admin-tile-wrap');
@@ -1711,7 +1757,7 @@ function updateProfileUI(){
     var isExp  = tVal >= 2;
     var rdvCount = getProAppointments().length;
 
-    html += '<div class="pro-section-lbl">Espace professionnel<span></span></div>';
+    html += '<div class="pro-section-lbl">Vos outils<span></span></div>';
     html += '<div class="home-grid" style="padding:0 18px 6px">';
 
     /* — Toujours disponible — */
@@ -1778,6 +1824,97 @@ function updateProfileUI(){
   }
   wrap.innerHTML = html;
   renderHomeNextRdv();
+}
+
+/* TABLEAU DE BORD PRO — Vue d'ensemble (accueil professionnel) */
+function renderProDashboard(){
+  var wrap = document.getElementById('pro-dashboard');
+  if(!wrap || !currentUser) return;
+  var pp = currentUser.proProfile || {};
+  var p  = currentUser.profile || {};
+  var tier = pp.tier || 'gratuit';
+  var tOrd = {gratuit:0,premium:1,expert:2};
+  var isExp = (tOrd[tier]||0) >= 2;
+
+  function ymd(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+  function ini(name){ name=(name||'').trim(); if(!name) return '?'; var pr=name.split(/\s+/); return ((pr[0].charAt(0)||'')+(pr.length>1?pr[pr.length-1].charAt(0):'')).toUpperCase(); }
+  function pill(txt,type){
+    var c={ok:['var(--green)','rgba(46,107,72,.1)','rgba(46,107,72,.2)'],
+           warn:['var(--gold-l)','rgba(184,146,42,.12)','rgba(184,146,42,.25)'],
+           info:['#2A7ABF','rgba(42,122,191,.1)','rgba(42,122,191,.2)'],
+           neutral:['var(--clow)','rgba(154,142,128,.1)','rgba(154,142,128,.2)']}[type]||['var(--clow)','var(--s2)','var(--line2)'];
+    return '<span class="pill" style="color:'+c[0]+';background:'+c[1]+';border:1px solid '+c[2]+'">'+escH(txt)+'</span>';
+  }
+
+  var rdvs  = getProAppointments();
+  var facts = db.getObj('prima_factures',[]).filter(function(f){return f.proId===currentUser.id;});
+  var tasks = db.getObj('prima_tasks',[]).filter(function(t){return t.proId===currentUser.id;});
+
+  var today = new Date();
+  var todayStr = ymd(today);
+  var dow = (today.getDay()+6)%7;
+  var wsD = new Date(today); wsD.setDate(today.getDate()-dow);
+  var weD = new Date(wsD);   weD.setDate(wsD.getDate()+6);
+  var weekStart = ymd(wsD), weekEnd = ymd(weD);
+  var monthStr = todayStr.slice(0,7);
+
+  var active = rdvs.filter(function(r){return r.status==='pending'||r.status==='confirmed';});
+  var rdvWeek     = active.filter(function(r){return r.date>=weekStart && r.date<=weekEnd;}).length;
+  var rdvUpcoming = active.filter(function(r){return r.date>=todayStr;}).length;
+
+  var clientsSet={}; rdvs.forEach(function(r){ var k=(r.clientId&&r.clientId!=='anonyme')?r.clientId:((r.prenom||'')+'|'+(r.nom||'')); if(k&&k!=='|') clientsSet[k]=1; });
+  var clientCount = Object.keys(clientsSet).length;
+
+  var encMonth    = facts.reduce(function(s,f){ return s+((f.status==='payee' && (f.date||'').slice(0,7)===monthStr)?f.amount:0); },0);
+  var factPending = facts.filter(function(f){return f.status==='en_attente';}).length;
+  var tasksOpen   = tasks.filter(function(t){return !t.done;}).length;
+
+  var greetName = p.nom ? ('Maître '+p.nom) : (pp.cabinet || proTitle(pp.genre));
+
+  var h='';
+  h+='<div class="pdash-head"><div>'
+    +'<div class="pdash-hello">Bonjour, <em>'+escH(greetName)+'</em></div>'
+    +'<div class="pdash-sub">Votre cabinet en un coup d\'œil</div></div>'
+    +'<button class="pdash-cta" onclick="'+(isExp?"goTo('gestion-admin')":"requireTier('expert')")+'">+ Nouveau dossier</button></div>';
+
+  h+='<div class="pdash-kpis">'
+    +'<div class="pkpi"><div class="pkpi-lbl">Rendez-vous cette semaine</div><div class="pkpi-val">'+rdvWeek+'</div><div class="pkpi-sub">'+rdvUpcoming+' à venir au total</div></div>'
+    +'<div class="pkpi"><div class="pkpi-lbl">Clients suivis</div><div class="pkpi-val">'+clientCount+'</div><div class="pkpi-sub">'+tasksOpen+' tâche'+(tasksOpen>1?'s':'')+' en cours</div></div>'
+    +'<div class="pkpi"><div class="pkpi-lbl">Encaissements du mois</div><div class="pkpi-val">'+encMonth.toFixed(0)+'<small>€</small></div><div class="pkpi-sub">'+factPending+' facture'+(factPending>1?'s':'')+' en attente</div></div>'
+    +'</div>';
+
+  h+='<div class="pdash-cols">';
+
+  var feed=[];
+  facts.forEach(function(f){ feed.push({t:f.createdAt||0, av:ini(f.client), title:escH(f.client)+' — facture '+escH(f.num), sub:(f.service?escH(f.service)+' · ':'')+f.amount.toFixed(0)+'€', badge: f.status==='payee'?pill('Encaissé','ok'):(f.status==='annulee'?pill('Annulée','neutral'):pill('En attente','warn'))}); });
+  rdvs.forEach(function(r){ var nm=((r.prenom||'')+' '+(r.nom||'')).trim()||'Client'; feed.push({t:r.createdAt||0, av:ini(nm), title:escH(nm)+' — rendez-vous', sub:escH(r.motif||'Consultation')+' · '+escH(formatDateFR(r.date)), badge: r.status==='confirmed'?pill('Confirmé','ok'):(r.status==='pending'?pill('À traiter','warn'):pill('Clôturé','neutral'))}); });
+  tasks.forEach(function(t){ feed.push({t:t.createdAt||0, av:'✓', title:escH(t.title||'Tâche'), sub:(t.cat?escH(t.cat)+' · ':'')+(t.done?'terminée':'à faire'), badge: t.done?pill('Terminée','ok'):pill('En cours','warn')}); });
+  feed.sort(function(a,b){return b.t-a.t;});
+  feed=feed.slice(0,5);
+
+  h+='<div class="pcard"><div class="pcard-title">Activité récente</div>';
+  if(feed.length){
+    feed.forEach(function(x){
+      h+='<div class="pact"><div class="pact-av">'+escH(x.av)+'</div><div class="pact-main"><div class="pact-t">'+x.title+'</div><div class="pact-s">'+x.sub+'</div></div>'+x.badge+'</div>';
+    });
+  } else {
+    h+='<div class="pdash-empty">Aucune activité pour l\'instant.<br>Vos demandes, rendez-vous et paiements apparaîtront ici.</div>';
+  }
+  h+='</div>';
+
+  var todayR = active.filter(function(r){return r.date===todayStr;}).sort(function(a,b){return (a.time||'').localeCompare(b.time||'');});
+  h+='<div class="pcard"><div class="pcard-title">Aujourd\'hui</div>';
+  if(todayR.length){
+    todayR.forEach(function(r){ var nm=((r.prenom||'')+' '+(r.nom||'')).trim()||'Client';
+      h+='<div class="pag"><div class="pag-time">'+escH(r.time||'—')+'</div><div class="pag-main"><div class="pag-t">'+escH(nm)+'</div><div class="pag-s">'+escH(r.motif||'Consultation')+'</div></div></div>';
+    });
+  } else {
+    h+='<div class="pdash-empty">Aucun rendez-vous aujourd\'hui.</div>';
+  }
+  h+='</div>';
+
+  h+='</div>';
+  wrap.innerHTML=h;
 }
 
 function saveProfile(){
