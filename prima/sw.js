@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prima-cache-v2';
+const CACHE_NAME = 'prima-cache-v3';
 const ASSETS = [
   './',
   './index.html',
@@ -11,7 +11,7 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) =>
       Promise.all(ASSETS.map((url) =>
-        fetch(url, { cache: 'reload' }).then((res) => cache.put(url, res))
+        fetch(url, { cache: 'reload' }).then((res) => cache.put(url, res)).catch(() => {})
       ))
     )
   );
@@ -29,13 +29,33 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+  const req = event.request;
+  const isHTML = req.mode === 'navigate' ||
+    (req.headers.get('accept') || '').includes('text/html');
+
+  if (isHTML) {
+    // Network-first pour le document HTML : l'utilisateur reçoit toujours
+    // la dernière version en ligne, avec repli sur le cache hors-ligne.
+    event.respondWith(
+      fetch(req).then((res) => {
+        const copy = res.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
+        return res;
+      }).catch(() =>
+        caches.match(req).then((cached) => cached || caches.match('./index.html'))
+      )
+    );
+    return;
+  }
+
+  // Cache-first pour les autres ressources (icônes, manifeste…)
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      return cached || fetch(event.request).then((response) => {
+    caches.match(req).then((cached) =>
+      cached || fetch(req).then((response) => {
         const copy = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+        caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
         return response;
-      }).catch(() => cached);
-    })
+      }).catch(() => cached)
+    )
   );
 });

@@ -1886,6 +1886,7 @@ function updateProfileUI(){
 function renderProDashboard(){
   var wrap = document.getElementById('pro-dashboard');
   if(!wrap || !currentUser) return;
+  syncClientsFromRdv();
   var pp = currentUser.proProfile || {};
   var p  = currentUser.profile || {};
   var tier = pp.tier || 'gratuit';
@@ -3167,12 +3168,13 @@ function updateRdvStatus(rdvId, status){
   for(var i=0;i<all.length;i++){
     if(all[i].id === rdvId){ all[i].status = status; rdv = all[i]; break; }
   }
-  db.setObj("prima_rdv", all);
   // Confirmer un rendez-vous crée automatiquement la fiche client (si absente)
   var createdClient = false;
   if(status==="confirmed" && rdv && currentUser && currentUser.role==="professionnel"){
     createdClient = ensureClientFromRdv(rdv);
+    rdv.clientCreated = true;
   }
+  db.setObj("prima_rdv", all);
   renderPlanning();
   renderHomeNextRdv();
   var msg = status==="confirmed"?"Rendez-vous confirmé":status==="done"?"Marqué terminé":status==="cancelled"?"Rendez-vous annulé":"Rendez-vous refusé";
@@ -3198,6 +3200,23 @@ function ensureClientFromRdv(rdv){
   });
   db.setObj('prima_clients', clients);
   return true;
+}
+// Rétroactif : garantit une fiche client pour chaque rendez-vous déjà confirmé/terminé.
+// Idempotent (marque chaque RDV traité pour ne pas recréer un client supprimé ensuite).
+function syncClientsFromRdv(){
+  if(!currentUser || currentUser.role!=='professionnel') return;
+  var all = db.getObj('prima_rdv',[]);
+  var changed = false;
+  for(var i=0;i<all.length;i++){
+    var r = all[i];
+    if(r.proId!==currentUser.id) continue;
+    if(r.status!=='confirmed' && r.status!=='done') continue;
+    if(r.clientCreated) continue;
+    ensureClientFromRdv(r);
+    r.clientCreated = true;
+    changed = true;
+  }
+  if(changed) db.setObj('prima_rdv', all);
 }
 
 function requestCancelRdv(rdvId){
@@ -3345,6 +3364,7 @@ function renderClients(){
   var wrap=document.getElementById('clients-content');
   if(!wrap||!currentUser) return;
   if(proTierVal()<1){ wrap.innerHTML=proLockPanel('premium'); return; }
+  syncClientsFromRdv();
   var clients=getProClients().sort(function(a,b){return ((a.nom||'')+(a.prenom||'')).localeCompare((b.nom||'')+(b.prenom||''));});
   var dossiers=getProDossiers();
   var ed=clientEditId?(clients.find(function(c){return c.id===clientEditId;})||{}):{};
