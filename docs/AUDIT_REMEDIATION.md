@@ -69,7 +69,13 @@ pendant la revalidation).
     `prefers-reduced-motion`, associer labels/erreurs, corriger le
     débordement `#auth-screen` (UX-01/02, TECH-01).
 
-### Lot 1 — Fondations serveur — *proposé, en attente de décisions* (voir §4)
+### Lot 1 — Fondations serveur — *scaffold Phase A livré (`server/`)*
+Décisions prises : **hébergement UE**, **Stripe (test)**. Phase A livrée et
+testée (schéma relationnel + contraintes de sécurité, logique métier pure
+testée : slots/DST, autorisation refus-par-défaut, numérotation factures,
+idempotence webhook — 24 tests `node:test`). Phase B (couche HTTP + adaptateurs
+Postgres/stockage/email/Stripe) décrite dans `server/README.md`, nécessite les
+dépendances et l'infra (non déployé).
 ### Lot 2 — Parcours réel inscription→RDV confirmé — *dépend du Lot 1*
 ### Lot 3 — Dossiers / échanges / pièces / abonnement (paiement test) — *dépend du Lot 1*
 ### Lot 4 — UX/accessibilité/responsive complets + modularisation + tests — *après Lot 1-3*
@@ -83,18 +89,16 @@ Voir `docs/RESOLUTION_REGISTRY.md` (tenu à jour à chaque lot).
 Le Lot 1 ne peut pas être construit ni déployé sans arbitrages. Changements
 préparés et révisables, **aucun déploiement**. Décisions attendues :
 
-1. **Hébergement & région** : où héberge-t-on le serveur, la base et les
-   fichiers ? (engagement réel ; données de victimes → région UE recommandée).
-2. **Fournisseur d'identité** : solution éprouvée (ex. fournisseur OIDC géré)
-   ou auth maison avec exigences strictes ? MFA au moins pour les admins.
-3. **Prestataire de paiement (abonnement SaaS, mode test)** : lequel ? (Le
-   paiement des honoraires d'avocat est **reporté** faute de modèle contractuel.)
-4. **Entité légale** : responsable de publication, SIRET, hébergeur réel,
-   validateur juridique des textes. Sans ces données, pas de publication
+1. **Hébergement & région** — ✅ **décidé : UE**. (Hébergeur précis à fixer.)
+2. **Fournisseur d'identité** — *à confirmer* : OIDC géré (recommandé) ou auth
+   maison (argon2id + MFA admin), les deux prévus dans le schéma. MFA admin requis.
+3. **Prestataire de paiement (abonnement SaaS, test)** — ✅ **décidé : Stripe (test)**.
+   (Honoraires d'avocat **reportés** faute de modèle contractuel.)
+4. **Entité légale** — *à fournir* : responsable de publication, SIRET,
+   hébergeur réel, validateur juridique. Sans ces données, pas de publication
    commerciale (LEG-01).
-5. **Ciblage éditorial** : le discours particulier cible « femmes/victimes ».
-   Toute généralisation éditoriale requiert un arbitrage explicite (n'empêche
-   pas les correctifs de sécurité).
+5. **Ciblage éditorial** — *arbitrage à rendre* : le discours particulier cible
+   « femmes/victimes ». N'empêche pas les correctifs de sécurité.
 
 ## 5. Risques résiduels & critères go/no-go
 
