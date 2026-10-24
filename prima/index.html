@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>PRIMA · Kit Numérique</title>
@@ -25,6 +25,19 @@
   --r:14px;--nav:68px;--shadow:0 1px 3px rgba(44,36,22,.04),0 4px 12px rgba(44,36,22,.07);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+/* TECH-01 : respect du réglage système « réduire les animations » */
+@media (prefers-reduced-motion: reduce){
+  *, *::before, *::after{
+    animation-duration:0.001ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:0.001ms !important;
+    scroll-behavior:auto !important;
+  }
+}
+/* UX : focus clavier visible (accessibilité) */
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,[tabindex]:focus-visible{
+  outline:2px solid var(--terra,#A8421A);outline-offset:2px;border-radius:4px;
+}
 html,body{height:100%;overflow:hidden}
 html{background:#F5F0E6 !important}
 body{background:#F5F0E6 !important;color:#1C1914;font-family:'DM Mono',monospace;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;overscroll-behavior:none}
@@ -43,9 +56,10 @@ body{background:#F5F0E6 !important;color:#1C1914;font-family:'DM Mono',monospace
 @keyframes splashLoad{to{width:100%}}
 
 /* AUTH */
-#auth-screen{position:fixed;inset:0;z-index:100;background:#F5F0E6 !important;display:none;flex-direction:column;overflow-y:auto}
+#auth-screen{position:fixed;inset:0;z-index:100;background:#F5F0E6 !important;display:none;flex-direction:column;overflow-y:auto;overflow-x:hidden}
 #auth-screen.visible{display:flex}
 .auth-circle{position:absolute;border-radius:50%;pointer-events:none}
+.auth-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
 .auth-circle.c1{top:-100px;right:-100px;width:400px;height:400px;border:1px solid rgba(168,66,26,.1)}
 .auth-circle.c2{top:-50px;right:-50px;width:260px;height:260px;border:1px solid rgba(168,66,26,.07)}
 .auth-inner{flex:1;display:flex;flex-direction:column;padding:60px 28px 40px;position:relative;z-index:1;max-width:480px;width:100%;margin:0 auto}
@@ -513,8 +527,7 @@ nav.visible{display:flex}
 
 <!-- AUTH -->
 <div id="auth-screen">
-  <div class="auth-circle c1"></div>
-  <div class="auth-circle c2"></div>
+  <div class="auth-bg" aria-hidden="true"><div class="auth-circle c1"></div><div class="auth-circle c2"></div></div>
   <div class="auth-inner">
     <div class="auth-logo">
       <div class="auth-logo-name">Pr<em>ima</em></div>
@@ -526,11 +539,11 @@ nav.visible{display:flex}
     </div>
     <div class="auth-panel active" id="auth-login">
       <div class="auth-field">
-        <label class="auth-label">Adresse email</label>
+        <label class="auth-label" for="login-email">Adresse email</label>
         <input class="auth-input" type="email" id="login-email" placeholder="votre@email.fr" autocomplete="email">
       </div>
       <div class="auth-field">
-        <label class="auth-label">Mot de passe</label>
+        <label class="auth-label" for="login-pwd">Mot de passe</label>
         <input class="auth-input" type="password" id="login-pwd" placeholder="••••••••" autocomplete="current-password">
       </div>
       <div class="auth-err" id="login-err"></div>
@@ -542,7 +555,7 @@ nav.visible{display:flex}
       <div id="reset-panel" style="display:none;margin-top:14px;background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:none;flex-direction:column;gap:12px">
         <div style="font-size:11px;color:var(--cdim);line-height:1.65">Saisissez l'adresse email de votre compte. Vous recevrez un lien pour réinitialiser votre mot de passe.</div>
         <div class="auth-field">
-          <label class="auth-label">Email du compte</label>
+          <label class="auth-label" for="reset-email">Email du compte</label>
           <input class="auth-input" type="email" id="reset-email" placeholder="votre@email.fr">
         </div>
         <div class="auth-err" id="reset-err"></div>
@@ -553,11 +566,11 @@ nav.visible{display:flex}
       <div id="newpwd-panel" style="display:none;margin-top:14px;background:rgba(46,107,72,.06);border:1px solid rgba(46,107,72,.18);border-radius:var(--r);padding:18px;flex-direction:column;gap:12px">
         <div style="font-size:11px;color:var(--green);line-height:1.65;font-weight:500">Créez votre nouveau mot de passe :</div>
         <div class="auth-field">
-          <label class="auth-label">Nouveau mot de passe</label>
+          <label class="auth-label" for="new-pwd">Nouveau mot de passe</label>
           <input class="auth-input" type="password" id="new-pwd" placeholder="8 caractères minimum">
         </div>
         <div class="auth-field">
-          <label class="auth-label">Confirmer le nouveau mot de passe</label>
+          <label class="auth-label" for="new-pwd2">Confirmer le nouveau mot de passe</label>
           <input class="auth-input" type="password" id="new-pwd2" placeholder="••••••••">
         </div>
         <div class="auth-err" id="newpwd-err"></div>
@@ -583,15 +596,15 @@ nav.visible{display:flex}
       </div>
       <div id="reg-pro-fields" style="display:none;flex-direction:column;gap:14px">
         <div class="auth-field">
-          <label class="auth-label">Prénom *</label>
+          <label class="auth-label" for="reg-prenom">Prénom *</label>
           <input class="auth-input" type="text" id="reg-prenom" placeholder="Votre prénom">
         </div>
         <div class="auth-field">
-          <label class="auth-label">Nom *</label>
+          <label class="auth-label" for="reg-nom">Nom *</label>
           <input class="auth-input" type="text" id="reg-nom" placeholder="Votre nom">
         </div>
         <div class="auth-field">
-          <label class="auth-label">Genre *</label>
+          <label class="auth-label" for="reg-genre">Genre *</label>
           <select class="auth-input" id="reg-genre" style="-webkit-appearance:auto">
             <option value="F">Femme (avocate)</option>
             <option value="H">Homme (avocat)</option>
@@ -599,38 +612,38 @@ nav.visible{display:flex}
           </select>
         </div>
         <div class="auth-field">
-          <label class="auth-label">Nom du cabinet</label>
+          <label class="auth-label" for="reg-cabinet">Nom du cabinet</label>
           <input class="auth-input" type="text" id="reg-cabinet" placeholder="Cabinet ou exercice individuel">
         </div>
         <div class="auth-field">
-          <label class="auth-label">Département *</label>
+          <label class="auth-label" for="reg-dept">Département *</label>
           <input class="auth-input" type="text" id="reg-dept" placeholder="Ex : 13 — Bouches-du-Rhône">
         </div>
         <div class="auth-field">
-          <label class="auth-label">Numéro SIRET du cabinet</label>
+          <label class="auth-label" for="reg-siret">Numéro SIRET du cabinet</label>
           <input class="auth-input" type="text" id="reg-siret" placeholder="14 chiffres — pour vérification">
         </div>
         <div class="auth-field">
-          <label class="auth-label">Numéro d'inscription au barreau</label>
+          <label class="auth-label" for="reg-barreau">Numéro d'inscription au barreau</label>
           <input class="auth-input" type="text" id="reg-barreau" placeholder="Pour vérification de votre statut">
         </div>
       </div>
       <div class="auth-field">
-        <label class="auth-label">Adresse email</label>
+        <label class="auth-label" for="reg-email">Adresse email</label>
         <input class="auth-input" type="email" id="reg-email" placeholder="votre@email.fr" autocomplete="email">
       </div>
       <div class="auth-field">
-        <label class="auth-label">Mot de passe</label>
+        <label class="auth-label" for="reg-pwd">Mot de passe</label>
         <input class="auth-input" type="password" id="reg-pwd" placeholder="8 caractères minimum" autocomplete="new-password">
       </div>
       <div class="auth-field">
-        <label class="auth-label">Confirmer le mot de passe</label>
+        <label class="auth-label" for="reg-pwd2">Confirmer le mot de passe</label>
         <input class="auth-input" type="password" id="reg-pwd2" placeholder="••••••••" autocomplete="new-password">
       </div>
       <div class="auth-err" id="reg-err"></div>
       <button class="auth-btn" onclick="doRegister()">Créer mon compte</button>
     </div>
-    <div class="auth-footer">PRIMA · Kit juridique numérique<br>Vos données restent sur votre appareil</div>
+    <div class="auth-footer"><div style="display:inline-block;margin-bottom:10px;padding:3px 10px;border:1px solid rgba(184,146,42,.35);background:rgba(184,146,42,.1);border-radius:20px;font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-l,#B8922A)">Version de démonstration</div><br>PRIMA · Kit juridique numérique<br>Vos données restent sur votre appareil<br><span style="display:inline-block;margin-top:8px"><a href="#" onclick="openLegalModal('cgu');return false" style="color:var(--cdim);text-decoration:underline">CGU</a> · <a href="#" onclick="openLegalModal('privacy');return false" style="color:var(--cdim);text-decoration:underline">Confidentialité</a> · <a href="#" onclick="openLegalModal('mentions');return false" style="color:var(--cdim);text-decoration:underline">Mentions</a> · <a href="#" onclick="openLegalModal('cgv');return false" style="color:var(--cdim);text-decoration:underline">CGV</a></span></div>
   </div>
 </div>
 
@@ -1294,16 +1307,21 @@ nav.visible{display:flex}
 <div class="toast" id="toast"></div>
 
 <script>
-const ADMIN_EMAIL = 'ilano13013@hotmail.fr';
-// Hash SHA-256 du mot de passe admin (le mot de passe en clair n'est jamais stocké dans le code)
-const ADMIN_PWD_HASH = '4afa90c9f7660930551a8ca3571b0197ae82d2c277399ff65949388e2ecbfcf7';
+// SEC-01 : aucune identité administrateur ni condensat n'est codé en dur.
+// L'accès administrateur réel sera délivré par le serveur authentifié (Lot 1).
+// En local uniquement, des comptes de DÉMONSTRATION fictifs peuvent être créés
+// (voir seedDemoLocal / isLocalEnv). La production déployée n'a aucun admin.
 
 /* STORAGE */
 const db = {
   get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } },
   set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} },
   getObj(k,def){ try{ return JSON.parse(db.get(k)||'null')||def; }catch(e){ return def; } },
-  setObj(k,v){ db.set(k, JSON.stringify(v)); }
+  setObj(k,v){ db.set(k, JSON.stringify(v)); },
+  // Variantes STRICTES : laissent remonter l'exception (quota dépassé) pour
+  // que l'appelant puisse la surfacer honnêtement (FUN-04).
+  setStrict(k,v){ localStorage.setItem(k,v); },
+  setObjStrict(k,v){ db.setStrict(k, JSON.stringify(v)); }
 };
 
 /* SHA-256 */
@@ -1325,20 +1343,41 @@ async function sha256(str){
 let currentUser = null;
 function genId(){ return 'PRIMA-'+Math.floor(1000+Math.random()*9000); }
 
-function seedAdmin(){
+// SEC-01 : plus de provisionnement d'administrateur depuis le code public.
+// Environnement LOCAL uniquement : fixtures fictives et isolées pour pouvoir
+// tester les trois espaces de façon reproductible. Inerte en production.
+function isLocalEnv(){
+  try{
+    var h = location.hostname;
+    return h==='localhost' || h==='127.0.0.1' || h==='' || location.protocol==='file:';
+  }catch(e){ return false; }
+}
+function seedDemoLocal(){
+  if(!isLocalEnv()) return;                         // jamais en production déployée
   var users = db.getObj('prima_users',[]);
-  var existing = users.find(function(u){ return u.email === ADMIN_EMAIL; });
-  if(existing && existing.passwordHash === ADMIN_PWD_HASH) return;
-  users = users.filter(function(u){ return u.email !== ADMIN_EMAIL; });
-  users.unshift({id:'PRIMA-ADMIN',email:ADMIN_EMAIL,passwordHash:ADMIN_PWD_HASH,isAdmin:true,role:'admin',profile:{prenom:'Admin',nom:'PRIMA'},proProfile:{},createdAt:Date.now()});
-  saveUsers(users);
+  if(users.length) return;                          // ne jamais écraser des données existantes
+  // Comptes de DÉMONSTRATION fictifs — mot de passe local « demo1234 » (fictif).
+  var h = sha256sync('demo1234');                   // suffisant pour des fixtures locales
+  users = [
+    {id:'DEMO-ADMIN', email:'admin@demo.local', passwordHash:h, isAdmin:true, role:'admin',
+      profile:{prenom:'Admin', nom:'Démo'}, proProfile:{}, demo:true, createdAt:Date.now()},
+    {id:'DEMO-PRO', email:'pro@demo.local', passwordHash:h, isAdmin:false, role:'professionnel',
+      profile:{prenom:'Camille', nom:'Démo'},
+      proProfile:{cabinet:'Cabinet Démo', departement:'75', telephone:'', genre:'A', tier:'expert', verified:true},
+      demo:true, createdAt:Date.now()},
+    {id:'DEMO-PART', email:'particulier@demo.local', passwordHash:h, isAdmin:false, role:'particulier',
+      profile:{}, proProfile:{}, demo:true, createdAt:Date.now()}
+  ];
+  db.setObj('prima_users', users);                  // local only — pas de cloud (SEC-04)
 }
 
-/* ═══ CLOUD SYNC — partage des comptes entre appareils ═══ */
-// Stockage cloud partagé par toute l'application (sans compte requis).
-// Si vide, un espace de stockage est créé automatiquement au premier
-// lancement et son identifiant s'affiche dans le panneau Admin : reportez-le
-// ici (avec le fournisseur) pour le rendre permanent et partagé par tous.
+/* ═══ CLOUD SYNC — DÉSACTIVÉ PAR DÉFAUT (SEC-04) ═══ */
+// Les écritures vers des stockages clé-valeur ANONYMES et PUBLICS
+// (jsonstorage.net / kvdb.io) exposaient le tableau complet des comptes,
+// condensats de mots de passe inclus. La synchronisation cloud est donc
+// COUPÉE par défaut et ne crée JAMAIS de bucket automatiquement.
+// Une vraie synchronisation passera par le serveur authentifié du Lot 1.
+const CLOUD_SYNC_ENABLED = false; // ne jamais passer à true sans backend authentifié
 const CLOUD_BLOB_ID = '';
 const CLOUD_PROVIDER = ''; // 'jsonstorage' ou 'kvdb'
 var cloudBucketId = null;
@@ -1388,6 +1427,7 @@ const CLOUD_PROVIDERS = {
 };
 
 async function getCloudBucket(){
+  if(!CLOUD_SYNC_ENABLED) return null;
   if(cloudBucketId) return cloudBucketId;
   var id = CLOUD_BLOB_ID || db.get('prima_cloud_blob') || '';
   var providerName = CLOUD_PROVIDER || db.get('prima_cloud_provider') || '';
@@ -1398,22 +1438,8 @@ async function getCloudBucket(){
     cloudSyncError = '';
     return cloudBucketId;
   }
-  var errors = [];
-  for(var name in CLOUD_PROVIDERS){
-    try{
-      id = await CLOUD_PROVIDERS[name].create();
-      db.set('prima_cloud_blob', id);
-      db.set('prima_cloud_provider', name);
-      cloudBucketId = id;
-      cloudProviderName = name;
-      cloudProvider = CLOUD_PROVIDERS[name];
-      cloudSyncError = '';
-      return cloudBucketId;
-    }catch(e){
-      errors.push(name+': '+((e && e.message) || 'erreur'));
-    }
-  }
-  cloudSyncError = errors.join(' — ');
+  // SEC-04 : aucune création automatique de bucket anonyme.
+  cloudSyncError = 'Synchronisation cloud désactivée (aucun backend configuré).';
   cloudBucketId = null;
   cloudProviderName = null;
   cloudProvider = null;
@@ -1432,6 +1458,7 @@ async function retryCloudSync(){
 }
 
 async function cloudFetchUsers(){
+  if(!CLOUD_SYNC_ENABLED) return null;
   try{
     var id = await getCloudBucket();
     if(!id || !cloudProvider) return null;
@@ -1444,6 +1471,7 @@ async function cloudFetchUsers(){
 }
 
 async function cloudSaveUsers(users){
+  if(!CLOUD_SYNC_ENABLED) return false;
   try{
     var id = await getCloudBucket();
     if(!id || !cloudProvider) return false;
@@ -1455,11 +1483,12 @@ async function cloudSaveUsers(users){
 // Sauvegarde locale + synchronisation cloud (best-effort, fonctionne hors-ligne)
 function saveUsers(users){
   db.setObj('prima_users', users);
-  cloudSaveUsers(users);
+  if(CLOUD_SYNC_ENABLED) cloudSaveUsers(users);
 }
 
 // Au démarrage : fusionne les comptes du cloud avec ceux déjà présents sur l'appareil
 async function syncUsersFromCloud(){
+  if(!CLOUD_SYNC_ENABLED) return;
   var cloud = await cloudFetchUsers();
   if(cloud===null) return;
   var local = db.getObj('prima_users',[]);
@@ -1488,7 +1517,7 @@ setTimeout(function(){
     try{
       s.style.display='none';
       await syncUsersFromCloud();
-      seedAdmin();
+      seedDemoLocal();
       var sess = db.getObj('prima_session',null);
       if(sess){
         var u = db.getObj('prima_users',[]).find(function(x){return x.id===sess.id});
@@ -1498,6 +1527,9 @@ setTimeout(function(){
     }catch(e){ showAuth(); }
   },700);
 },2500);
+
+// UX-01 : les messages d'erreur sont annoncés aux lecteurs d'écran
+try{ document.querySelectorAll('.auth-err').forEach(function(e){ e.setAttribute('aria-live','polite'); }); }catch(e){}
 
 function showAuth(){
   document.getElementById('auth-screen').classList.add('visible');
@@ -1564,8 +1596,10 @@ async function doLogin(){
 function loginSuccess(u){
   currentUser = u;
   db.setObj('prima_session',{id:u.id});
+  loadCarnet();                 // SEC-03 : charge le carnet du compte connecté
   updateProfileUI();
   hideAuth();
+  try{ renderEntries(); }catch(e){}
 }
 
 /* REGISTER */
@@ -1612,6 +1646,8 @@ async function doRegister(){
 function doLogout(){
   currentUser=null;
   db.set('prima_session',null);
+  entries=[];                   // SEC-03 : vide le carnet en mémoire à la déconnexion
+  try{ renderEntries(); }catch(e){}
   document.body.classList.remove('pro-mode');
   document.getElementById('app').classList.remove('visible');
   document.getElementById('main-nav').classList.remove('visible');
@@ -1642,69 +1678,18 @@ function sendResetEmail(){
   var err = document.getElementById('reset-err');
   err.textContent = '';
   if(!email){ err.textContent = 'Veuillez saisir votre adresse email.'; return; }
-
-  var users = db.getObj('prima_users',[]);
-  var user = users.find(function(u){ return u.email === email; });
-
-  if(!user){
-    err.textContent = 'Aucun compte associé à cette adresse email.';
-    return;
-  }
-
-  resetEmailTarget = email;
-
-  // Compose mailto for real email sending
-  var subject = encodeURIComponent('PRIMA - Réinitialisation de mot de passe');
-  var body = encodeURIComponent('Bonjour,\n\nUne demande de réinitialisation de mot de passe a été effectuée pour le compte associé à l\'adresse : ' + email + '\n\nIdentifiant PRIMA : ' + user.id + '\n\nSi vous êtes à l\'origine de cette demande, vous pouvez réinitialiser votre mot de passe directement dans l\'application.\n\nSi vous n\'êtes pas à l\'origine de cette demande, ignorez ce message.\n\nCordialement,\nL\'équipe PRIMA');
-  var mailtoLink = 'mailto:' + email + '?subject=' + subject + '&body=' + body;
-
-  // Open mailto in background
-  try {
-    var a = document.createElement('a');
-    a.href = mailtoLink;
-    a.target = '_blank';
-    a.click();
-  } catch(e){}
-
-  // Show new password form
+  // SEC-02 : réponse UNIFORME, aucune révélation de l'existence du compte,
+  // aucune réinitialisation locale. Une vraie réinitialisation exige un jeton
+  // aléatoire, expirant, à usage unique, vérifié côté serveur (Lot 1).
   document.getElementById('reset-panel').style.display = 'none';
-  document.getElementById('newpwd-panel').style.display = 'flex';
-  showToast('Email de réinitialisation envoyé');
+  var fl = document.getElementById('forgot-link'); if(fl) fl.style.display = '';
+  showToast('Réinitialisation indisponible dans cette version. Un service sécurisé par email sera fourni par le serveur.');
 }
 
 async function doResetPassword(){
-  var pwd = document.getElementById('new-pwd').value;
-  var pwd2 = document.getElementById('new-pwd2').value;
+  // SEC-02 : la réinitialisation locale sans jeton vérifié est supprimée.
   var err = document.getElementById('newpwd-err');
-  err.textContent = '';
-
-  if(!pwd){ err.textContent = 'Veuillez saisir un nouveau mot de passe.'; return; }
-  if(pwd.length < 8){ err.textContent = 'Le mot de passe doit contenir au moins 8 caractères.'; return; }
-  if(pwd !== pwd2){ err.textContent = 'Les mots de passe ne correspondent pas.'; return; }
-
-  if(!resetEmailTarget){ err.textContent = 'Erreur : veuillez recommencer la procédure.'; return; }
-
-  var hash = await sha256(pwd);
-  var users = db.getObj('prima_users',[]);
-  var idx = users.findIndex(function(u){ return u.email === resetEmailTarget; });
-
-  if(idx < 0){ err.textContent = 'Compte introuvable. Veuillez recommencer.'; return; }
-
-  users[idx].passwordHash = hash;
-  saveUsers(users);
-
-  // Clean up
-  resetEmailTarget = null;
-  document.getElementById('newpwd-panel').style.display = 'none';
-  document.getElementById('forgot-link').style.display = '';
-  document.getElementById('new-pwd').value = '';
-  document.getElementById('new-pwd2').value = '';
-
-  // Pre-fill login
-  document.getElementById('login-email').value = users[idx].email;
-  document.getElementById('login-pwd').value = '';
-
-  showToast('Mot de passe réinitialisé — connectez-vous');
+  if(err) err.textContent = 'Réinitialisation indisponible dans cette version. Un service sécurisé par email (jeton à usage unique) sera fourni par le serveur.';
 }
 
 /* PROFILE UI */
@@ -2157,9 +2142,21 @@ function showToast(msg){
 
 /* COUNTER removed — replaced with welcoming message */
 
-/* CARNET */
-let entries=[];
-try{ entries=db.getObj('prima_entries',[]); }catch(e){}
+/* CARNET — isolé par propriétaire (SEC-03) */
+var entries = [];
+// Clé de stockage propre à l'utilisateur connecté. Les anciennes notes
+// globales (`prima_entries`, sans propriétaire) ne sont JAMAIS chargées ni
+// réattribuées automatiquement : migration explicite uniquement.
+function carnetKey(){ return currentUser ? ('prima_carnet__'+currentUser.id) : null; }
+function loadCarnet(){
+  var k = carnetKey();
+  entries = k ? db.getObj(k, []) : [];
+}
+function saveCarnetStore(){
+  var k = carnetKey(); if(!k) return false;
+  try{ db.setObjStrict(k, entries); return true; }   // surfacage honnête du quota
+  catch(e){ return false; }
+}
 function toggleForm(){
   const f=document.getElementById('inc-form');
   f.classList.toggle('open');
@@ -2169,21 +2166,40 @@ function toggleForm(){
   }
 }
 function saveEntry(){
+  if(!currentUser){ showToast('Connectez-vous pour enregistrer une note'); return; }
   const e={id:Date.now(),date:document.getElementById('f-date').value,time:document.getElementById('f-time').value,type:document.getElementById('f-type').value||'Incident',lieu:document.getElementById('f-lieu').value,facts:document.getElementById('f-facts').value,temoins:document.getElementById('f-temoins').value};
   if(!e.facts.trim()){showToast('Décrivez les faits pour continuer');return;}
-  entries.unshift(e); db.setObj('prima_entries',entries);
+  entries.unshift(e);
+  if(!saveCarnetStore()){ entries.shift(); showToast('Stockage plein — note non enregistrée'); return; }
   toggleForm(); renderEntries(); showToast('Incident enregistré ✓');
   ['f-date','f-time','f-lieu','f-facts','f-temoins'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('f-type').value='';
 }
 function deleteEntry(id){
-  entries=entries.filter(e=>e.id!==id); db.setObj('prima_entries',entries); renderEntries();
+  entries=entries.filter(e=>e.id!==id); saveCarnetStore(); renderEntries();
+}
+// Notes orphelines (ancien stockage global) : migration EXPLICITE, jamais auto.
+function legacyCarnetCount(){ try{ return (db.getObj('prima_entries',[])||[]).length; }catch(e){ return 0; } }
+function migrateLegacyCarnet(){
+  if(!currentUser){ return; }
+  var legacy = db.getObj('prima_entries',[])||[];
+  if(!legacy.length){ return; }
+  entries = legacy.concat(entries);
+  if(!saveCarnetStore()){ showToast('Stockage plein — migration impossible'); return; }
+  db.set('prima_entries','[]');            // vide l'ancien stock après migration explicite
+  renderEntries(); showToast('Notes importées dans votre carnet');
 }
 function renderEntries(){
   const list=document.getElementById('entries-list');
+  if(!list) return;
   document.getElementById('entry-count').textContent=entries.length+' incident'+(entries.length!==1?'s':'');
-  if(!entries.length){list.innerHTML='<div class="empty-state"><div class="empty-icon" style="font-size:24px;opacity:.3">—</div><div class="empty-text">Aucun incident enregistré.<br>Vos notes restent sur votre appareil.</div></div>';return;}
-  list.innerHTML=entries.map(e=>'<div class="entry-card"><div class="entry-meta"><div class="entry-date">'+escH(e.date)+(e.time?' · '+escH(e.time):'')+'</div><button class="entry-del" onclick="deleteEntry('+e.id+')">✕</button></div><div class="entry-rule"></div><div class="entry-type">'+escH(e.type)+'</div>'+(e.lieu?'<div class="entry-lieu">📍 '+escH(e.lieu)+'</div>':'')+'<div class="entry-facts">'+escH(e.facts)+'</div>'+(e.temoins?'<div class="entry-lieu">👤 Témoins : '+escH(e.temoins)+'</div>':'')+'</div>').join('');
+  var migrateHTML='';
+  var legacyN = currentUser ? legacyCarnetCount() : 0;
+  if(legacyN){
+    migrateHTML='<div style="margin:0 0 12px;padding:12px 14px;background:rgba(184,146,42,.1);border:1px solid rgba(184,146,42,.3);border-radius:8px;font-size:11px;color:var(--cream);line-height:1.6">'+legacyN+' note'+(legacyN>1?'s':'')+' non attribuée'+(legacyN>1?'s':'')+' se trouve'+(legacyN>1?'nt':'')+' sur cet appareil (ancienne version). <button onclick="migrateLegacyCarnet()" style="background:var(--gold-l);color:#fff;border:none;border-radius:6px;padding:5px 10px;font-family:\'DM Mono\',monospace;font-size:10px;cursor:pointer;margin-left:4px">Importer dans mon carnet</button></div>';
+  }
+  if(!entries.length){list.innerHTML=migrateHTML+'<div class="empty-state"><div class="empty-icon" style="font-size:24px;opacity:.3">—</div><div class="empty-text">Aucun incident enregistré.<br>Vos notes restent sur votre appareil.</div></div>';return;}
+  list.innerHTML=migrateHTML+entries.map(e=>'<div class="entry-card"><div class="entry-meta"><div class="entry-date">'+escH(e.date)+(e.time?' · '+escH(e.time):'')+'</div><button class="entry-del" onclick="deleteEntry('+e.id+')">✕</button></div><div class="entry-rule"></div><div class="entry-type">'+escH(e.type)+'</div>'+(e.lieu?'<div class="entry-lieu">📍 '+escH(e.lieu)+'</div>':'')+'<div class="entry-facts">'+escH(e.facts)+'</div>'+(e.temoins?'<div class="entry-lieu">👤 Témoins : '+escH(e.temoins)+'</div>':'')+'</div>').join('');
 }
 function exportCarnet(){
   if(!entries.length){showToast('Aucun incident à exporter');return;}
@@ -3282,7 +3298,7 @@ function selectAbo(tier){
   if(idx>=0){ users[idx]=currentUser; saveUsers(users); }
   loadAboScreen();
   updateProfileUI();
-  showToast("Formule "+tier+" activée");
+  showToast("Formule "+tier+" activée (démonstration — aucun paiement réel)");
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -3735,8 +3751,8 @@ function saveDocument(){
   reader.onload=function(e){
     var docs=db.getObj('prima_documents',[]);
     docs.push({id:Date.now(),proId:currentUser.id,name:file.name,mime:file.type,size:file.size,data:e.target.result,clientId:clientId,dossierId:dossierId,createdAt:Date.now()});
-    try{ db.setObj('prima_documents',docs); }
-    catch(err){ showToast('Espace de stockage plein — supprimez des fichiers'); return; }
+    try{ db.setObjStrict('prima_documents',docs); }
+    catch(err){ showToast('Espace de stockage plein — document non enregistré'); return; }
     docFormOpen=false; renderDocuments(); showToast('Document importé ✓');
   };
   reader.onerror=function(){ showToast('Lecture du fichier impossible'); };
@@ -3795,6 +3811,7 @@ function renderDocuments(){
 var _origGoTo = goTo;
 goTo = function(id){
   _origGoTo(id);
+  if(id==="carnet"){ loadCarnet(); renderEntries(); }
   if(id==="home" && currentUser && currentUser.role==="professionnel") renderProDashboard();
   if(id==="planning") renderPlanning();
   if(id==="abonnement") loadAboScreen();
@@ -4259,12 +4276,18 @@ function toggleFactureForm(){
 function saveFacture(){
   var client=(document.getElementById('f-client')||{}).value||'';
   var service=(document.getElementById('f-service')||{}).value||'';
-  var amount=parseFloat((document.getElementById('f-amount')||{}).value)||0;
+  var amount=parseFloat((document.getElementById('f-amount')||{}).value);
   var date=(document.getElementById('f-date-fact')||{}).value||new Date().toISOString().slice(0,10);
-  if(!client.trim()||!amount){showToast('Client et montant requis');return;}
+  if(!client.trim()){showToast('Client requis');return;}
+  if(!(amount>0)){showToast('Montant invalide (doit être strictement positif)');return;} // FUN-06 : rejet ≤ 0 / NaN
   var dossierId=parseInt((document.getElementById('f-dossier')||{}).value||'0',10)||null;
   var facts=db.getObj('prima_factures',[]);
-  var num='F-'+String(facts.filter(function(f){return f.proId===currentUser.id;}).length+1).padStart(3,'0');
+  // FUN-06 : numérotation par compteur MONOTONE par pro — aucune réutilisation
+  // après suppression. (Numérotation atomique et durable = serveur, Lot 3.)
+  var seqKey='prima_facture_seq__'+currentUser.id;
+  var seq=(parseInt(db.get(seqKey)||'0',10)||0)+1;
+  db.set(seqKey, String(seq));
+  var num='F-'+String(seq).padStart(3,'0');
   facts.push({id:Date.now(),proId:currentUser.id,num:num,client:client.trim(),service:service.trim(),amount:amount,date:date,dossierId:dossierId,status:'en_attente',createdAt:Date.now()});
   db.setObj('prima_factures',facts); factureFormOpen=false; renderFacturation();
 }
@@ -4273,8 +4296,12 @@ function updateFactureStatus(id,status){
   if(idx>=0){facts[idx].status=status;db.setObj('prima_factures',facts);} renderFacturation();
 }
 function deleteFacture(id){
-  var facts=db.getObj('prima_factures',[]).filter(function(f){return f.id!==id;});
-  db.setObj('prima_factures',facts); renderFacturation();
+  var facts=db.getObj('prima_factures',[]);
+  var f=facts.find(function(x){return x.id===id;});
+  // FUN-06 : pas de suppression silencieuse d'une facture encaissée (émise).
+  if(f && f.status==='payee'){ showToast('Une facture encaissée ne peut pas être supprimée — annulez-la'); renderFacturation(); return; }
+  db.setObj('prima_factures', facts.filter(function(x){return x.id!==id;}));
+  renderFacturation();
 }
 function renderFacturation(){
   var wrap=document.getElementById('facturation-content');
@@ -4386,25 +4413,27 @@ var legalContent = {
 
   privacy: '<div style="font-family:\'Cormorant Garamond\',serif;font-size:20px;color:var(--cream);margin-bottom:14px">Politique de Confidentialité</div>'
     +'<div style="font-size:11px;color:var(--cdim);line-height:1.75">'
-    +'<p style="margin-bottom:10px"><strong>Responsable du traitement :</strong> PRIMA — contact@prima-defense.fr</p>'
+    +'<p style="margin-bottom:10px"><strong>Responsable du traitement :</strong> [Éditeur / entité juridique — À COMPLÉTER]</p>'
     +'<p style="margin-bottom:10px"><strong>Données collectées.</strong> Adresse email (inscription). Données du carnet de preuves (stockées localement sur votre appareil). Position géographique (uniquement sur demande explicite, pour l\'annuaire). Pour les professionnels : nom, cabinet, SIRET, numéro de barreau.</p>'
     +'<p style="margin-bottom:10px"><strong>Finalité.</strong> Fonctionnement de l\'application, mise en relation avec des professionnels, amélioration du service.</p>'
     +'<p style="margin-bottom:10px"><strong>Base légale.</strong> Consentement de l\'utilisateur (article 6.1.a du RGPD).</p>'
     +'<p style="margin-bottom:10px"><strong>Durée de conservation.</strong> Les données sont conservées tant que le compte est actif. Après suppression du compte, les données sont effacées sous 30 jours.</p>'
     +'<p style="margin-bottom:10px"><strong>Partage.</strong> Aucune donnée personnelle n\'est vendue, partagée ou transmise à des tiers à des fins commerciales. Les données des comptes professionnels vérifiés sont visibles dans l\'annuaire conformément à leur choix.</p>'
-    +'<p style="margin-bottom:10px"><strong>Sécurité.</strong> Les mots de passe sont hashés (SHA-256). Les données sensibles du carnet sont stockées localement sur l\'appareil de l\'utilisatrice.</p>'
+    +'<p style="margin-bottom:10px"><strong>Sécurité.</strong> Cette version de démonstration ne constitue pas un service sécurisé : les données (comptes, carnet, documents) sont stockées localement dans le navigateur, sans chiffrement de bout en bout ni sauvegarde. Une infrastructure d\'authentification et de stockage sécurisée est prévue (serveur) avant toute mise en service réelle. Aucune valeur probante juridique n\'est garantie.</p>'
     +'<p style="margin-bottom:10px"><strong>Vos droits (RGPD).</strong> Vous disposez d\'un droit d\'accès, de rectification, de suppression, de portabilité et d\'opposition. Exercez ces droits à : contact@prima-defense.fr. En cas de litige, vous pouvez saisir la CNIL (cnil.fr).</p>'
     +'<p style="margin-bottom:10px"><strong>Cookies.</strong> PRIMA n\'utilise aucun cookie tiers ni traceur publicitaire. Seul le stockage local (localStorage) est utilisé pour le fonctionnement de l\'application.</p>'
     +'</div>',
 
   mentions: '<div style="font-family:\'Cormorant Garamond\',serif;font-size:20px;color:var(--cream);margin-bottom:14px">Mentions Légales</div>'
     +'<div style="font-size:11px;color:var(--cdim);line-height:1.75">'
-    +'<p style="margin-bottom:10px"><strong>Éditeur.</strong> PRIMA — Kit de défense juridique<br>Contact : contact@prima-defense.fr</p>'
-    +'<p style="margin-bottom:10px"><strong>Hébergement.</strong> Netlify, Inc. — 2325 3rd Street, Suite 296, San Francisco, CA 94107, USA — netlify.com</p>'
-    +'<p style="margin-bottom:10px"><strong>Directeur de la publication.</strong> [Nom du responsable légal — à compléter]</p>'
-    +'<p style="margin-bottom:10px"><strong>Numéro SIRET.</strong> [À compléter lors de l\'immatriculation]</p>'
+    +'<div style="margin-bottom:12px;padding:10px 12px;background:rgba(184,26,16,.08);border:1px solid rgba(184,26,16,.25);border-radius:8px;color:var(--cream)"><strong>⚠ Version de démonstration — non publiable commercialement.</strong> Les informations légales ci-dessous doivent être renseignées et validées par l\'éditeur avant toute mise en service réelle.</div>'
+    +'<p style="margin-bottom:10px"><strong>Éditeur / entité juridique.</strong> [À COMPLÉTER PAR L\'ÉDITEUR]</p>'
+    +'<p style="margin-bottom:10px"><strong>Contact.</strong> [Adresse de contact — À COMPLÉTER]</p>'
+    +'<p style="margin-bottom:10px"><strong>Hébergement.</strong> [Hébergeur réel — À COMPLÉTER, doit correspondre à l\'hébergement effectif]</p>'
+    +'<p style="margin-bottom:10px"><strong>Directeur de la publication.</strong> [À COMPLÉTER]</p>'
+    +'<p style="margin-bottom:10px"><strong>Numéro SIRET.</strong> [À COMPLÉTER lors de l\'immatriculation]</p>'
     +'<p style="margin-bottom:10px"><strong>Propriété intellectuelle.</strong> L\'ensemble du contenu de l\'application PRIMA (textes, visuels, logo, code) est protégé par le droit de la propriété intellectuelle. Toute reproduction sans autorisation est interdite.</p>'
-    +'<p style="margin-bottom:10px"><strong>Crédits.</strong> Design et développement : Équipe PRIMA. Contenu juridique : validé par [Avocat·e partenaire — à compléter]. Icônes : SVG personnalisées.</p>'
+    +'<p style="margin-bottom:10px"><strong>Validation juridique.</strong> Le contenu juridique de l\'application est informatif et pédagogique ; il n\'a pas encore été validé par un·e avocat·e. Une validation est requise avant publication.</p>'
     +'</div>'
 };
 
@@ -4415,7 +4444,7 @@ function showLegal(tab){
     tabs[i].style.color = 'var(--cdim)';
     tabs[i].style.borderColor = 'var(--line2)';
   }
-  if(event && event.target){
+  if(typeof event!=='undefined' && event && event.target){
     event.target.style.background = 'var(--terra)';
     event.target.style.color = 'white';
     event.target.style.borderColor = 'var(--terra)';
@@ -4424,6 +4453,30 @@ function showLegal(tab){
   document.getElementById('legal-tag').textContent = labels[tab]||'';
   document.getElementById('legal-content').innerHTML = legalContent[tab]||'';
 }
+// LEG-01 : textes légaux consultables AVANT inscription (modale, hors app)
+function openLegalModal(tab){
+  var m = document.getElementById('legal-modal');
+  if(!m){
+    m = document.createElement('div');
+    m.id='legal-modal';
+    m.style.cssText='position:fixed;inset:0;z-index:800;background:rgba(28,25,20,.6);display:flex;align-items:center;justify-content:center;padding:18px';
+    m.innerHTML='<div style="background:var(--s1);border-radius:16px;max-width:520px;width:100%;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(44,36,22,.3)">'
+      +'<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;padding:16px 18px 10px;border-bottom:1px solid var(--line)">'
+      +'<button class="lm-tab" data-tab="cgu" onclick="openLegalModal(\'cgu\')">CGU</button>'
+      +'<button class="lm-tab" data-tab="cgv" onclick="openLegalModal(\'cgv\')">CGV</button>'
+      +'<button class="lm-tab" data-tab="privacy" onclick="openLegalModal(\'privacy\')">Confidentialité</button>'
+      +'<button class="lm-tab" data-tab="mentions" onclick="openLegalModal(\'mentions\')">Mentions</button>'
+      +'<button onclick="closeLegalModal()" aria-label="Fermer la fenêtre" style="margin-left:auto;background:none;border:none;color:var(--cdim);font-size:22px;cursor:pointer;line-height:1">×</button>'
+      +'</div><div id="legal-modal-body" style="padding:18px 20px;overflow-y:auto"></div></div>';
+    m.addEventListener('click', function(ev){ if(ev.target===m) closeLegalModal(); });
+    document.body.appendChild(m);
+  }
+  m.style.display='flex';
+  var body=m.querySelector('#legal-modal-body');
+  if(body) body.innerHTML = (typeof legalContent!=='undefined' && legalContent[tab]) ? legalContent[tab] : '';
+  try{ m.querySelectorAll('.lm-tab').forEach(function(b){ var on=b.getAttribute('data-tab')===tab; b.style.cssText='padding:7px 12px;border-radius:8px;font-family:\'DM Mono\',monospace;font-size:9px;cursor:pointer;border:1px solid '+(on?'var(--terra)':'var(--line2)')+';background:'+(on?'var(--terra)':'var(--s1)')+';color:'+(on?'#fff':'var(--cdim)'); }); }catch(e){}
+}
+function closeLegalModal(){ var m=document.getElementById('legal-modal'); if(m) m.style.display='none'; }
 
 /* ═══ EMAIL SYSTEM ═══ */
 // EmailJS configuration — replace with your actual keys
