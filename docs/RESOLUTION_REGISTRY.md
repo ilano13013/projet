@@ -7,17 +7,17 @@ Preuves Lot 0 : `tests/lot0.audit.spec.js` (17 PASS / 0 FAIL, 2026-10-24) et
 
 | ID | Priorité | Statut | Fichier(s) | Correctif appliqué | Preuve / Test |
 |----|----------|--------|-----------|-----------|---------------|
-| SEC-01 | P0 | APPLIQUÉ (app) · reste REQUIERT SERVEUR | prima/index.html | Suppression de l'email + condensat admin codés en dur et du provisionnement public ; remplacé par un seeder de DÉMO fictif gardé par `isLocalEnv` (inerte en production). Frontière d'autorisation réelle = Lot 1. | Test SEC-01 (4 assertions) |
-| SEC-02 | P0 | APPLIQUÉ (app) · reste REQUIERT SERVEUR | prima/index.html | Suppression du reset local sans jeton + du self-mailto ; réponse uniforme anti-énumération ; `doResetPassword` neutralisé. Vrai reset (jeton serveur) = Lot 1. | Test SEC-02 (2 assertions) |
+| SEC-01 | P0 | APPLIQUÉ (app) + SERVEUR (testé) · exécuter sur infra | prima/index.html, server/ | App : admin codé en dur supprimé. Serveur : rôle/droits depuis session serveur (jamais localStorage), autorisation refus-par-défaut, admin+MFA ; condensat scrypt salé. | App test SEC-01 (4) ; server authz/http/auth tests |
+| SEC-02 | P0 | APPLIQUÉ (app) + SERVEUR (testé) · exécuter sur infra | prima/index.html, server/ | App : reset local sans jeton supprimé, réponse uniforme. Serveur : jeton aléatoire, expirant, usage unique, vérifié ; révocation des sessions ; réponse uniforme 202. | App test SEC-02 (2) ; server test auth (tokens) + http (reset 202) |
 | SEC-03 | P0 | APPLIQUÉ (app) | prima/index.html | Carnet scoppé par propriétaire (`prima_carnet__<id>`), chargé au login, vidé à la déconnexion ; notes orphelines jamais réattribuées (migration explicite). | Test SEC-03 (2 assertions) |
 | SEC-04 | P0 | APPLIQUÉ (app) | prima/index.html | `CLOUD_SYNC_ENABLED=false` ; suppression de la création automatique de bucket ; toutes les écritures/lectures cloud gardées. Aucun appel réseau par défaut. | Test SEC-04 (0 appel cloud) |
-| FUN-01 | P1 | REQUIERT SERVEUR | prima/index.html | Créneaux depuis horaires/exceptions/durée/fuseau Europe/Paris. | Lot 2 |
-| FUN-02 | P1 | REQUIERT SERVEUR | prima/index.html | Anti-double-réservation par contrainte base transactionnelle. | Lot 2 |
-| FUN-03 | P1 | REQUIERT SERVEUR | prima/index.html | Messages visibles aux 2 participants ; note/transmis/échec distincts. | Lot 3 |
+| FUN-01 | P1 | IMPLÉMENTÉ (serveur, testé) · exécuter sur Postgres | server/src/domain/slots.ts, composition.ts | Créneaux depuis horaires/exceptions/durée, fuseau Europe/Paris + DST. | server test slots (7) |
+| FUN-02 | P1 | IMPLÉMENTÉ (serveur, testé) · exécuter sur Postgres | server/migrations, adapters/pg.ts, adapters/sqlite.ts | Index unique partiel + transaction ; deux réservations concurrentes → une seule. | server test intégration SQLite (double booking) |
+| FUN-03 | P1 | SCAFFOLD (serveur) · wiring à finir | server/migrations, http | Modèle cases/case_participants/messages + authz ; distinction note interne/transmis/échec. | authz tests ; wiring messages = suite |
 | FUN-04 | P1 | APPLIQUÉ (app) | prima/index.html | `db.setObjStrict` laisse remonter le quota ; `saveDocument` et le carnet surfacent l'échec (plus de faux succès). | Vérifié par revue + carnet (saveCarnetStore) ; cas quota manuel |
 | FUN-05 | P1 | APPLIQUÉ (app) · paiement = Lot 3 | prima/index.html | Marquage « démonstration — aucun paiement réel » explicite ; droit payant local = démo. Paiement réel (webhooks signés, droits serveur) = Lot 3. | Revue (toast abo) |
 | FUN-06 | P1 | APPLIQUÉ (app) · atomicité = Lot 3 | prima/index.html | Rejet montant ≤ 0/NaN ; numérotation par compteur monotone (pas de réutilisation) ; pas de suppression d'une facture encaissée. Numérotation atomique/durable = serveur. | Test FUN-06 (2 assertions) |
-| FUN-07 | P1 | REQUIERT SERVEUR | prima/index.html | Emails/rappels via file serveur idempotente. | Lot 2 |
+| FUN-07 | P1 | SCAFFOLD (serveur) · provider à brancher | server/src/ports (EmailQueuePort), composition.ts | File d'emails idempotente (interface + mise en file à la demande de reset) ; provider réel + reprises = suite. | — |
 | LEG-01 | P1 | APPLIQUÉ (app) · textes à compléter | prima/index.html | Modale légale accessible AVANT inscription ; données inventées remplacées par « À COMPLÉTER » ; bandeau « non publiable » ; claim sécurité SHA-256 corrigé. Complétion/validation = propriétaire. | Test LEG-01 (3 assertions) |
 | UX-01 | P2 | APPLIQUÉ (app) | prima/index.html | 15 labels d'auth associés (`for=`) ; erreurs `aria-live` ; focus visible global. | Vérif statique (15 `for=`) |
 | UX-02 | P2 | APPLIQUÉ (app) | prima/index.html | Cercles décoratifs encapsulés dans `.auth-bg` (clip) ; plus de débordement. | Test UX-02 (360/390/768) |

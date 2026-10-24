@@ -69,14 +69,21 @@ pendant la revalidation).
     `prefers-reduced-motion`, associer labels/erreurs, corriger le
     débordement `#auth-screen` (UX-01/02, TECH-01).
 
-### Lot 1 — Fondations serveur — *scaffold Phase A livré (`server/`)*
-Décisions prises : **hébergement UE**, **Stripe (test)**. Phase A livrée et
-testée (schéma relationnel + contraintes de sécurité, logique métier pure
-testée : slots/DST, autorisation refus-par-défaut, numérotation factures,
-idempotence webhook — 24 tests `node:test`). Phase B (couche HTTP + adaptateurs
-Postgres/stockage/email/Stripe) décrite dans `server/README.md`, nécessite les
-dépendances et l'infra (non déployé).
-### Lot 2 — Parcours réel inscription→RDV confirmé — *dépend du Lot 1*
+### Lot 1 — Fondations serveur — *Phases A + B livrées (`server/`)*
+Décisions prises : **hébergement UE**, **Stripe (test)**. Livré et testé
+(**39 tests `node:test`, 0 échec**) : schéma relationnel + contraintes de
+sécurité ; domaine (slots/DST, autorisation refus-par-défaut, numérotation
+factures, idempotence webhook) ; **auth** (scrypt + jetons de reset
+expirants/usage unique) ; **couche HTTP Fastify** (session/CSRF/authz/zod) ;
+adaptateurs Postgres + SQLite (tests réels d'anti-double-réservation et
+d'idempotence) + Stripe. Reste à exécuter sur **infra réelle** (Postgres,
+stockage privé, provider email, clés Stripe test) — **non déployé**
+(voir `server/README.md`).
+### Lot 2 — Parcours réel inscription→RDV confirmé — *implémenté côté serveur, à exécuter sur Postgres/staging*
+Routes et logique livrées (inscription/login, créneaux via `computeSlots`,
+réservation transactionnelle anti-double-réservation, confirmation par le pro
+propriétaire, vérification admin+MFA). Démonstration bout-en-bout avec 2 comptes
+et 2 contextes navigateur = sur staging autorisé avec Postgres (non déployé ici).
 ### Lot 3 — Dossiers / échanges / pièces / abonnement (paiement test) — *dépend du Lot 1*
 ### Lot 4 — UX/accessibilité/responsive complets + modularisation + tests — *après Lot 1-3*
 
