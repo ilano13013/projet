@@ -5,6 +5,7 @@
  */
 import type { Role } from '../domain/authz';
 import type { BookingResult } from '../ports';
+import type { Lot3Services } from './lot3';
 
 export interface Actor { userId: string; role: Role; mfa?: boolean; }
 
@@ -52,4 +53,6 @@ export interface Services {
   verification: VerificationService;
   billing: BillingService;
   webhook: WebhookService;
+  /** Lot 3 : dossiers, pièces, facturation, abonnement, téléconsultation. */
+  lot3?: Lot3Services;
 }

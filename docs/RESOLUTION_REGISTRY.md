@@ -13,16 +13,24 @@ Preuves Lot 0 : `tests/lot0.audit.spec.js` (17 PASS / 0 FAIL, 2026-10-24) et
 | SEC-04 | P0 | APPLIQUÉ (app) | prima/index.html | `CLOUD_SYNC_ENABLED=false` ; suppression de la création automatique de bucket ; toutes les écritures/lectures cloud gardées. Aucun appel réseau par défaut. | Test SEC-04 (0 appel cloud) |
 | FUN-01 | P1 | IMPLÉMENTÉ (serveur, testé) · exécuter sur Postgres | server/src/domain/slots.ts, composition.ts | Créneaux depuis horaires/exceptions/durée, fuseau Europe/Paris + DST. | server test slots (7) |
 | FUN-02 | P1 | IMPLÉMENTÉ (serveur, testé) · exécuter sur Postgres | server/migrations, adapters/pg.ts, adapters/sqlite.ts | Index unique partiel + transaction ; deux réservations concurrentes → une seule. | server test intégration SQLite (double booking) |
-| FUN-03 | P1 | SCAFFOLD (serveur) · wiring à finir | server/migrations, http | Modèle cases/case_participants/messages + authz ; distinction note interne/transmis/échec. | authz tests ; wiring messages = suite |
-| FUN-04 | P1 | APPLIQUÉ (app) | prima/index.html | `db.setObjStrict` laisse remonter le quota ; `saveDocument` et le carnet surfacent l'échec (plus de faux succès). | Vérifié par revue + carnet (saveCarnetStore) ; cas quota manuel |
-| FUN-05 | P1 | APPLIQUÉ (app) · paiement = Lot 3 | prima/index.html | Marquage « démonstration — aucun paiement réel » explicite ; droit payant local = démo. Paiement réel (webhooks signés, droits serveur) = Lot 3. | Revue (toast abo) |
-| FUN-06 | P1 | APPLIQUÉ (app) · atomicité = Lot 3 | prima/index.html | Rejet montant ≤ 0/NaN ; numérotation par compteur monotone (pas de réutilisation) ; pas de suppression d'une facture encaissée. Numérotation atomique/durable = serveur. | Test FUN-06 (2 assertions) |
+| FUN-03 | P1 | IMPLÉMENTÉ (serveur, testé) · exécuter sur Postgres ; app = démo honnête | server/src/domain/messaging.ts, http/lot3.ts, adapters/pgLot3.ts ; prima/index.html | Messages visibles aux participants autorisés ; note interne ≠ transmis ; statut stored/delivered/failed ; notification SANS contenu (serveur et app). Échange entre deux sessions = serveur. | messaging.test, http.lot3.test ; app Lot 3 (notif sans contenu) |
+| FUN-04 | P1 | APPLIQUÉ (app) + IMPLÉMENTÉ (serveur, testé) | prima/index.html ; server/src/domain/documents.ts, adapters/diskStorage.ts, http/lot3.ts | App : quota surfacé. Serveur : pièce rattachée au dossier, validation taille/type/contenu réel/nom, quota 413 explicite, téléchargement par lien signé temporaire, suppression pro seul. | documents-visio.test, http.lot3.test (falsifié/quota/lien altéré/expiré) |
+| FUN-05 | P1 | APPLIQUÉ (app, démo) + IMPLÉMENTÉ (serveur, Stripe test, testé) | prima/index.html ; server/src/domain/entitlements.ts, services/billing.ts, composition.ts | Checkout serveur ; webhook signé + idempotent + transactionnel ; hors-ordre ignoré ; impayé/résiliation/expiration ; aucun droit depuis le retour navigateur. HT/TTC et conditions = décision éditeur. | entitlements.test, integration.lot3.test, http.lot3.test |
+| FUN-06 | P1 | APPLIQUÉ (app) + IMPLÉMENTÉ (serveur, testé) | prima/index.html ; server/adapters/sqlite.ts, pgLot3.ts, migrations | Brouillon ≠ émise ; numéro attribué à l'émission par compteur verrouillé (jamais réutilisé) ; émise non supprimable (annulation) ; montant ≤ 0 refusé (code + CHECK). Conformité comptable NON revendiquée (validation à faire). | integration.lot3.test (5 émissions concurrentes), http.lot3.test ; app FUN-06 |
 | FUN-07 | P1 | SCAFFOLD (serveur) · provider à brancher | server/src/ports (EmailQueuePort), composition.ts | File d'emails idempotente (interface + mise en file à la demande de reset) ; provider réel + reprises = suite. | — |
 | LEG-01 | P1 | APPLIQUÉ (app) · textes à compléter | prima/index.html | Modale légale accessible AVANT inscription ; données inventées remplacées par « À COMPLÉTER » ; bandeau « non publiable » ; claim sécurité SHA-256 corrigé. Complétion/validation = propriétaire. | Test LEG-01 (3 assertions) |
 | UX-01 | P2 | APPLIQUÉ (app) | prima/index.html | 15 labels d'auth associés (`for=`) ; erreurs `aria-live` ; focus visible global. | Vérif statique (15 `for=`) |
 | UX-02 | P2 | APPLIQUÉ (app) | prima/index.html | Cercles décoratifs encapsulés dans `.auth-bg` (clip) ; plus de débordement. | Test UX-02 (360/390/768) |
 | TECH-01 | P2 | APPLIQUÉ (app) | prima/index.html | `user-scalable=no` retiré (zoom autorisé) ; `prefers-reduced-motion`. | Vérif statique |
 | TECH-02 | P2 | MITIGÉ · modularisation = Lot 4 | tests/ | Harnais de tests + contrôle statique ajoutés. Modularisation du monolithe = Lot 4. | tests/ exécutés |
+
+## Lot 3 — ajouts
+- **Téléconsultation (hors ID)** : app — lien `javascript:`/`http:` neutralisé
+  avant injection dans un `href` (faille XSS corrigée) ; serveur — https +
+  liste blanche d'hôtes + pas d'identifiants. Pas de visio native annoncée.
+- **Encaissement des honoraires** : séparé de l'abonnement SaaS et **reporté**.
+- Preuves : serveur **72/72** (`cd server && npm test`), app **21/21**
+  (`tests/lot0.audit.spec.js`).
 
 ## Synthèse Lot 0
 - P0 (SEC-01/02/03/04) : traités au niveau applicatif ; la **sécurité réelle**

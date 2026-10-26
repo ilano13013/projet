@@ -1,3 +1,5 @@
+import type { SubState } from '../domain/entitlements';
+
 /**
  * Ports (interfaces) — frontières testables. Les implémentations concrètes
  * (PostgreSQL, stockage privé, email, Stripe) sont injectées. Aucune dépendance
@@ -62,4 +64,26 @@ export interface AppointmentRepoPort {
     endUtc: Date;
     motif?: string;
   }): Promise<BookingResult>;
+}
+
+/* ───────────── Lot 3 : facturation & abonnement ───────────── */
+
+export type DraftResult = { ok: true; id: string } | { ok: false; reason: 'invalid_amount' };
+export type IssueResult = { ok: true; seq: number; number: string } | { ok: false; reason: 'not_found' | 'not_draft' };
+export type InvoiceOpResult = { ok: true } | { ok: false; reason: 'not_found' | 'not_draft' | 'invalid_transition' };
+
+export interface InvoiceRepoPort {
+  /** Brouillon : pas de numéro. Montant en centimes strictement positif. */
+  createDraft(input: { professionalUserId: string; clientUserId?: string; caseId?: string; amountCents: number; service?: string }): Promise<DraftResult>;
+  /** Émission : attribue un numéro DURABLE et ATOMIQUE (jamais réutilisé). */
+  issue(invoiceId: string, professionalUserId: string, year: number): Promise<IssueResult>;
+  /** Annulation (correction) : jamais de suppression d'une facture émise. */
+  cancel(invoiceId: string, professionalUserId: string): Promise<InvoiceOpResult>;
+  /** Seul un brouillon peut être supprimé. */
+  deleteDraft(invoiceId: string, professionalUserId: string): Promise<InvoiceOpResult>;
+}
+
+export interface SubscriptionRepoPort {
+  get(professionalUserId: string): Promise<SubState | null>;
+  save(professionalUserId: string, state: SubState): Promise<void>;
 }

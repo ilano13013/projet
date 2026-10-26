@@ -17,7 +17,8 @@ export class StripePayment implements PaymentPort {
       success_url: input.successUrl,
       cancel_url: input.cancelUrl,
       client_reference_id: input.customerRef,
-      'line_items[0][price]': input.plan,      // identifiant de prix Stripe (test)
+      'subscription_data[metadata][pro_user_id]': input.customerRef,
+      'line_items[0][price]': input.plan,      // identifiant de prix Stripe (test), résolu côté serveur
       'line_items[0][quantity]': '1',
     });
     const res = await fetch('https://api.stripe.com/v1/checkout/sessions', {

@@ -84,7 +84,15 @@ Routes et logique livrées (inscription/login, créneaux via `computeSlots`,
 réservation transactionnelle anti-double-réservation, confirmation par le pro
 propriétaire, vérification admin+MFA). Démonstration bout-en-bout avec 2 comptes
 et 2 contextes navigateur = sur staging autorisé avec Postgres (non déployé ici).
-### Lot 3 — Dossiers / échanges / pièces / abonnement (paiement test) — *dépend du Lot 1*
+### Lot 3 — Dossiers / échanges / pièces / abonnement (paiement test) — *implémenté et testé, à exécuter sur infra*
+Messagerie note interne/transmis + notification sans contenu ; pièces rattachées
+aux dossiers avec validation de contenu, quota explicite et liens signés
+temporaires ; abonnement Stripe test (webhooks signés, idempotents,
+transactionnels, hors-ordre, impayé/résiliation/expiration) ; facturation
+brouillon/émise à numérotation atomique ; téléconsultation = fournisseur externe
+validé. App : faille `javascript:` du lien visio corrigée, plus de contenu de
+message dans les emails. Encaissement des honoraires reporté. Arbitrages
+éditeur listés dans `server/README.md`.
 ### Lot 4 — UX/accessibilité/responsive complets + modularisation + tests — *après Lot 1-3*
 
 ## 3. Registre de résolution (ID → statut → fichier → preuve → test)

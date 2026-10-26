@@ -7,6 +7,7 @@ import { buildApp } from './http/app';
 import { createServices } from './composition';
 import { StripePayment } from './adapters/stripe';
 import type { EmailQueuePort } from './ports';
+import { DiskPrivateStorage } from './adapters/diskStorage';
 
 function env(name: string, fallback?: string): string {
   const v = process.env[name] ?? fallback;
@@ -24,7 +25,14 @@ async function main() {
     async enqueue(job) { console.log('[email:enqueue]', { to: job.to, subject: job.subject, key: job.idempotencyKey }); },
   };
 
-  const services = createServices(pool, pay, email, env('APP_BASE_URL', 'http://localhost:3000'));
+  // Stockage privé à liens signés temporaires (disque : dev/staging ; bucket objet privé en production).
+  const storage = new DiskPrivateStorage(env('FILE_STORAGE_DIR'), env('FILE_SIGNING_SECRET'));
+  const visioHosts = (process.env.VISIO_ALLOWED_HOSTS || '').split(',').map(h => h.trim()).filter(Boolean);
+
+  const services = createServices(pool, pay, email,
+    { baseUrl: env('APP_BASE_URL', 'http://localhost:3000'), prices: { premium: env('PRICE_PREMIUM'), expert: env('PRICE_EXPERT') } },
+    { storage, files: { verify: (k, e, sg) => storage.verify(k, e, sg), read: (k) => storage.read(k) },
+      visioAllowedHosts: visioHosts.length ? visioHosts : undefined });
   const app = buildApp(services, { cookieSecure: env('NODE_ENV', 'development') === 'production' });
 
   const port = Number(env('PORT', '3000'));

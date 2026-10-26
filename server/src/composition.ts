@@ -9,7 +9,11 @@ import type {
   Services, Actor, SessionService, AuthService, SlotsService,
   AppointmentService, VerificationService, BillingService, WebhookService,
 } from './http/services';
-import type { EmailQueuePort } from './ports';
+import type { EmailQueuePort, FileStoragePort } from './ports';
+import type { Lot3Services } from './http/lot3';
+import { PgSubscriptionRepo, makeLot3Services, inTx } from './adapters/pgLot3';
+import { processStripeEvent } from './services/billing';
+import type { Plan, StripeEvt } from './domain/entitlements';
 import { PgAppointmentRepo } from './adapters/pg';
 import { StripePayment } from './adapters/stripe';
 import { hashPassword, verifyPassword } from './auth/password';
@@ -133,45 +137,72 @@ function makeVerification(pool: Pool): VerificationService {
   };
 }
 
-function makeBilling(pool: Pool, pay: StripePayment, baseUrl: string): BillingService {
+export interface BillingConfig {
+  baseUrl: string;
+  /** Identifiants de prix Stripe (TEST) par formule — configuration serveur. */
+  prices: { premium: string; expert: string };
+}
+
+function priceToPlanFrom(cfg: BillingConfig) {
+  return (priceId: string): Plan | null =>
+    priceId === cfg.prices.premium ? 'premium' : priceId === cfg.prices.expert ? 'expert' : null;
+}
+
+function makeBilling(pay: StripePayment, cfg: BillingConfig): BillingService {
   return {
     async checkout(proId, plan) {
-      const s = await pay.createCheckout({ plan, customerRef: proId, successUrl: `${baseUrl}/billing/ok`, cancelUrl: `${baseUrl}/billing/cancel` });
+      const priceId = plan === 'premium' ? cfg.prices.premium : plan === 'expert' ? cfg.prices.expert : '';
+      if (!priceId) throw new Error('formule inconnue');
+      // Le retour navigateur n'active rien : seuls les webhooks signés font foi.
+      const s = await pay.createCheckout({ plan: priceId, customerRef: proId, successUrl: `${cfg.baseUrl}/billing/ok`, cancelUrl: `${cfg.baseUrl}/billing/cancel` });
       return { url: s.url };
     },
   };
 }
 
-function makeWebhook(pool: Pool, pay: StripePayment): WebhookService {
+function makeWebhook(pool: Pool, pay: StripePayment, cfg: BillingConfig): WebhookService {
+  const priceToPlan = priceToPlanFrom(cfg);
   return {
     async handleStripe(payload, signature) {
       if (!pay.verifyWebhook(payload, signature)) return { status: 400 };     // signature invalide
-      const evt = JSON.parse(payload) as { id: string; type: string; data?: { object?: Record<string, unknown> } };
-      // Idempotence : l'unicité (provider, provider_event_id) empêche le double traitement.
-      const ins = await pool.query(
-        `INSERT INTO webhook_events(provider,provider_event_id,type,payload)
-         VALUES('stripe',$1,$2,$3) ON CONFLICT (provider,provider_event_id) DO NOTHING RETURNING id`,
-        [evt.id, evt.type, JSON.stringify(evt)]);
-      if (ins.rowCount === 0) return { status: 200 };                          // déjà traité
-      // Droits calculés CÔTÉ SERVEUR à partir de l'événement signé (jamais le navigateur).
-      if (evt.type === 'checkout.session.completed' || evt.type === 'customer.subscription.updated') {
-        // … mettre à jour subscriptions.status/current_period_end selon evt.data.object …
+      let evt: StripeEvt;
+      try { evt = JSON.parse(payload) as StripeEvt; } catch { return { status: 400 }; }
+      if (!evt || typeof evt.id !== 'string' || typeof evt.created !== 'number' || !evt.data) return { status: 400 };
+      try {
+        // Enregistrement idempotent + application des droits dans UNE transaction :
+        // en cas d'échec, rien n'est enregistré et le renvoi Stripe sera retraité.
+        await inTx(pool, async (c) => {
+          const outcome = await processStripeEvent(evt, {
+            recordOnce: async (e) => (await c.query(
+              `INSERT INTO webhook_events(provider,provider_event_id,type,payload)
+               VALUES('stripe',$1,$2,$3) ON CONFLICT (provider,provider_event_id) DO NOTHING RETURNING id`,
+              [e.id, e.type, payload])).rowCount === 1,
+            subs: new PgSubscriptionRepo(c),
+            priceToPlan,
+          });
+          if (outcome !== 'duplicate') {
+            await c.query(`UPDATE webhook_events SET processed_at=now(), status=$1 WHERE provider='stripe' AND provider_event_id=$2`, [outcome, evt.id]);
+          }
+        });
+        return { status: 200 };
+      } catch {
+        return { status: 500 };
       }
-      await pool.query('UPDATE webhook_events SET processed_at=now(), status=$1 WHERE provider=$2 AND provider_event_id=$3',
-        ['processed', 'stripe', evt.id]);
-      return { status: 200 };
     },
   };
 }
 
-export function createServices(pool: Pool, pay: StripePayment, email: EmailQueuePort, baseUrl: string): Services {
+export function createServices(pool: Pool, pay: StripePayment, email: EmailQueuePort, cfg: BillingConfig, lot3: {
+  storage: FileStoragePort; files?: Lot3Services['files']; visioAllowedHosts?: string[];
+}): Services {
   return {
     session: makeSession(pool),
     auth: makeAuth(pool, email),
     slots: makeSlots(pool),
     appts: makeAppointments(pool),
     verification: makeVerification(pool),
-    billing: makeBilling(pool, pay, baseUrl),
-    webhook: makeWebhook(pool, pay),
+    billing: makeBilling(pay, cfg),
+    webhook: makeWebhook(pool, pay, cfg),
+    lot3: makeLot3Services(pool, { email, ...lot3 }),
   };
 }

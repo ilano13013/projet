@@ -15,7 +15,7 @@
   - `webhook_events UNIQUE(provider, provider_event_id)` → **idempotence**.
   - `CHECK (amount_cents > 0)` → **montants positifs** côté base.
   - Colonnes de **propriété/participants** sur chaque ressource privée.
-- **Logique métier pure + testée** (`src/domain`, inclus dans la suite de 39 tests) :
+- **Logique métier pure + testée** (`src/domain`, inclus dans la suite de 72 tests) :
   - `slots.ts` — créneaux depuis horaires/exceptions/durée, **fuseau
     Europe/Paris + DST** (FUN-01).
   - `invoicing.ts` — numérotation, brouillon/émise, montants (FUN-06).
@@ -66,7 +66,7 @@ reset/confirm}`, `/pros/:id/slots`, `/appointments`,
 `/appointments/:id/{confirm,cancel}`, `/admin/verify`, `/billing/checkout`,
 `/webhooks/stripe`. Honoraires d'avocat = **séparés** et reportés.
 
-### Preuves exécutables (39 tests `node:test`, `npm test`)
+### Preuves exécutables (suite complète : 72 tests `node:test`, `npm test`)
 - Domaine (slots/DST, autorisation A/B, facturation, signature+idempotence).
 - **Auth** : hash/verify scrypt ; reset expiré/usage unique/mauvais jeton.
 - **Intégration SQLite** (contraintes réelles) : **double réservation → une
@@ -81,6 +81,27 @@ base ; brancher le **stockage privé** (liens signés), la **file d'emails** ré
 (reprises/idempotence), l'**enrôlement MFA** admin, les **clés Stripe test** ; et
 les tests §8 restants (webhook dupliqué/hors-ordre sur Postgres, sauvegarde/
 restauration). Rien n'est déployé.
+
+## Lot 3 — dossiers, échanges, pièces, abonnement, facturation (testé)
+Migration : `migrations/002_lot3.sql` (+ `002_lot3.down.sql`).
+
+| Sujet | Livré | Preuve (tests) |
+|---|---|---|
+| **Messages** (FUN-03) | Note interne (pro seul) ≠ message transmis (participants) ; statut `stored → delivered/failed` ; notification email **générique, sans contenu juridique** | `messaging.test`, `http.lot3.test` (client ne voit pas la note, tiers 403, aucune notif pour une note) |
+| **Pièces** (FUN-04) | Rattachées à un dossier ; dépôt participant/pro ; validation taille, type, **contenu réel** (signature binaire), nom assaini ; **quota visible** (413) ; téléchargement par **lien signé 5 min** ; suppression pro seul | `documents-visio.test`, `http.lot3.test` (falsifié 422, quota 413, lien altéré/expiré 403) |
+| **Abonnement SaaS** (FUN-05) | Checkout serveur par formule (prix résolus serveur) ; webhook signé → enregistrement idempotent + application **dans une transaction** ; hors-ordre ignoré ; impayé (grâce 7 j) ; résiliation/expiration → gratuit ; `checkout.session.completed` n'active rien | `entitlements.test`, `integration.lot3.test`, `http.lot3.test` |
+| **Facturation honoraires** (FUN-06) | Brouillon (sans numéro) ≠ émise ; numéro **attribué à l'émission**, compteur verrouillé, jamais réutilisé ; émise non supprimable (annulation) ; montant ≤ 0 refusé (code + CHECK base) ; cloisonnement par cabinet | `integration.lot3.test` (5 émissions concurrentes → 5 numéros consécutifs), `http.lot3.test` |
+| **Téléconsultation** | **Pas de visio native** : lien d'un fournisseur externe, https uniquement, sans identifiants, hôte en liste blanche | `documents-visio.test`, `http.lot3.test` |
+
+**Séparé et reporté** : l'encaissement des **honoraires d'avocat** (aucun modèle
+contractuel ni prestataire adapté). La facturation ne fait qu'enregistrer des
+factures ; elle n'encaisse rien.
+
+**À décider par l'éditeur avant publication** : affichage HT/TTC et fiscalité
+des formules ; limites et conditions par formule ; durée de grâce en impayé
+(7 j par défaut) ; quotas (10 Mo/fichier, 200 Mo/cabinet par défaut) ; liste des
+fournisseurs visio autorisés ; format de numérotation des factures à faire
+valider (aucune conformité comptable n'est revendiquée).
 
 ## Variables d'environnement
 Voir `../.env.example` (modèle, sans secret). Copier en `server/.env`

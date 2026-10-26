@@ -16,7 +16,7 @@ export type Action =
   | 'case:read' | 'case:write'
   | 'appointment:read' | 'appointment:write'
   | 'invoice:read' | 'invoice:write'
-  | 'document:read' | 'document:download' | 'document:delete'
+  | 'document:read' | 'document:download' | 'document:upload' | 'document:delete'
   | 'message:read' | 'message:write'
   | 'verification:decide'
   | 'subscription:read';
@@ -57,6 +57,7 @@ export function can(actor: Actor | null | undefined, action: Action, res: Resour
     case 'document:download':
       return isOwnerPro || isParticipant || isClient;
     case 'message:write':
+    case 'document:upload':
       return isOwnerPro || isParticipant;
     case 'document:delete':
       return isOwnerPro;                               // seul le pro propriétaire supprime

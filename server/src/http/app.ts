@@ -12,6 +12,7 @@ import cookie from '@fastify/cookie';
 import { z } from 'zod';
 import { can } from '../domain/authz';
 import type { Services, Actor } from './services';
+import { registerLot3Routes } from './lot3';
 
 declare module 'fastify' {
   interface FastifyRequest { actor: Actor | null; rawBody?: string; }
@@ -150,7 +151,7 @@ export function buildApp(services: Services, opts: { cookieSecure?: boolean } = 
   app.post('/billing/checkout', async (req, reply) => {
     const a = requireActor(req, reply); if (!a) return;
     if (a.role !== 'professionnel') return reply.code(403).send({ error: 'forbidden' });
-    const p = z.object({ plan: z.string().min(1) }).safeParse(req.body);
+    const p = z.object({ plan: z.enum(['premium', 'expert']) }).safeParse(req.body);
     if (!p.success) return reply.code(400).send({ error: 'invalid' });
     return await services.billing.checkout(a.userId, p.data.plan);
   });
@@ -161,6 +162,8 @@ export function buildApp(services: Services, opts: { cookieSecure?: boolean } = 
     const r = await services.webhook.handleStripe(req.rawBody ?? '', typeof sig === 'string' ? sig : '');
     return reply.code(r.status).send({ received: r.status < 400 });
   });
+
+  if (services.lot3) registerLot3Routes(app, services.lot3, requireActor);
 
   return app;
 }
