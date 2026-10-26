@@ -118,6 +118,19 @@ async function run(){
   check('FUN-06 · montant négatif rejeté', fun6.afterNeg===0, fun6);
   check('FUN-06 · numéro non réutilisé après suppression (F-003 attendu)', fun6.nums2.includes('F-003') && !fun6.nums2.includes('F-001'), fun6);
 
+  // ---- Lot 3 (app) : lien visio sûr + notification sans contenu ----
+  const lot3 = await page.evaluate(()=>{
+    var mailto=null; var orig=HTMLAnchorElement.prototype.click;
+    HTMLAnchorElement.prototype.click=function(){ if((this.href||'').indexOf('mailto:')===0){ mailto=decodeURIComponent(this.href); return; } return orig.apply(this,arguments); };
+    sendMessageEmail('client@test.local','Client','SECRET-CONTENU-JURIDIQUE');
+    HTMLAnchorElement.prototype.click=orig;
+    return { js: safeVisioUrl('javascript:alert(1)'), http: safeVisioUrl('http://meet.jit.si/x'), ok: safeVisioUrl('https://meet.jit.si/prima'), mailto: mailto };
+  });
+  check('Lot 3 · lien visio javascript: refusé', lot3.js==='');
+  check('Lot 3 · lien visio http: refusé', lot3.http==='');
+  check('Lot 3 · lien visio https accepté', lot3.ok==='https://meet.jit.si/prima');
+  check('Lot 3 · notification email sans le contenu du message', !!lot3.mailto && lot3.mailto.indexOf('SECRET-CONTENU-JURIDIQUE')===-1, lot3.mailto && lot3.mailto.slice(0,80));
+
   console.log('\\n==== '+pass+' PASS / '+fail+' FAIL ====');
   await browser.close();
   process.exit(fail?1:0);

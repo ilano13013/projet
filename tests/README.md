@@ -34,6 +34,11 @@ Assertions couvertes (sortie `N PASS / M FAIL`, code de sortie ≠ 0 si échec) 
   d'un autre ; stockage par clé dédiée).
 - **FUN-06** — montant ≤ 0 rejeté ; numéro de facture non réutilisé après
   suppression.
+- **Lot 3** — lien visio `javascript:` / `http:` refusé (https seulement) ;
+  la notification email d'un message ne contient pas son contenu.
+
+Les tests du serveur (`server/`, 72 tests) se lancent séparément :
+`cd server && npm install && npm test`.
 
 Les contrôles non automatisés (navigateurs réels iOS/Android, lecteur d'écran,
 RGAA, Lighthouse) restent **À vérifier** manuellement — aucun résultat n'est

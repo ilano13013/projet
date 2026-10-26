@@ -3085,9 +3085,9 @@ function renderPlanning(){
       // Bouton téléconsultation côté client (avant les actions)
       if(!isPro && r.status==="confirmed" && r.motif==="Téléconsultation"){
         var proTc = users.find(function(u){return u.id===r.proId;});
-        var tcLnk = proTc && proTc.proProfile && proTc.proProfile.teleconsultLink;
+        var tcLnk = safeVisioUrl(proTc && proTc.proProfile && proTc.proProfile.teleconsultLink);
         if(tcLnk){
-          html += '<a href="'+escH(tcLnk)+'" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;background:var(--terra);color:#fff;border-radius:8px;font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:.08em;text-decoration:none;margin-top:10px">▶ Rejoindre la téléconsultation</a>';
+          html += '<a href="'+escH(tcLnk)+'" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;background:var(--terra);color:#fff;border-radius:8px;font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:.08em;text-decoration:none;margin-top:10px">▶ Rejoindre la téléconsultation</a>';
         } else {
           html += '<div style="margin-top:10px;padding:10px;text-align:center;background:rgba(168,66,26,.06);border:1px dashed rgba(168,66,26,.2);border-radius:6px;font-size:10px;color:var(--cdim)">Lien de séance communiqué par le cabinet avant le RDV</div>';
         }
@@ -3701,18 +3701,28 @@ function sendMessage(sender){
     var c=getProClients().find(function(x){return x.id===currentConvClient;});
     if(c && c.email && c.email.trim()){
       var sent=sendMessageEmail(c.email.trim(), ((c.prenom||'')+' '+(c.nom||'')).trim()||'', text);
-      showToast(sent ? 'Message envoyé · email au client' : 'Message envoyé · ouverture de l\'email');
+      showToast(sent ? 'Message enregistré · notification envoyée (sans contenu)' : 'Message enregistré · notification à envoyer depuis votre messagerie (démonstration)');
     } else {
       showToast('Message enregistré · ce client n\'a pas d\'email');
     }
   }
   renderConversation();
 }
+// Lot 3 : seules les URL https:// sans identifiants intégrés sont acceptées
+// pour la visio (bloque javascript:, data:, http:…). Liste blanche d'hôtes = serveur.
+function safeVisioUrl(raw){
+  try{
+    var u=new URL(String(raw||'').trim());
+    if(u.protocol!=='https:'||u.username||u.password) return '';
+    return u.href;
+  }catch(e){ return ''; }
+}
+
+// Lot 3 : la notification email ne contient JAMAIS le contenu du message
+// (données juridiques sensibles) — seulement une invitation à se connecter.
 function sendMessageEmail(email, clientName, text){
-  var pp=(currentUser&&currentUser.proProfile)||{};
-  var pnom=(currentUser&&currentUser.profile&&currentUser.profile.nom)?('Maître '+currentUser.profile.nom):(pp.cabinet||'votre avocat·e');
-  var subject='Nouveau message de '+pnom+' — PRIMA';
-  var body='Bonjour'+(clientName?(' '+clientName):'')+',\n\nVous avez reçu un nouveau message de '+pnom+' via PRIMA :\n\n« '+text+' »\n\nConnectez-vous à votre espace PRIMA pour consulter la conversation et répondre.\n\nCordialement,\nL\'équipe PRIMA';
+  var subject='PRIMA — vous avez un nouveau message';
+  var body='Bonjour'+(clientName?(' '+clientName):'')+',\n\nUn nouveau message vous attend dans votre espace PRIMA.\nPour des raisons de confidentialité, son contenu n\'est pas reproduit dans cet email.\n\nConnectez-vous à votre espace pour le consulter.\n\nL\'équipe PRIMA';
   // Envoi automatique si EmailJS est configuré
   if(typeof emailjsReady!=='undefined' && emailjsReady && typeof emailjs!=='undefined'){
     try{ emailjs.send(EMAILJS_SERVICE,'template_message',{to_email:email,subject:subject,message:body}); return true; }catch(e){}
@@ -4166,8 +4176,8 @@ function renderTeleconsult(){
       h+='<div style="font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:4px;'+(isCnf?'background:rgba(46,107,72,.1);color:var(--green);border:1px solid rgba(46,107,72,.2)':'background:rgba(184,146,42,.1);color:var(--gold-l);border:1px solid rgba(184,146,42,.2)')+'">'+escH(isCnf?'Confirmé':'En attente')+'</div>';
       h+='</div>';
       h+='<div style="font-size:11px;color:var(--cdim);padding:8px 0;border-top:1px solid var(--line)">'+escH(r.motif)+(r.telephone?'<span style="margin-left:10px;color:var(--terra)">'+escH(r.telephone)+'</span>':'')+'</div>';
-      if(pp.teleconsultLink && isCnf){
-        h+='<a href="'+escH(pp.teleconsultLink)+'" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;background:var(--terra);color:#fff;padding:12px;border-radius:8px;font-family:\'DM Mono\',monospace;font-size:11px;letter-spacing:.1em;text-decoration:none;margin-top:10px;text-transform:uppercase">▶ Rejoindre la séance</a>';
+      if(safeVisioUrl(pp.teleconsultLink) && isCnf){
+        h+='<a href="'+escH(safeVisioUrl(pp.teleconsultLink))+'" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:8px;background:var(--terra);color:#fff;padding:12px;border-radius:8px;font-family:\'DM Mono\',monospace;font-size:11px;letter-spacing:.1em;text-decoration:none;margin-top:10px;text-transform:uppercase">▶ Rejoindre la séance</a>';
       } else if(!pp.teleconsultLink){
         h+='<div style="margin-top:10px;font-size:10px;color:var(--cdim);text-align:center;padding:9px;border:1px dashed var(--line2);border-radius:6px">Configurez votre lien de visio ci-dessus</div>';
       } else {
@@ -4183,7 +4193,10 @@ function saveTeleconsultSettings(){
   if(!currentUser||!currentUser.proProfile) return;
   var le=document.getElementById('tc-link'), pe=document.getElementById('tc-price');
   if(!le) return;
-  currentUser.proProfile.teleconsultLink = le.value.trim();
+  var raw = le.value.trim();
+  var safe = raw ? safeVisioUrl(raw) : '';
+  if(raw && !safe){ showToast('Lien refusé : seule une adresse https:// est acceptée'); return; }
+  currentUser.proProfile.teleconsultLink = safe;
   currentUser.proProfile.teleconsultPrice = pe?pe.value.trim():'';
   var users=db.getObj('prima_users',[]); var idx=users.findIndex(function(u){return u.id===currentUser.id;});
   if(idx>=0){users[idx]=currentUser;saveUsers(users);}
